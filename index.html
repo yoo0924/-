@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>サイコロ勇者の最果て行進</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'DotGothic16', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+    body {
+      background-color: #050508;
+      color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .crt-scanlines {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 3px 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .rpg-frame {
+      border: 4px solid #d97706;
+      box-shadow: 0 0 0 2px #451a03, inset 0 0 10px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.9);
+    }
+    .rpg-panel {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid #78350f;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.6), 2px 2px 0 rgba(0,0,0,0.5);
+    }
+    .rpg-btn {
+      border: 2px solid #fef08a;
+      box-shadow: 0 3px 0 #78350f, inset 0 1px 0 rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: transform 0.05s, box-shadow 0.05s;
+    }
+    .rpg-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #78350f;
+    }
+    .dice-pip {
+      width: 5px;
+      height: 5px;
+      background-color: #0f172a;
+      border-radius: 9999px;
+    }
+    @keyframes enemyFloat {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-6px) scale(1.03); }
+    }
+    .enemy-floating {
+      animation: enemyFloat 2.6s ease-in-out infinite;
+    }
+    @keyframes hitShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-6px, 4px); }
+      40% { transform: translate(6px, -4px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+    }
+    .shake-anim {
+      animation: hitShake 0.22s ease-in-out;
+    }
+    .rarity-n   { color: #cbd5e1; }
+    .rarity-r   { color: #38bdf8; text-shadow: 0 0 4px rgba(56,189,248,0.5); }
+    .rarity-sr  { color: #c084fc; text-shadow: 0 0 4px rgba(192,132,252,0.6); }
+    .rarity-ssr { color: #facc15; text-shadow: 0 0 6px rgba(250,204,21,0.8); }
+    .rarity-ur  { color: #f43f5e; text-shadow: 0 0 8px rgba(244,63,94,0.9); }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="p-1 sm:p-2">
+  <div class="crt-scanlines"></div>
+
+  <!-- ゲーム全体フレーム -->
+  <div id="gameFrame" class="relative w-full max-w-sm h-full max-h-[760px] flex flex-col rpg-frame overflow-hidden bg-slate-950">
+
+    <!-- ==================== 0. プレイヤー名入力モーダル (初回強制/変更用) ==================== -->
+    <div id="modalPlayerName" class="hidden absolute inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
+        <div class="text-3xl animate-bounce">📜</div>
+        <h3 id="nameModalTitle" class="text-sm font-bold text-amber-300">【 勇者の名前を決めよう 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          全国ランキングに記録される<br>あなたの名前を入力してください (最大8文字)
+        </p>
+        <input type="text" id="inputPlayerName" maxlength="8" placeholder="名無しの勇者" class="w-full bg-slate-950 border-2 border-amber-600 px-3 py-2 text-amber-300 text-center font-bold text-sm tracking-wider rounded focus:outline-none focus:border-yellow-400 select-text">
+        <div class="flex gap-2">
+          <button id="btnCancelName" class="hidden pixel-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnSaveName" class="rpg-btn flex-1 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-bold rounded">決定する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 1. タイトル画面 (夕暮れの旅立ち) ==================== -->
+    <div id="screenTitle" class="absolute inset-0 z-50 flex flex-col items-center justify-between p-4 text-center overflow-hidden">
+      <div class="absolute inset-0 -z-10">
+        <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1e1b4b"/>
+              <stop offset="35%" stop-color="#581c87"/>
+              <stop offset="70%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="600" fill="url(#skyGrad)"/>
+          <circle cx="160" cy="380" r="45" fill="#fef08a" opacity="0.85"/>
+          <polygon points="0,420 70,330 150,430" fill="#3b0764"/>
+          <polygon points="110,430 210,310 320,440" fill="#2e1065"/>
+          <rect x="30" y="380" width="40" height="60" fill="#180d2e"/>
+          <polygon points="25,380 50,340 75,380" fill="#180d2e"/>
+          <rect x="250" y="390" width="35" height="50" fill="#180d2e"/>
+          <polygon points="245,390 267,355 290,390" fill="#180d2e"/>
+          <rect x="70" y="410" width="180" height="30" fill="#180d2e"/>
+          <rect x="0" y="440" width="320" height="160" fill="#14532d"/>
+          <polygon points="0,440 320,440 320,455 0,465" fill="#166534"/>
+          <polygon points="0,458 320,450 320,470 0,480" fill="#0f3d20"/>
+        </svg>
+      </div>
+
+      <div class="mt-3 flex flex-col items-center">
+        <div class="text-3xl mb-0.5 select-none animate-bounce drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">🎲</div>
+        <h1 class="text-xl sm:text-2xl font-black text-amber-300 tracking-wider drop-shadow-[2px_2px_0_#451a03]">サイコロ勇者の最果て行進</h1>
+        
+        <!-- プレイヤー名表示バッジ (タップで変更) -->
+        <div id="btnPlayerBadge" class="mt-1 flex items-center gap-1.5 px-3 py-0.5 bg-slate-900/80 border border-amber-500/80 rounded-full cursor-pointer hover:bg-slate-800 transition shadow">
+          <span class="text-[9px] text-amber-300">勇者:</span>
+          <span id="titlePlayerName" class="text-xs text-yellow-300 font-bold underline">名無しの勇者</span>
+          <span class="text-[7px] text-amber-300 bg-amber-950 px-1 py-0.2 rounded border border-amber-600">変更</span>
+        </div>
+      </div>
+
+      <!-- プレイヤーステータスカード -->
+      <div class="w-full rpg-panel p-2 rounded text-left text-xs space-y-1">
+        <div class="flex justify-between items-center border-b border-amber-900/60 pb-1">
+          <span class="text-amber-300 font-bold">Lv.<span id="titlePlayerLv">1</span></span>
+          <span class="text-yellow-400 font-bold">🪙 <span id="titleGold">0</span> G</span>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-200">
+          <span>HP: <span id="titleHp">50</span></span>
+          <span>EXP: <span id="titleExp">0</span>/<span id="titleExpMax">20</span></span>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-300">
+          <span>武器: <span id="titleWeaponName" class="text-amber-200 font-bold">素手</span></span>
+          <span>防具: <span id="titleArmorName" class="text-amber-200 font-bold">布の服</span></span>
+        </div>
+        <div class="flex justify-between text-[10px] text-amber-400/90 pt-0.5 border-t border-amber-950">
+          <span>通常進行度: <span id="titleCurrentFloor" class="font-bold text-white">1F</span></span>
+          <span>塔最高: <span id="titleMaxFloor" class="font-bold text-white">1F</span></span>
+        </div>
+      </div>
+
+      <!-- メインボタン群 -->
+      <div class="w-full space-y-1.5">
+        <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
+          <span>⚔️</span> <span id="btnAdventureLabel">冒険に出る (1Fから再開)</span>
+        </button>
+
+        <button id="btnTowerConfirm" class="rpg-btn w-full py-2 bg-gradient-to-r from-indigo-900 to-purple-900 hover:from-indigo-800 hover:to-purple-800 text-purple-200 font-bold text-xs flex items-center justify-center gap-2 rounded">
+          <span>🗼</span> <span>無限の塔 (挑戦モード)</span>
+        </button>
+
+        <div class="grid grid-cols-3 gap-1.5">
+          <button id="btnEquipBox" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-amber-300 text-[11px] font-bold rounded">
+            🎒 装備箱
+          </button>
+          <button id="btnGacha" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-yellow-300 text-[11px] font-bold rounded">
+            🎰 ガチャ
+          </button>
+          <button id="btnRanking" class="rpg-btn py-1.5 bg-cyan-900/90 hover:bg-cyan-800 text-cyan-200 text-[11px] font-bold rounded border-cyan-400">
+            🏆 ランキング
+          </button>
+        </div>
+
+        <button id="btnSoundToggle" class="w-full py-0.5 text-[10px] text-amber-200 hover:text-white drop-shadow-[1px_1px_0_#000]">
+          🔊 サウンド: ON
+        </button>
+      </div>
+
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 2.3.0 - Online Ranking Edition</div>
+    </div>
+
+    <!-- ==================== 2. ランキングモーダル ==================== -->
+    <div id="modalRanking" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
+      <div class="flex justify-between items-center border-b border-cyan-800 pb-1.5">
+        <h2 class="text-xs font-bold text-cyan-400">🏆 全国オンラインランキング</h2>
+        <button id="btnCloseRanking" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <!-- タブ切り替え (通常 / 塔) -->
+      <div class="flex gap-2 my-2">
+        <button id="tabRankNormal" class="rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded">
+          通常モード (クリア階層)
+        </button>
+        <button id="tabRankTower" class="rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded">
+          無限の塔 (最高到達)
+        </button>
+      </div>
+
+      <!-- ランキング表スクロールエリア -->
+      <div class="flex-1 overflow-y-auto p-1.5 rpg-panel border-cyan-900 rounded max-h-[50vh]">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800 text-[10px]">
+              <th class="py-1 w-10">順位</th>
+              <th class="py-1">名前</th>
+              <th id="rankColTitle" class="py-1 text-right">階層</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody">
+            <!-- JSで動的挿入 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-2">
+        <button id="btnRefreshRanking" class="text-[10px] text-cyan-400 underline">
+          最新のランキングを再取得
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 3. 無限の塔 挑戦確認モーダル ==================== -->
+    <div id="modalTowerConfirm" class="hidden absolute inset-0 z-[120] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-indigo-500 rounded p-4 space-y-3">
+        <div class="text-3xl">🗼</div>
+        <h3 class="text-sm font-bold text-indigo-300">【 無限の塔 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          どこまで登れるかに挑む試練の塔。<br>
+          敵の強化速度が圧倒的に早く、<br>
+          <span class="text-rose-400 font-bold">経験値・ドロップは獲得できません。</span>
+        </p>
+        <div class="p-2 bg-slate-950/80 border border-indigo-900 rounded text-xs text-amber-400 font-bold">
+          最高到達階層: <span id="towerBestFloor" class="text-white">1F</span>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnTowerCancel" class="rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnTowerStart" class="rpg-btn flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded">挑戦する！</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. 装備箱モーダル ==================== -->
+    <div id="modalEquipBox" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
+      <div class="flex justify-between items-center border-b border-amber-900 pb-1.5">
+        <h2 class="text-xs font-bold text-amber-400">🎒 装備箱 (INVENTORY)</h2>
+        <button id="btnCloseEquipBox" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <div class="my-2 p-2 rpg-panel rounded space-y-1.5">
+        <div class="text-[10px] text-slate-400 font-bold">【 現在の装備 】</div>
+        <div class="flex items-center justify-between text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
+          <span class="text-slate-400">武器:</span>
+          <span id="currentEqWeapon" class="font-bold">素手</span>
+        </div>
+        <div class="flex items-center justify-between text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
+          <span class="text-slate-400">防具:</span>
+          <span id="currentEqArmor" class="font-bold">布の服</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center gap-1 mb-1">
+        <div class="flex gap-1">
+          <button id="tabWeapons" class="rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded">武器一覧</button>
+          <button id="tabArmors" class="rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">防具一覧</button>
+        </div>
+        <button id="btnSortOrder" class="rpg-btn px-2 py-1 bg-slate-800 text-[9px] text-slate-300 rounded">
+          ソート: レア順 ▼
+        </button>
+      </div>
+
+      <div id="equipItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[46vh]">
+        <!-- JSで挿入 -->
+      </div>
+    </div>
+
+    <!-- ==================== 5. ガチャモーダル ==================== -->
+    <div id="modalGacha" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-between p-4 text-center">
+      <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-2">
+        <h2 class="text-xs font-bold text-yellow-400">🎰 装備福引所</h2>
+        <button id="btnCloseGacha" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] rounded">閉じる</button>
+      </div>
+
+      <div class="my-auto flex flex-col items-center">
+        <div id="gachaChest" class="text-6xl mb-2 filter drop-shadow-[0_0_12px_rgba(234,179,8,0.4)]">🎁</div>
+        <div id="gachaResultText" class="text-xs text-slate-300 min-h-[3rem] flex flex-col items-center justify-center">
+          1回 50 コインで強力な装備が手に入る！
+        </div>
+      </div>
+
+      <div class="w-full space-y-2">
+        <button id="btnRollGacha" class="rpg-btn w-full py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-slate-950 font-black text-xs rounded">
+          ガチャを回す (50🪙)
+        </button>
+        <div class="text-[9px] text-slate-500 font-bold">被った装備はレア度に応じてコイン還元されます</div>
+      </div>
+    </div>
+
+    <!-- ==================== 6. 戦闘プレイ画面 ==================== -->
+    <div id="screenBattle" class="hidden absolute inset-0 z-10 flex flex-col overflow-hidden">
+      <div id="battleBgLayer" class="absolute inset-0 -z-10 pointer-events-none transition-opacity duration-500"></div>
+
+      <!-- 戦闘ヘッダー -->
+      <header class="p-2 bg-slate-950/85 backdrop-blur-md border-b-2 border-amber-900 flex justify-between items-center text-xs shrink-0">
+        <div class="flex items-center gap-1.5">
+          <span id="modeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-700">通常</span>
+          <span id="locationBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">平原</span>
+          <span id="floorBadge" class="font-bold text-amber-400">1F</span>
+          
+          <select id="floorSelectDropdown" class="bg-slate-900 border border-amber-700 text-amber-300 text-[10px] rounded px-1 py-0.5 outline-none font-bold">
+            <!-- JSで動的追加 -->
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-yellow-400 font-bold text-[11px]">🪙 <span id="battleGold">0</span></span>
+          <button id="btnRetreat" class="rpg-btn px-2 py-0.5 bg-rose-950 border-rose-700 text-rose-300 text-[10px] rounded" title="中断してタイトルへ帰還">
+            中断
+          </button>
+        </div>
+      </header>
+
+      <!-- 敵エリア -->
+      <section id="enemyArea" class="flex-1 flex flex-col items-center justify-center p-2 relative">
+        <div id="enemyIntent" class="mb-1 text-[11px] px-2.5 py-0.5 bg-slate-950/90 border border-rose-500/80 rounded-full text-rose-300 flex items-center gap-1 font-bold animate-pulse shadow-lg">
+          ⚔️ 6 ダメージ
+        </div>
+
+        <div id="enemySprite" class="w-24 h-24 my-1 select-none enemy-floating flex items-center justify-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"></div>
+        <div id="enemyName" class="text-xs font-bold text-slate-100 drop-shadow-[0_2px_4px_#000] bg-slate-950/60 px-2 py-0.5 rounded">洞窟スライム Lv.1</div>
+
+        <div class="w-48 mt-1 bg-slate-950/80 p-1 rounded border border-slate-800">
+          <div class="flex justify-between text-[9px] mb-0.5 text-slate-300 font-bold">
+            <span>HP</span>
+            <span id="enemyHpText">20 / 20</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-900 border border-slate-700 rounded overflow-hidden">
+            <div id="enemyHpBar" class="h-full bg-rose-600 transition-all duration-200" style="width: 100%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- プレイヤー情報バー -->
+      <section class="px-3 py-1.5 bg-slate-950/85 backdrop-blur-md border-t border-amber-900 flex justify-between items-center text-xs shrink-0">
+        <div>
+          <div class="flex items-center gap-2 text-[10px]">
+            <span class="text-emerald-400 font-bold">HP: <span id="playerHpText">50/50</span></span>
+            <span class="text-amber-400 font-bold">Lv.<span id="battlePlayerLv">1</span></span>
+          </div>
+          <div class="w-28 h-2 bg-slate-900 border border-slate-700 rounded overflow-hidden mt-0.5">
+            <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="px-2 py-0.5 bg-blue-950/90 border border-cyan-500 rounded text-cyan-300 font-bold text-xs flex items-center gap-1">
+            <span>🛡️</span>
+            <span id="playerShieldVal">0</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- スキルスロット一覧 -->
+      <section id="skillArea" class="p-2 space-y-1.5 max-h-44 overflow-y-auto bg-slate-950/90 backdrop-blur-md border-t border-amber-900 shrink-0"></section>
+
+      <!-- サイコロプール＆ターンエンドフッター -->
+      <footer class="p-2 bg-slate-950/95 border-t-2 border-amber-800 flex flex-col gap-1.5 shrink-0">
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-slate-400 font-bold">手持ちダイス:</span>
+          <span id="selectedDiceInfo" class="text-amber-400 font-bold">選択中: なし</span>
+        </div>
+        
+        <div class="flex items-center justify-between gap-2">
+          <div id="dicePool" class="flex gap-2 flex-wrap min-h-[40px] items-center"></div>
+          <button id="btnEndTurn" class="rpg-btn px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs shrink-0 rounded">
+            ターン終了 ▶
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ==================== 7. リザルト画面 ==================== -->
+    <div id="modalResult" class="hidden absolute inset-0 z-[130] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+      <div id="resultIcon" class="text-5xl mb-2">🏁</div>
+      <h2 id="resultTitle" class="text-xl font-bold text-amber-400 mb-2">帰還完了</h2>
+      
+      <div class="w-full rpg-panel p-3 rounded mb-4 text-xs space-y-2 text-left">
+        <p class="flex justify-between"><span class="text-slate-400">モード:</span><span id="resMode" class="font-bold text-white">通常</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">到達階層:</span><span id="resFloor" class="font-bold text-amber-400">1F</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">討伐数:</span><span id="resKills" class="font-bold text-emerald-400">0体</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">獲得コイン:</span><span id="resGold" class="font-bold text-yellow-400">0🪙</span></p>
+      </div>
+
+      <button id="btnReturnToTitle" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-xs rounded">
+        タイトルへもどる
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       0. Google Apps Script (GAS) 連携基盤モジュール
+       ========================================================================== */
+    // ※ デプロイしたGASのWebアプリURLをここに設定します
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx5MPVHVcExfvYF2cl5rP8ZCh0L-TvcLn19r80udABiZ_FDZrNEVu4jsSgLldHPslo9/exec";
+
+    const CloudSync = {
+      async sendRecord(mode, floorVal) {
+        if (!GAS_API_URL || GAS_API_URL.includes("ここに")) return;
+        try {
+          await fetch(GAS_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              name: Player.name || '名無しの勇者',
+              score: floorVal,
+              mode: mode // 'normal' | 'tower'
+            })
+          });
+        } catch (e) {
+          console.warn('クラウド送信エラー:', e);
+        }
+      },
+      async fetchRanking(mode = 'normal') {
+        if (!GAS_API_URL || GAS_API_URL.includes("ここに")) return [];
+        try {
+          const res = await fetch(`${GAS_API_URL}?type=${mode}`);
+          const json = await res.json();
+          if (json.status === 'ok') return json.data;
+        } catch (e) {
+          console.warn('ランキング取得エラー:', e);
+        }
+        return [];
+      }
+    };
+
+    /* ==========================================================================
+       1. レトロサウンド音源 (Web Audio API)
+       ========================================================================== */
+    const Sound = {
+      ctx: null,
+      muted: false,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      toggleMute() {
+        this.muted = !this.muted;
+        const btn = document.getElementById('btnSoundToggle');
+        if (btn) btn.textContent = `🔊 サウンド: ${this.muted ? 'OFF' : 'ON'}`;
+      },
+      tone(freq, dur, type = 'square', vol = 0.12) {
+        if (this.muted) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + dur);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + dur);
+        } catch(e) {}
+      },
+      click() { this.tone(520, 0.04, 'square', 0.1); },
+      roll() { this.tone(260, 0.05, 'triangle', 0.15); setTimeout(() => this.tone(340, 0.05, 'triangle', 0.15), 50); },
+      hit() { this.tone(140, 0.15, 'sawtooth', 0.2); },
+      shield() { this.tone(480, 0.08, 'sine', 0.15); setTimeout(() => this.tone(680, 0.1, 'sine', 0.15), 50); },
+      win() { this.tone(523, 0.1); setTimeout(() => this.tone(659, 0.1), 80); setTimeout(() => this.tone(784, 0.15), 160); },
+      fanfare() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, 'square', 0.18), i * 90)); },
+      dead() { this.tone(180, 0.25, 'sawtooth', 0.2); setTimeout(() => this.tone(120, 0.35, 'sawtooth', 0.2), 150); }
+    };
+
+    /* ==========================================================================
+       2. 装備マスタデータ (武器 & 防具)
+       ========================================================================== */
+    const WEAPONS_MASTER = [
+      { id: 'w_bare', name: '素手', type: 'weapon', rarity: 'N', atkBonus: 0, desc: '何も持っていない。', dropRate: 0, refundCoin: 1 },
+      { id: 'w_dagger', name: '錆びた小刀', type: 'weapon', rarity: 'N', atkBonus: 2, desc: '基礎ダメージ+2', dropRate: 1/64, refundCoin: 5 },
+      { id: 'w_sword', name: '鉄の長剣', type: 'weapon', rarity: 'R', atkBonus: 5, desc: '基礎ダメージ+5', dropRate: 1/128, refundCoin: 15 },
+      { id: 'w_flame', name: '灼熱のフランベルジュ', type: 'weapon', rarity: 'SR', atkBonus: 10, desc: '基礎ダメージ+10', dropRate: 1/256, refundCoin: 40 },
+      { id: 'w_dragon', name: '神話の竜殺し大剣', type: 'weapon', rarity: 'SSR', atkBonus: 18, desc: '基礎ダメージ+18', dropRate: 1/512, refundCoin: 100 },
+      { id: 'w_celestial', name: '創世神核の破滅剣', type: 'weapon', rarity: 'UR', atkBonus: 30, desc: '基礎ダメージ+30。神話の神器。', dropRate: 1/1024, refundCoin: 300 }
+    ];
+
+    const ARMORS_MASTER = [
+      { id: 'a_clothes', name: '布の服', type: 'armor', rarity: 'N', hpBonus: 0, shdBonus: 0, desc: '普段着。', dropRate: 0, refundCoin: 1 },
+      { id: 'a_leather', name: '革のチョッキ', type: 'armor', rarity: 'N', hpBonus: 10, shdBonus: 2, desc: '最大HP+10、初期シールド+2', dropRate: 1/64, refundCoin: 5 },
+      { id: 'a_chain', name: '青銅の鎖帷子', type: 'armor', rarity: 'R', hpBonus: 25, shdBonus: 5, desc: '最大HP+25、初期シールド+5', dropRate: 1/128, refundCoin: 15 },
+      { id: 'a_plate', name: '古強者の白銀甲冑', type: 'armor', rarity: 'SR', hpBonus: 50, shdBonus: 10, desc: '最大HP+50、初期シールド+10', dropRate: 1/256, refundCoin: 40 },
+      { id: 'a_aegis', name: 'イージスの神域盾鎧', type: 'armor', rarity: 'SSR', hpBonus: 90, shdBonus: 18, desc: '最大HP+90、初期シールド+18', dropRate: 1/512, refundCoin: 100 },
+      { id: 'a_immortal', name: '不滅神聖の天寵鎧', type: 'armor', rarity: 'UR', hpBonus: 160, shdBonus: 30, desc: '最大HP+160、初期シールド+30', dropRate: 1/1024, refundCoin: 300 }
+    ];
+
+    /* ==========================================================================
+       3. プレイヤーステータス & 永続セーブシステム
+       ========================================================================== */
+    const SAVE_KEY = 'dice_hero_rpg_save_v5';
+
+    let Player = {
+      name: '',
+      level: 1,
+      exp: 0,
+      gold: 0,
+      currentAdventureFloor: 1,
+      maxClearedFloor: 1,
+      towerBestFloor: 1,
+      equippedWeapon: 'w_bare',
+      equippedArmor: 'a_clothes',
+      ownedWeapons: ['w_bare'],
+      ownedArmors: ['a_clothes']
+    };
+
+    function savePlayerData() {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(Player));
+    }
+
+    function loadPlayerData() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          Player = { ...Player, ...parsed };
+        }
+      } catch(e) {}
+
+      // 初回起動チェック（名前が未設定の場合モーダル強制オープン）
+      if (!Player.name || Player.name.trim() === '') {
+        openNameModal(true);
+      }
+
+      updateTitleUI();
+    }
+
+    function openNameModal(isFirstTime = false) {
+      const modal = document.getElementById('modalPlayerName');
+      const input = document.getElementById('inputPlayerName');
+      const btnCancel = document.getElementById('btnCancelName');
+      const title = document.getElementById('nameModalTitle');
+
+      input.value = Player.name || '';
+      if (isFirstTime) {
+        btnCancel.classList.add('hidden');
+        title.textContent = '【 勇者の名前を決めよう 】';
+      } else {
+        btnCancel.classList.remove('hidden');
+        title.textContent = '【 名前の変更 】';
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function savePlayerNameFromModal() {
+      const input = document.getElementById('inputPlayerName');
+      const val = input.value.trim();
+      if (!val) {
+        alert('名前を入力してください！');
+        return;
+      }
+      Player.name = val;
+      savePlayerData();
+      updateTitleUI();
+      document.getElementById('modalPlayerName').classList.add('hidden');
+      Sound.fanfare();
+    }
+
+    function getExpToNextLevel() {
+      return Player.level * 20;
+    }
+
+    function addExp(amount) {
+      Player.exp += amount;
+      while (Player.exp >= getExpToNextLevel()) {
+        Player.exp -= getExpToNextLevel();
+        Player.level++;
+        Sound.fanfare();
+      }
+      savePlayerData();
+      updateTitleUI();
+    }
+
+    function getPlayerStats() {
+      const wep = WEAPONS_MASTER.find(w => w.id === Player.equippedWeapon) || WEAPONS_MASTER[0];
+      const arm = ARMORS_MASTER.find(a => a.id === Player.equippedArmor) || ARMORS_MASTER[0];
+      const maxHp = 50 + (Player.level - 1) * 4 + arm.hpBonus;
+      const baseAtk = 0 + Math.floor((Player.level - 1) / 2) + wep.atkBonus;
+      const startShield = 0 + arm.shdBonus;
+      return { maxHp, baseAtk, startShield, weapon: wep, armor: arm };
+    }
+
+    /* ==========================================================================
+       4. 背景SVG生成
+       ========================================================================== */
+    function getBattleBackgroundSvg(locationKey) {
+      if (locationKey === 'plains') {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+              <linearGradient id="plainsSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="60%" stop-color="#bae6fd"/>
+                <stop offset="100%" stop-color="#f0f9ff"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="600" fill="url(#plainsSky)"/>
+            <ellipse cx="60" cy="80" rx="35" ry="14" fill="#ffffff" opacity="0.9"/>
+            <ellipse cx="85" cy="74" rx="25" ry="16" fill="#ffffff" opacity="0.9"/>
+            <ellipse cx="250" cy="110" rx="45" ry="18" fill="#ffffff" opacity="0.85"/>
+            <polygon points="-20,240 80,160 180,250" fill="#93c5fd"/>
+            <polygon points="120,250 220,150 340,260" fill="#60a5fa"/>
+            <path d="M0 240 Q90 190 200 240 T320 230 L320 600 L0 600 Z" fill="#4ade80"/>
+            <path d="M0 270 Q140 220 320 280 L320 600 L0 600 Z" fill="#22c55e"/>
+            <path d="M0 340 Q160 300 320 350 L320 600 L0 600 Z" fill="#16a34a"/>
+            <rect x="0" y="440" width="320" height="160" fill="#15803d"/>
+            <polygon points="30,430 35,415 40,430" fill="#86efac"/>
+            <polygon points="90,420 95,405 100,420" fill="#86efac"/>
+            <polygon points="230,435 235,418 240,435" fill="#86efac"/>
+          </svg>`;
+      } else if (locationKey === 'cave') {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+              <linearGradient id="caveGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0f172a"/>
+                <stop offset="50%" stop-color="#1e293b"/>
+                <stop offset="100%" stop-color="#090d16"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="600" fill="url(#caveGrad)"/>
+            <polygon points="10,0 25,70 40,0" fill="#334155"/>
+            <polygon points="70,0 90,110 110,0" fill="#1e293b"/>
+            <polygon points="150,0 165,80 180,0" fill="#334155"/>
+            <polygon points="220,0 245,130 270,0" fill="#1e293b"/>
+            <polygon points="280,0 295,65 310,0" fill="#334155"/>
+            <path d="M0 120 L50 200 L0 320 Z" fill="#1e293b"/>
+            <path d="M320 100 L270 210 L320 330 Z" fill="#1e293b"/>
+            <rect x="0" y="400" width="320" height="200" fill="#0f172a"/>
+            <polygon points="0,400 60,370 140,410 220,380 320,405 320,600 0,600" fill="#1e293b"/>
+            <polygon points="45,390 52,380 58,392 50,400" fill="#38bdf8"/>
+            <polygon points="265,395 272,385 278,398 270,405" fill="#a855f7"/>
+            <circle cx="51" cy="390" r="14" fill="#38bdf8" opacity="0.15"/>
+            <circle cx="271" cy="395" r="14" fill="#a855f7" opacity="0.15"/>
+          </svg>`;
+      } else if (locationKey === 'dungeon') {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+              <linearGradient id="dungeonSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#18181b"/>
+                <stop offset="100%" stop-color="#09090b"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="600" fill="url(#dungeonSky)"/>
+            <g stroke="#27272a" stroke-width="1.5" opacity="0.8">
+              <line x1="0" y1="60" x2="320" y2="60"/><line x1="0" y1="120" x2="320" y2="120"/>
+              <line x1="0" y1="180" x2="320" y2="180"/><line x1="0" y1="240" x2="320" y2="240"/>
+              <line x1="0" y1="300" x2="320" y2="300"/><line x1="0" y1="360" x2="320" y2="360"/>
+              <line x1="60" y1="0" x2="60" y2="60"/><line x1="180" y1="0" x2="180" y2="60"/>
+              <line x1="120" y1="60" x2="120" y2="120"/><line x1="240" y1="60" x2="240" y2="120"/>
+              <line x1="50" y1="120" x2="50" y2="180"/><line x1="190" y1="120" x2="190" y2="180"/>
+            </g>
+            <path d="M80 340 L80 180 Q160 120 240 180 L240 340 Z" fill="#09090b" stroke="#3f3f46" stroke-width="4"/>
+            <rect x="36" y="210" width="6" height="24" fill="#713f12"/>
+            <circle cx="39" cy="205" r="9" fill="#f97316"/>
+            <circle cx="39" cy="203" r="5" fill="#fde047"/>
+            <rect x="278" y="210" width="6" height="24" fill="#713f12"/>
+            <circle cx="281" cy="205" r="9" fill="#f97316"/>
+            <circle cx="281" cy="203" r="5" fill="#fde047"/>
+            <rect x="0" y="380" width="320" height="220" fill="#18181b"/>
+            <polygon points="0,380 320,380 320,400 0,400" fill="#27272a"/>
+          </svg>`;
+      } else if (locationKey === 'castle') {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+              <linearGradient id="castleBg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#450a0a"/>
+                <stop offset="60%" stop-color="#1f0303"/>
+                <stop offset="100%" stop-color="#0a0101"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="600" fill="url(#castleBg)"/>
+            <rect x="20" y="40" width="30" height="360" fill="#260404" stroke="#7f1d1d" stroke-width="2"/>
+            <rect x="270" y="40" width="30" height="360" fill="#260404" stroke="#7f1d1d" stroke-width="2"/>
+            <path d="M110 220 L110 110 Q160 60 210 110 L210 220 Z" fill="#991b1b" stroke="#facc15" stroke-width="3"/>
+            <line x1="160" y1="70" x2="160" y2="220" stroke="#facc15" stroke-width="2"/>
+            <line x1="110" y1="150" x2="210" y2="150" stroke="#facc15" stroke-width="2"/>
+            <polygon points="90,410 230,410 270,600 50,600" fill="#991b1b"/>
+            <polygon points="100,410 220,410 250,600 70,600" fill="#b91c1c"/>
+            <line x1="100" y1="410" x2="70" y2="600" stroke="#facc15" stroke-width="2"/>
+            <line x1="220" y1="410" x2="250" y2="600" stroke="#facc15" stroke-width="2"/>
+          </svg>`;
+      } else {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+              <linearGradient id="towerSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#020617"/>
+                <stop offset="40%" stop-color="#2e1065"/>
+                <stop offset="80%" stop-color="#4c1d95"/>
+                <stop offset="100%" stop-color="#0f172a"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="600" fill="url(#towerSky)"/>
+            <circle cx="240" cy="90" r="32" fill="#c084fc" opacity="0.6"/>
+            <circle cx="240" cy="90" r="26" fill="#e9d5ff"/>
+            <path d="M0 160 Q80 120 180 150 T320 130 L320 220 L0 220 Z" fill="#3b0764" opacity="0.5"/>
+            <polygon points="80,600 110,60 210,60 240,600" fill="#1e1b4b" stroke="#6d28d9" stroke-width="3"/>
+            <line x1="100" y1="160" x2="220" y2="130" stroke="#a855f7" stroke-width="2"/>
+            <line x1="100" y1="260" x2="220" y2="230" stroke="#a855f7" stroke-width="2"/>
+            <line x1="90" y1="360" x2="230" y2="330" stroke="#a855f7" stroke-width="2"/>
+            <line x1="85" y1="460" x2="235" y2="430" stroke="#a855f7" stroke-width="2"/>
+            <polygon points="160,10 145,60 175,60" fill="#c084fc"/>
+          </svg>`;
+      }
+    }
+
+    /* ==========================================================================
+       5. 敵SVGスプライト
+       ========================================================================== */
+    function getEnemySvg(type) {
+      if (type === 'slime') {
+        return `
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(34,197,94,0.6)]">
+            <path d="M40 10 C20 10, 8 30, 8 50 C8 68, 22 74, 40 74 C58 74, 72 68, 72 50 C72 30, 60 10, 40 10 Z" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
+            <path d="M40 16 C26 16, 16 34, 16 48 C16 62, 26 66, 40 66 C54 66, 64 62, 64 48 C64 34, 54 16, 40 16 Z" fill="#4ade80"/>
+            <circle cx="28" cy="42" r="5" fill="#0f172a"/><circle cx="30" cy="40" r="1.5" fill="#fff"/>
+            <circle cx="52" cy="42" r="5" fill="#0f172a"/><circle cx="54" cy="40" r="1.5" fill="#fff"/>
+            <path d="M34 54 Q40 60 46 54" stroke="#0f172a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </svg>`;
+      } else if (type === 'skeleton') {
+        return `
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(148,163,184,0.6)]">
+            <rect x="22" y="14" width="36" height="34" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+            <circle cx="32" cy="30" r="6" fill="#0f172a"/><circle cx="33" cy="30" r="2" fill="#38bdf8"/>
+            <circle cx="48" cy="30" r="6" fill="#0f172a"/><circle cx="49" cy="30" r="2" fill="#38bdf8"/>
+            <path d="M40 38 L37 44 L43 44 Z" fill="#475569"/>
+            <rect x="28" y="48" width="24" height="12" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+            <path d="M34 48 L34 60 M40 48 L40 60 M46 48 L46 60" stroke="#475569" stroke-width="2"/>
+          </svg>`;
+      } else if (type === 'knight') {
+        return `
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(239,68,68,0.7)]">
+            <path d="M20 25 L40 10 L60 25 L56 65 L40 74 L24 65 Z" fill="#334155" stroke="#0f172a" stroke-width="3"/>
+            <path d="M40 18 L40 66 M26 38 L54 38" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="40" cy="38" r="4" fill="#facc15"/>
+            <polygon points="12,18 24,24 16,36" fill="#94a3b8"/>
+            <polygon points="68,18 56,24 64,36" fill="#94a3b8"/>
+          </svg>`;
+      } else {
+        return `
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_14px_rgba(245,158,11,0.8)]">
+            <polygon points="16,10 28,30 10,24" fill="#b45309"/>
+            <polygon points="64,10 52,30 70,24" fill="#b45309"/>
+            <path d="M24 22 L40 14 L56 22 L62 50 L40 72 L18 50 Z" fill="#d97706" stroke="#78350f" stroke-width="3"/>
+            <polygon points="28,36 38,40 30,44" fill="#fef08a"/>
+            <circle cx="32" cy="40" r="2.5" fill="#0f172a"/>
+            <polygon points="52,36 42,40 50,44" fill="#fef08a"/>
+            <circle cx="48" cy="40" r="2.5" fill="#0f172a"/>
+            <path d="M30 56 Q40 68 50 56" fill="#451a03"/>
+          </svg>`;
+      }
+    }
+
+    /* ==========================================================================
+       6. 戦闘エンジン & 進行・記録
+       ========================================================================== */
+    let Battle = {
+      mode: 'normal',
+      floor: 1,
+      location: 'plains',
+      enemy: null,
+      playerHp: 50,
+      playerShield: 0,
+      activeDice: [],
+      selectedDiceIndex: null,
+      turnKills: 0,
+      turnGold: 0,
+      skills: [
+        { id: 's1', name: '連撃の一太刀', req: 'any', desc: '出目 + 武器攻撃力 ダメージ', fn: (v, st) => ({ dmg: v + st.stats.baseAtk }) },
+        { id: 's2', name: '鉄壁の構え', req: 'even', desc: '偶数のみ。出目×2のシールド', fn: (v) => ({ shd: v * 2 }) },
+        { id: 's3', name: '逆転の一撃', req: 'max3', desc: '出目3以下のみ。(7 - 出目)×3 ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 3 + st.stats.baseAtk }) }
+      ]
+    };
+
+    function startBattle(mode, startFloor = null) {
+      Battle.mode = mode;
+      
+      if (mode === 'normal') {
+        Battle.floor = startFloor || Player.currentAdventureFloor || 1;
+      } else {
+        Battle.floor = 1;
+      }
+
+      Battle.turnKills = 0;
+      Battle.turnGold = 0;
+
+      const stats = getPlayerStats();
+      Battle.playerHp = stats.maxHp;
+      Battle.playerShield = stats.startShield;
+
+      document.getElementById('screenTitle').classList.add('hidden');
+      document.getElementById('modalTowerConfirm').classList.add('hidden');
+      document.getElementById('modalResult').classList.add('hidden');
+      document.getElementById('modalRanking').classList.add('hidden');
+      document.getElementById('screenBattle').classList.remove('hidden');
+
+      updateFloorSelectDropdown();
+      setupNextEnemy();
+    }
+
+    function setupNextEnemy() {
+      const f = Battle.floor;
+      const isTower = Battle.mode === 'tower';
+
+      if (!isTower) {
+        Player.currentAdventureFloor = f;
+        savePlayerData();
+      }
+
+      if (isTower) {
+        Battle.location = 'tower';
+      } else {
+        if (f <= 3) Battle.location = 'plains';
+        else if (f <= 6) Battle.location = 'cave';
+        else if (f <= 9) Battle.location = 'dungeon';
+        else Battle.location = 'castle';
+      }
+
+      document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location);
+
+      let level, hp, atk, type, name;
+
+      if (!isTower) {
+        level = f;
+        const curve = 1 + (f - 1) * 0.12 + Math.pow(Math.max(0, f - 6) * 0.15, 2);
+        hp = Math.round((22 + f * 5) * curve);
+        atk = Math.round((4 + f * 1.5) * curve);
+      } else {
+        level = f;
+        const curve = 1 + (f - 1) * 0.28 + Math.pow(f * 0.1, 2);
+        hp = Math.round((26 + f * 8) * curve);
+        atk = Math.round((6 + f * 2.8) * curve);
+      }
+
+      const types = ['slime', 'skeleton', 'knight', 'dragon'];
+      type = types[(f - 1) % types.length];
+      const names = ['スライム', 'スケルトン', 'ダークナイト', 'ドラゴン'];
+      name = `${names[(f - 1) % names.length]} Lv.${level}`;
+
+      Battle.enemy = { name, type, level, hp, maxHp: hp, atk };
+      startTurn();
+      renderBattleUI();
+    }
+
+    function startTurn() {
+      Battle.skills.forEach(s => s.used = false);
+      Battle.activeDice = [rollDie(), rollDie(), rollDie()];
+      Battle.selectedDiceIndex = null;
+      Sound.roll();
+      renderBattleUI();
+    }
+
+    function rollDie() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function handleUseSkill(idx) {
+      if (Battle.selectedDiceIndex === null) return;
+      const skill = Battle.skills[idx];
+      if (skill.used) return;
+
+      const diceVal = Battle.activeDice[Battle.selectedDiceIndex];
+
+      if (skill.req === 'even' && diceVal % 2 !== 0) {
+        Sound.hit();
+        alert('偶数のサイコロのみセットできます！');
+        return;
+      }
+      if (skill.req === 'max3' && diceVal > 3) {
+        Sound.hit();
+        alert('出目3以下のサイコロのみセットできます！');
+        return;
+      }
+
+      Battle.activeDice.splice(Battle.selectedDiceIndex, 1);
+      Battle.selectedDiceIndex = null;
+      skill.used = true;
+
+      const stats = getPlayerStats();
+      const res = skill.fn(diceVal, { stats });
+
+      if (res.dmg) {
+        Sound.hit();
+        Battle.enemy.hp = Math.max(0, Battle.enemy.hp - res.dmg);
+        const spr = document.getElementById('enemySprite');
+        spr.classList.remove('shake-anim');
+        void spr.offsetWidth;
+        spr.classList.add('shake-anim');
+      }
+      if (res.shd) {
+        Sound.shield();
+        Battle.playerShield += res.shd;
+      }
+
+      renderBattleUI();
+
+      if (Battle.enemy.hp <= 0) {
+        handleEnemyDefeat();
+      }
+    }
+
+    function endTurn() {
+      Sound.click();
+      let incoming = Battle.enemy.atk;
+      if (Battle.playerShield >= incoming) {
+        Battle.playerShield -= incoming;
+        Sound.shield();
+      } else {
+        incoming -= Battle.playerShield;
+        Battle.playerShield = 0;
+        Battle.playerHp = Math.max(0, Battle.playerHp - incoming);
+        Sound.hit();
+      }
+
+      renderBattleUI();
+
+      if (Battle.playerHp <= 0) {
+        handlePlayerDefeat();
+      } else {
+        startTurn();
+      }
+    }
+
+    function handleEnemyDefeat() {
+      Sound.win();
+      Battle.turnKills++;
+
+      if (Battle.mode === 'normal') {
+        const expGained = Math.round(12 + Battle.enemy.level * 4.5);
+        const goldGained = Math.round(5 + Battle.enemy.level * 2);
+        Battle.turnGold += goldGained;
+        Player.gold += goldGained;
+        addExp(expGained);
+
+        Battle.floor++;
+        Player.currentAdventureFloor = Battle.floor;
+
+        if (Battle.floor > Player.maxClearedFloor) {
+          Player.maxClearedFloor = Battle.floor;
+          // 通常モード新記録送信
+          CloudSync.sendRecord('normal', Player.maxClearedFloor);
+        }
+
+        rollLootDrop();
+        savePlayerData();
+        updateFloorSelectDropdown();
+      } else {
+        if (Battle.floor > Player.towerBestFloor) {
+          Player.towerBestFloor = Battle.floor;
+          savePlayerData();
+        }
+        Battle.floor++;
+      }
+
+      setTimeout(() => {
+        setupNextEnemy();
+      }, 500);
+    }
+
+    function rollLootDrop() {
+      const allLoots = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(it => it.dropRate > 0);
+      for (let item of allLoots) {
+        if (Math.random() < item.dropRate) {
+          if (item.type === 'weapon') {
+            if (Player.ownedWeapons.includes(item.id)) {
+              Player.gold += item.refundCoin;
+              alert(`【重複還元】${item.name} がドロップ！\n既に所持しているため ${item.refundCoin} コインを獲得しました。`);
+            } else {
+              Player.ownedWeapons.push(item.id);
+              Sound.fanfare();
+              alert(`★ 超激レアドロップ！ ★\n【武器】${item.name} (${item.rarity}) を獲得しました！`);
+            }
+          } else {
+            if (Player.ownedArmors.includes(item.id)) {
+              Player.gold += item.refundCoin;
+              alert(`【重複還元】${item.name} がドロップ！\n既に所持しているため ${item.refundCoin} コインを獲得しました。`);
+            } else {
+              Player.ownedArmors.push(item.id);
+              Sound.fanfare();
+              alert(`★ 超激レアドロップ！ ★\n【防具】${item.name} (${item.rarity}) を獲得しました！`);
+            }
+          }
+          savePlayerData();
+          break;
+        }
+      }
+    }
+
+    function handlePlayerDefeat() {
+      Sound.dead();
+      showResultScreen(false);
+    }
+
+    function handleRetreat() {
+      Sound.click();
+      showResultScreen(true);
+    }
+
+    function showResultScreen(isRetreat) {
+      document.getElementById('screenBattle').classList.add('hidden');
+      document.getElementById('modalResult').classList.remove('hidden');
+
+      document.getElementById('resultIcon').textContent = isRetreat ? '🏃' : '💀';
+      document.getElementById('resultTitle').textContent = isRetreat ? '戦闘中断・帰還' : '冒険の終焉';
+      document.getElementById('resMode').textContent = Battle.mode === 'normal' ? '通常モード' : '無限の塔';
+      document.getElementById('resFloor').textContent = `${Battle.floor}F`;
+      document.getElementById('resKills').textContent = `${Battle.turnKills}体`;
+      document.getElementById('resGold').textContent = `${Battle.turnGold}🪙`;
+
+      if (Battle.mode === 'tower') {
+        const reached = Math.max(1, Battle.floor - (isRetreat ? 0 : 1));
+        if (reached > Player.towerBestFloor) {
+          Player.towerBestFloor = reached;
+          savePlayerData();
+        }
+        // 無限の塔 記録送信
+        CloudSync.sendRecord('tower', Player.towerBestFloor);
+      }
+      updateTitleUI();
+    }
+
+    /* ==========================================================================
+       7. オンラインランキングUI処理
+       ========================================================================== */
+    let currentRankTab = 'normal'; // 'normal' | 'tower'
+
+    async function renderRankingTable() {
+      const tbody = document.getElementById('rankingTableBody');
+      const colTitle = document.getElementById('rankColTitle');
+      const tabNormal = document.getElementById('tabRankNormal');
+      const tabTower = document.getElementById('tabRankTower');
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="3" class="py-6 text-center text-cyan-300 text-xs animate-pulse">
+            通信中... ランキングを取得しています
+          </td>
+        </tr>
+      `;
+
+      if (currentRankTab === 'normal') {
+        colTitle.textContent = 'クリア階層';
+        tabNormal.className = 'rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded';
+        tabTower.className = 'rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded';
+      } else {
+        colTitle.textContent = '最高到達階層';
+        tabTower.className = 'rpg-btn flex-1 py-1.5 bg-indigo-950 text-indigo-300 border-indigo-500 text-xs font-bold rounded';
+        tabNormal.className = 'rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded';
+      }
+
+      if (!GAS_API_URL || GAS_API_URL.includes("ここに")) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="py-4 text-center text-amber-400 text-[10px] leading-loose">
+              GAS_API_URL が未設定です。<br>
+              スクリプトURLを設定してください。
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const list = await CloudSync.fetchRanking(currentRankTab);
+      tbody.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="py-6 text-center text-slate-500 text-[10px]">
+              まだ記録がありません。<br>あなたが最初の勇者になろう！
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      list.forEach((item, index) => {
+        const isMe = item.name === Player.name;
+        const tr = document.createElement('tr');
+        tr.className = `border-b border-slate-900 ${isMe ? 'text-amber-300 font-bold bg-amber-950/40' : 'text-slate-300'}`;
+
+        let rankColor = 'text-slate-400';
+        if (index === 0) rankColor = 'text-yellow-400 font-bold';
+        else if (index === 1) rankColor = 'text-slate-200 font-bold';
+        else if (index === 2) rankColor = 'text-amber-600 font-bold';
+
+        tr.innerHTML = `
+          <td class="py-1.5 ${rankColor}">${index + 1}位</td>
+          <td class="py-1.5">${item.name} ${isMe ? '★(あなた)' : ''}</td>
+          <td class="py-1.5 text-right font-mono text-cyan-300 font-bold">${item.score}F</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ==========================================================================
+       8. 装備箱 (INVENTORY) & ソート
+       ========================================================================== */
+    let currentEquipTab = 'weapon';
+    let currentSortMode = 'rarity';
+    const RARITY_WEIGHT = { 'N': 1, 'R': 2, 'SR': 3, 'SSR': 4, 'UR': 5 };
+
+    function renderEquipBox() {
+      const listContainer = document.getElementById('equipItemList');
+      listContainer.innerHTML = '';
+
+      const stats = getPlayerStats();
+      document.getElementById('currentEqWeapon').innerHTML = `<span class="rarity-${stats.weapon.rarity.toLowerCase()}">[${stats.weapon.rarity}] ${stats.weapon.name}</span> (攻+${stats.weapon.atkBonus})`;
+      document.getElementById('currentEqArmor').innerHTML = `<span class="rarity-${stats.armor.rarity.toLowerCase()}">[${stats.armor.rarity}] ${stats.armor.name}</span> (HP+${stats.armor.hpBonus})`;
+
+      const isWep = currentEquipTab === 'weapon';
+      let items = isWep 
+        ? WEAPONS_MASTER.filter(w => Player.ownedWeapons.includes(w.id))
+        : ARMORS_MASTER.filter(a => Player.ownedArmors.includes(a.id));
+
+      if (currentSortMode === 'rarity') {
+        items.sort((a, b) => RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]);
+      } else {
+        const ownedArr = isWep ? Player.ownedWeapons : Player.ownedArmors;
+        items.sort((a, b) => ownedArr.indexOf(a.id) - ownedArr.indexOf(b.id));
+      }
+
+      items.forEach(it => {
+        const isEquipped = isWep ? (Player.equippedWeapon === it.id) : (Player.equippedArmor === it.id);
+        const card = document.createElement('div');
+        card.className = `p-2 bg-slate-950/80 border rounded flex items-center justify-between text-xs ${
+          isEquipped ? 'border-amber-400 bg-amber-950/40 ring-1 ring-amber-500' : 'border-slate-800'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="font-bold rarity-${it.rarity.toLowerCase()}">[${it.rarity}] ${it.name}</div>
+            <div class="text-[10px] text-slate-400">${it.desc}</div>
+          </div>
+          <button class="rpg-btn px-2.5 py-1 text-[10px] rounded ${isEquipped ? 'bg-amber-600 text-black font-bold' : 'bg-slate-800 text-slate-200'}">
+            ${isEquipped ? '装備中' : '装備する'}
+          </button>
+        `;
+
+        card.querySelector('button').onclick = () => {
+          Sound.click();
+          if (isWep) Player.equippedWeapon = it.id;
+          else Player.equippedArmor = it.id;
+          savePlayerData();
+          renderEquipBox();
+          updateTitleUI();
+        };
+
+        listContainer.appendChild(card);
+      });
+    }
+
+    /* ==========================================================================
+       9. ガチャ機能
+       ========================================================================== */
+    function rollGacha() {
+      if (Player.gold < 50) {
+        Sound.hit();
+        alert('コインが足りません！ (必要: 50🪙)');
+        return;
+      }
+
+      Player.gold -= 50;
+      savePlayerData();
+      updateTitleUI();
+
+      const rollBtn = document.getElementById('btnRollGacha');
+      rollBtn.disabled = true;
+      document.getElementById('gachaResultText').textContent = '抽選中...';
+      Sound.roll();
+
+      setTimeout(() => {
+        rollBtn.disabled = false;
+        const pool = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(it => it.rarity !== 'N');
+        const won = pool[Math.floor(Math.random() * pool.length)];
+
+        Sound.fanfare();
+        const isWep = won.type === 'weapon';
+        const isOwned = isWep ? Player.ownedWeapons.includes(won.id) : Player.ownedArmors.includes(won.id);
+
+        if (isOwned) {
+          Player.gold += won.refundCoin;
+          document.getElementById('gachaResultText').innerHTML = `
+            <span class="text-orange-400 font-bold">【重複還元】${won.name}</span><br>
+            <span class="text-[10px] text-yellow-300">+${won.refundCoin} コイン獲得！</span>
+          `;
+        } else {
+          if (isWep) Player.ownedWeapons.push(won.id);
+          else Player.ownedArmors.push(won.id);
+
+          document.getElementById('gachaResultText').innerHTML = `
+            <span class="rarity-${won.rarity.toLowerCase()} font-bold">★ GET!! 【${won.name}】(${won.rarity}) ★</span><br>
+            <span class="text-[10px] text-slate-300">${won.desc}</span>
+          `;
+        }
+        savePlayerData();
+        updateTitleUI();
+      }, 700);
+    }
+
+    /* ==========================================================================
+       10. UI更新・レンダリング補助
+       ========================================================================== */
+    function updateTitleUI() {
+      const stats = getPlayerStats();
+      document.getElementById('titlePlayerName').textContent = Player.name || '名無しの勇者';
+      document.getElementById('titlePlayerLv').textContent = Player.level;
+      document.getElementById('titleGold').textContent = Player.gold;
+      document.getElementById('titleHp').textContent = stats.maxHp;
+      document.getElementById('titleExp').textContent = Player.exp;
+      document.getElementById('titleExpMax').textContent = getExpToNextLevel();
+      document.getElementById('titleWeaponName').textContent = stats.weapon.name;
+      document.getElementById('titleArmorName').textContent = stats.armor.name;
+      document.getElementById('towerBestFloor').textContent = `${Player.towerBestFloor}F`;
+
+      const curFloor = Player.currentAdventureFloor || 1;
+      document.getElementById('titleCurrentFloor').textContent = `${curFloor}F`;
+      document.getElementById('titleMaxFloor').textContent = `${Player.towerBestFloor}F`;
+      document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
+    }
+
+    function updateFloorSelectDropdown() {
+      const sel = document.getElementById('floorSelectDropdown');
+      sel.innerHTML = '';
+
+      if (Battle.mode === 'tower') {
+        sel.classList.add('hidden');
+        return;
+      }
+
+      sel.classList.remove('hidden');
+      const maxF = Math.max(1, Player.maxClearedFloor || 1);
+      for (let i = 1; i <= maxF; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i}F`;
+        if (i === Battle.floor) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    function renderBattleUI() {
+      document.getElementById('modeBadge').textContent = Battle.mode === 'normal' ? '通常' : '無限の塔';
+      
+      const locNames = { plains: '平原', cave: '洞窟', dungeon: '迷宮', castle: '王城', tower: '虚空塔' };
+      document.getElementById('locationBadge').textContent = locNames[Battle.location] || '平原';
+      document.getElementById('floorBadge').textContent = `${Battle.floor}F`;
+      document.getElementById('battleGold').textContent = Player.gold;
+      document.getElementById('battlePlayerLv').textContent = Player.level;
+
+      const stats = getPlayerStats();
+      document.getElementById('playerHpText').textContent = `${Battle.playerHp}/${stats.maxHp}`;
+      document.getElementById('playerHpBar').style.width = `${Math.max(0, (Battle.playerHp / stats.maxHp) * 100)}%`;
+      document.getElementById('playerShieldVal').textContent = Battle.playerShield;
+
+      if (Battle.enemy) {
+        document.getElementById('enemyName').textContent = Battle.enemy.name;
+        document.getElementById('enemyHpText').textContent = `${Battle.enemy.hp}/${Battle.enemy.maxHp}`;
+        document.getElementById('enemyHpBar').style.width = `${Math.max(0, (Battle.enemy.hp / Battle.enemy.maxHp) * 100)}%`;
+        document.getElementById('enemyIntent').innerHTML = `⚔️ ${Battle.enemy.atk} ダメージ`;
+        document.getElementById('enemySprite').innerHTML = getEnemySvg(Battle.enemy.type);
+      }
+
+      const skillArea = document.getElementById('skillArea');
+      skillArea.innerHTML = '';
+      Battle.skills.forEach((s, idx) => {
+        const card = document.createElement('div');
+        const isEligible = Battle.selectedDiceIndex !== null && !s.used;
+        card.className = `p-2 rounded border flex items-center justify-between text-xs cursor-pointer ${
+          s.used 
+            ? 'bg-slate-900/40 border-slate-800 opacity-40' 
+            : isEligible 
+              ? 'bg-amber-950/80 border-amber-400 ring-2 ring-amber-500 animate-pulse' 
+              : 'bg-slate-900/90 border-slate-700'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <div class="font-bold text-amber-200 text-xs">${s.name}</div>
+            <div class="text-[9px] text-slate-300">${s.desc}</div>
+          </div>
+          <div class="text-[10px] px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-amber-300 font-bold">
+            ${s.used ? '発動済' : 'セット'}
+          </div>
+        `;
+        if (!s.used) card.onclick = () => handleUseSkill(idx);
+        skillArea.appendChild(card);
+      });
+
+      const dicePool = document.getElementById('dicePool');
+      dicePool.innerHTML = '';
+      Battle.activeDice.forEach((d, idx) => {
+        const isSelected = Battle.selectedDiceIndex === idx;
+        const btn = document.createElement('button');
+        btn.className = `w-9 h-9 rpg-btn rounded bg-slate-100 flex items-center justify-center ${
+          isSelected ? 'ring-2 ring-amber-400 scale-105' : ''
+        }`;
+        btn.onclick = () => {
+          Sound.click();
+          Battle.selectedDiceIndex = (Battle.selectedDiceIndex === idx) ? null : idx;
+          renderBattleUI();
+        };
+        btn.innerHTML = renderDiceFaceSvg(d);
+        dicePool.appendChild(btn);
+      });
+
+      document.getElementById('selectedDiceInfo').textContent = Battle.selectedDiceIndex !== null 
+        ? `選択中: 【 ${Battle.activeDice[Battle.selectedDiceIndex]} 】` 
+        : '選択中: なし';
+    }
+
+    function renderDiceFaceSvg(num) {
+      const pips = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8]
+      }[num] || [4];
+
+      let dots = '';
+      for (let i = 0; i < 9; i++) {
+        dots += pips.includes(i) ? '<div class="dice-pip"></div>' : '<div class="w-1.5 h-1.5"></div>';
+      }
+      return `<div class="grid grid-cols-3 gap-0.5 p-1 pointer-events-none">${dots}</div>`;
+    }
+
+    /* ==========================================================================
+       11. イベントリスナー結線
+       ========================================================================== */
+    function attachListeners() {
+      // プレイヤー名モーダル
+      document.getElementById('btnSaveName').onclick = savePlayerNameFromModal;
+      document.getElementById('btnCancelName').onclick = () => {
+        document.getElementById('modalPlayerName').classList.add('hidden');
+      };
+      document.getElementById('btnPlayerBadge').onclick = () => openNameModal(false);
+      document.getElementById('inputPlayerName').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') savePlayerNameFromModal();
+      });
+
+      // 冒険に出る
+      document.getElementById('btnAdventure').onclick = () => {
+        Sound.click();
+        startBattle('normal', Player.currentAdventureFloor || 1);
+      };
+
+      // 無限の塔
+      document.getElementById('btnTowerConfirm').onclick = () => {
+        Sound.click();
+        document.getElementById('modalTowerConfirm').classList.remove('hidden');
+      };
+      document.getElementById('btnTowerCancel').onclick = () => {
+        Sound.click();
+        document.getElementById('modalTowerConfirm').classList.add('hidden');
+      };
+      document.getElementById('btnTowerStart').onclick = () => {
+        Sound.click();
+        startBattle('tower', 1);
+      };
+
+      // ランキングモーダル
+      document.getElementById('btnRanking').onclick = () => {
+        Sound.click();
+        document.getElementById('modalRanking').classList.remove('hidden');
+        renderRankingTable();
+      };
+      document.getElementById('btnCloseRanking').onclick = () => {
+        Sound.click();
+        document.getElementById('modalRanking').classList.add('hidden');
+      };
+      document.getElementById('tabRankNormal').onclick = () => {
+        Sound.click();
+        currentRankTab = 'normal';
+        renderRankingTable();
+      };
+      document.getElementById('tabRankTower').onclick = () => {
+        Sound.click();
+        currentRankTab = 'tower';
+        renderRankingTable();
+      };
+      document.getElementById('btnRefreshRanking').onclick = () => {
+        Sound.click();
+        renderRankingTable();
+      };
+
+      // 装備箱
+      document.getElementById('btnEquipBox').onclick = () => {
+        Sound.click();
+        renderEquipBox();
+        document.getElementById('modalEquipBox').classList.remove('hidden');
+      };
+      document.getElementById('btnCloseEquipBox').onclick = () => {
+        Sound.click();
+        document.getElementById('modalEquipBox').classList.add('hidden');
+      };
+
+      document.getElementById('tabWeapons').onclick = () => {
+        Sound.click();
+        currentEquipTab = 'weapon';
+        document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
+        document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+        renderEquipBox();
+      };
+
+      document.getElementById('tabArmors').onclick = () => {
+        Sound.click();
+        currentEquipTab = 'armor';
+        document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
+        document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+        renderEquipBox();
+      };
+
+      document.getElementById('btnSortOrder').onclick = () => {
+        Sound.click();
+        currentSortMode = (currentSortMode === 'rarity') ? 'order' : 'rarity';
+        document.getElementById('btnSortOrder').textContent = `ソート: ${currentSortMode === 'rarity' ? 'レア順 ▼' : '入手順 ▼'}`;
+        renderEquipBox();
+      };
+
+      // ガチャ
+      document.getElementById('btnGacha').onclick = () => {
+        Sound.click();
+        document.getElementById('modalGacha').classList.remove('hidden');
+      };
+      document.getElementById('btnCloseGacha').onclick = () => {
+        Sound.click();
+        document.getElementById('modalGacha').classList.add('hidden');
+      };
+      document.getElementById('btnRollGacha').onclick = rollGacha;
+
+      // 音声切り替え
+      document.getElementById('btnSoundToggle').onclick = () => Sound.toggleMute();
+
+      // 戦闘中アクション
+      document.getElementById('btnRetreat').onclick = handleRetreat;
+      document.getElementById('btnEndTurn').onclick = endTurn;
+
+      document.getElementById('floorSelectDropdown').onchange = (e) => {
+        Battle.floor = parseInt(e.target.value, 10);
+        Player.currentAdventureFloor = Battle.floor;
+        savePlayerData();
+        setupNextEnemy();
+      };
+
+      // リザルトからタイトルへ
+      document.getElementById('btnReturnToTitle').onclick = () => {
+        Sound.click();
+        document.getElementById('modalResult').classList.add('hidden');
+        document.getElementById('screenTitle').classList.remove('hidden');
+        updateTitleUI();
+      };
+    }
+
+    window.onload = () => {
+      loadPlayerData();
+      attachListeners();
+    };
+  </script>
+</body>
+</html>
