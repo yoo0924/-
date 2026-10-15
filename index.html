@@ -30,7 +30,7 @@
       position: fixed;
       inset: 0;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.02));
       background-size: 100% 3px, 3px 100%;
       pointer-events: none;
       z-index: 999;
@@ -134,6 +134,26 @@
       </div>
     </div>
 
+    <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
+    <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
+        <div class="text-3xl">⏸️</div>
+        <h3 class="text-sm font-bold text-amber-300">【 一時中断 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          戦闘を中断してタイトルへ戻りますか？<br>
+          <span class="text-amber-400">※現在の階層の最初から再開できます。</span>
+        </p>
+        <div class="space-y-2 pt-1">
+          <button id="btnResumeBattle" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold rounded">
+            ⚔️ 戦闘に戻る
+          </button>
+          <button id="btnConfirmRetreat" class="rpg-btn w-full py-2 bg-rose-950 border-rose-600 text-rose-300 text-xs font-bold rounded">
+            🏃 タイトルへ戻る
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ==================== 0.5 ドロップ専用カットイン演出オーバーレイ ==================== -->
     <div id="modalDropCutin" class="hidden absolute inset-0 z-[160] bg-black/95 flex flex-col items-center justify-center p-5 text-center">
       <div id="dropFlashBg" class="absolute inset-0 pointer-events-none opacity-30"></div>
@@ -202,8 +222,8 @@
           <span class="truncate max-w-[48%]">防: <span id="titleArmorName" class="text-amber-200 font-bold">布の服</span></span>
         </div>
         <div class="flex justify-between text-[10px] text-amber-400/90 pt-0.5 border-t border-amber-950">
-          <span>通常進行度: <span id="titleCurrentFloor" class="font-bold text-white">1F</span></span>
-          <span>塔最高: <span id="titleMaxFloor" class="font-bold text-white">1F</span></span>
+          <span>通常最高: <span id="titleMaxFloor" class="font-bold text-white">1F</span></span>
+          <span>塔最高: <span id="titleTowerFloor" class="font-bold text-white">1F</span></span>
         </div>
       </div>
 
@@ -240,7 +260,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.5.0 - Synergy & Skills Engine</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.0 - Rank Filter & Pause Update</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -252,7 +272,7 @@
 
       <div class="flex gap-2 my-2">
         <button id="tabRankNormal" class="rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded">
-          通常モード (クリア階層)
+          通常モード (最高階層)
         </button>
         <button id="tabRankTower" class="rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded">
           無限の塔 (最高到達)
@@ -265,7 +285,7 @@
             <tr class="text-slate-400 border-b border-slate-800 text-[10px]">
               <th class="py-1 w-10">順位</th>
               <th class="py-1">名前</th>
-              <th id="rankColTitle" class="py-1 text-right">階層</th>
+              <th id="rankColTitle" class="py-1 text-right">最高階層</th>
             </tr>
           </thead>
           <tbody id="rankingTableBody"></tbody>
@@ -391,7 +411,7 @@
         <button id="btnRollGacha" class="rpg-btn w-full py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-slate-950 font-black text-xs rounded">
           装備を召喚する (50🪙)
         </button>
-        <div class="text-[9px] text-slate-400">重複時はレア度に応じてコイン還元 (R:15 / SR:40 / SSR:100 / UR:300)</div>
+        <div class="text-[9px] text-slate-400">重複時はコイン還元 (R:15 / SR:40 / SSR:100 / UR:300)</div>
       </div>
     </div>
 
@@ -411,7 +431,7 @@
 
         <div class="flex items-center gap-2">
           <span class="text-yellow-400 font-bold text-[11px]">🪙 <span id="battleGold">0</span></span>
-          <button id="btnRetreat" class="rpg-btn px-2 py-0.5 bg-rose-950 border-rose-700 text-rose-300 text-[10px] rounded" title="中断してタイトルへ帰還">
+          <button id="btnRetreat" class="rpg-btn px-2.5 py-0.5 bg-rose-950 border-rose-700 text-rose-300 text-[10px] rounded" title="ポーズメニューを開く">
             中断
           </button>
         </div>
@@ -437,7 +457,7 @@
         </div>
       </section>
 
-      <!-- プレイヤー情報バー ＆ ★常時発動特性表示エリア -->
+      <!-- プレイヤー情報バー ＆ 常時発動特性表示エリア -->
       <section class="px-3 py-1 bg-slate-950/85 backdrop-blur-md border-t border-amber-900 flex flex-col gap-1 shrink-0">
         <div class="flex justify-between items-center text-xs">
           <div>
@@ -456,13 +476,10 @@
             </div>
           </div>
         </div>
-        <!-- 固有特性バッジバー -->
-        <div id="battleTraitsBar" class="flex gap-1 overflow-x-auto text-[8px] pt-0.5 border-t border-slate-800/80">
-          <!-- JSで動的挿入 -->
-        </div>
+        <div id="battleTraitsBar" class="flex gap-1 overflow-x-auto text-[8px] pt-0.5 border-t border-slate-800/80"></div>
       </section>
 
-      <!-- スキルスロット一覧 (初期2種 + 武器固有 + 防具固有) -->
+      <!-- スキルスロット一覧 -->
       <section id="skillArea" class="p-2 space-y-1.5 max-h-44 overflow-y-auto bg-slate-950/90 backdrop-blur-md border-t border-amber-900 shrink-0"></section>
 
       <!-- サイコロプール＆ターンエンドフッター -->
@@ -527,7 +544,23 @@
         try {
           const res = await fetch(`${GAS_API_URL}?type=${mode}`);
           const json = await res.json();
-          if (json.status === 'ok') return json.data;
+          if (json.status === 'ok') {
+            // クライアント側でも各プレイヤーの「最高階層のみ」を残すフィルタリング
+            const map = new Map();
+            json.data.forEach(item => {
+              const nm = String(item.name || '').trim();
+              const sc = Number(item.score) || 0;
+              if (nm) {
+                if (!map.has(nm) || map.get(nm) < sc) {
+                  map.set(nm, sc);
+                }
+              }
+            });
+            const filtered = [];
+            map.forEach((score, name) => filtered.push({ name, score }));
+            filtered.sort((a, b) => b.score - a.score);
+            return filtered;
+          }
         } catch (e) {
           console.warn('ランキング取得エラー:', e);
         }
@@ -601,7 +634,7 @@
         const N = {
           R: 0,
           G2: 98.00, A2: 110.00, Bb2: 116.54, C3: 130.81, Cs3: 138.59, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00,
-          Bb3: 233.08, C4: 261.63, Cs4: 277.18, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00,
+          Bb3: 233.08, C4: 261.63, Cs4: 277.18, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, Gs4: 415.30, A4: 440.00,
           Bb4: 466.16, C5: 523.25, Cs5: 554.37, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00
         };
 
@@ -669,15 +702,13 @@
     };
 
     /* ==========================================================================
-       2. 武器・防具マスタデータ（固有スキル ＆ 固有特性）
+       2. 武器・防具マスタデータ
        ========================================================================== */
     const WEAPONS_MASTER = [
       { 
         id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', atkBonus: 0, 
         desc: '何も持っていない。', refundCoin: 1 
       },
-
-      // --- ガチャ限定武器 (8種) ---
       { 
         id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 4, 
         desc: '基礎ダメージ+4', refundCoin: 15,
@@ -726,8 +757,6 @@
         passive: { name: '終焉の狂気', desc: 'サイコロの最大出目が常に+1（上限6超え補正）' },
         skill: { name: 'メギドカタストロフ', req: 'any', desc: '出目不問: 出目×8 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 8 + st.stats.baseAtk }) }
       },
-
-      // --- ドロップ限定武器 (3種) ---
       { 
         id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', atkBonus: 15, 
         desc: '基礎ダメージ+15。怨念の魔刀。', dropRate: 1/256, refundCoin: 50,
@@ -753,8 +782,6 @@
         id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', hpBonus: 0, shdBonus: 0, 
         desc: '普段着。', refundCoin: 1 
       },
-
-      // --- ガチャ限定防具 (8種) ---
       { 
         id: 'ag_r1', name: '冒険者のレザーアーマー', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 20, shdBonus: 3, 
         desc: '最大HP+20 / 初期シールド+3', refundCoin: 15,
@@ -803,8 +830,6 @@
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
         skill: { name: 'タイムディストーション', req: 'any', desc: '出目不問: シールド+35 ＆ 敵の攻撃を完全遮断', fn: (v) => ({ shd: 35, block: true }) }
       },
-
-      // --- ドロップ限定防具 (3種) ---
       { 
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', hpBonus: 75, shdBonus: 15, 
         desc: '最大HP+75 / 初期シールド+15。', dropRate: 1/256, refundCoin: 50,
@@ -1047,7 +1072,6 @@
       skills: []
     };
 
-    // ★ スキル条件判定（厳密化）
     function checkSkillRequirement(req, diceVal) {
       if (!diceVal) return false;
       if (req === 'any') return true;
@@ -1073,13 +1097,13 @@
       Battle.playerHp = stats.maxHp;
       Battle.playerShield = stats.startShield;
 
-      // 戦闘スキルスロットの動的構成 (基本2種 + 武器固有 + 防具固有)
       buildBattleSkills(stats);
 
       document.getElementById('screenTitle').classList.add('hidden');
       document.getElementById('modalTowerConfirm').classList.add('hidden');
       document.getElementById('modalResult').classList.add('hidden');
       document.getElementById('modalRanking').classList.add('hidden');
+      document.getElementById('modalPauseConfirm').classList.add('hidden');
       document.getElementById('screenBattle').classList.remove('hidden');
 
       Sound.startBattleBgm();
@@ -1093,7 +1117,6 @@
         { id: 's_base2', origin: 'base', name: '鉄壁の構え', req: 'even', desc: '偶数のみ。出目×2のシールド', fn: (v) => ({ shd: v * 2 }) }
       ];
 
-      // 武器の固有スキル
       if (stats.weapon && stats.weapon.skill) {
         Battle.skills.push({
           id: `sw_${stats.weapon.id}`,
@@ -1105,7 +1128,6 @@
         });
       }
 
-      // 防具の固有スキル
       if (stats.armor && stats.armor.skill) {
         Battle.skills.push({
           id: `sa_${stats.armor.id}`,
@@ -1149,7 +1171,6 @@
         atk = Math.round((6 + f * 2.8) * curve);
       }
 
-      // 覇王の威圧 (防具パッシブ: 敵攻撃力30%ダウン)
       const stats = getPlayerStats();
       if (stats.armor && stats.armor.passive && stats.armor.passive.name === '覇王の威圧') {
         atk = Math.max(1, Math.round(atk * 0.7));
@@ -1167,30 +1188,24 @@
 
     function startTurn() {
       Battle.skills.forEach(s => s.used = false);
-
       const stats = getPlayerStats();
 
-      // パッシブ: 不撓不屈 (シールド半減引き継ぎ)
       if (stats.armor && stats.armor.passive && stats.armor.passive.name === '不撓不屈') {
         Battle.playerShield = Math.floor(Battle.playerShield / 2);
       } else {
         Battle.playerShield = 0;
       }
 
-      // パッシブ: 聖なる加護 / 絶対不滅 (ターン開始時HP回復)
       if (stats.weapon && stats.weapon.passive && stats.weapon.passive.name === '聖なる加護') {
         Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 5);
       }
       if (stats.armor && stats.armor.passive && stats.armor.passive.name === '絶対不滅') {
         Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 15);
       }
-
-      // パッシブ: 身軽 (シールド+2)
       if (stats.armor && stats.armor.passive && stats.armor.passive.name === '身軽') {
         Battle.playerShield += 2;
       }
 
-      // ダイス数決定 (通常3個。アポカリプスやクロノス所持で+1個)
       let diceCount = 3;
       if (stats.weapon && stats.weapon.passive && stats.weapon.passive.name === '創世の脈動') diceCount++;
       if (stats.armor && stats.armor.passive && stats.armor.passive.name === '時間跳躍') diceCount++;
@@ -1216,7 +1231,6 @@
 
       const diceVal = Battle.activeDice[Battle.selectedDiceIndex];
 
-      // ★ 厳密な条件チェック
       if (!checkSkillRequirement(skill.req, diceVal)) {
         Sound.hit();
         alert('このサイコロの出目ではスキルを発動できません！');
@@ -1230,16 +1244,11 @@
       const stats = getPlayerStats();
       const res = skill.fn(diceVal, { stats });
 
-      // パッシブ補正
       if (res.dmg) {
         let finalDmg = res.dmg;
-        // 鋭利な刃 (+2)
         if (stats.weapon.passive && stats.weapon.passive.name === '鋭利な刃') finalDmg += 2;
-        // 急所突き (奇数で+3)
         if (stats.weapon.passive && stats.weapon.passive.name === '急所突き' && diceVal % 2 !== 0) finalDmg += 3;
-        // 必中の呪い (+6)
         if (stats.weapon.passive && stats.weapon.passive.name === '必中の呪い') finalDmg += 6;
-        // 逆鱗 (HP半分以下で2倍)
         if (stats.weapon.passive && stats.weapon.passive.name === '逆鱗' && Battle.playerHp <= stats.maxHp / 2) {
           finalDmg *= 2;
         }
@@ -1247,7 +1256,6 @@
         Battle.enemy.hp = Math.max(0, Battle.enemy.hp - finalDmg);
         Sound.hit();
 
-        // 吸血刃 (与ダメの20%回復)
         if (stats.weapon.passive && stats.weapon.passive.name === '吸血刃') {
           const healVal = Math.max(1, Math.floor(finalDmg * 0.2));
           Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + healVal);
@@ -1261,7 +1269,6 @@
 
       if (res.shd) {
         let finalShd = res.shd;
-        // 重装の構え (+3)
         if (stats.armor.passive && stats.armor.passive.name === '重装の構え') finalShd += 3;
         Battle.playerShield += finalShd;
         Sound.shield();
@@ -1275,7 +1282,6 @@
         Battle.blockNextAttack = true;
       }
 
-      // パッシブ: 帯電 (偶数使用時シールド+4)
       if (stats.weapon.passive && stats.weapon.passive.name === '帯電' && diceVal % 2 === 0) {
         Battle.playerShield += 4;
       }
@@ -1291,7 +1297,6 @@
       Sound.click();
       const stats = getPlayerStats();
 
-      // パッシブ: 火炎付与 (毎ターン敵に5ダメージ)
       if (stats.weapon.passive && stats.weapon.passive.name === '火炎付与' && Battle.enemy.hp > 0) {
         Battle.enemy.hp = Math.max(0, Battle.enemy.hp - 5);
         if (Battle.enemy.hp <= 0) {
@@ -1300,7 +1305,6 @@
         }
       }
 
-      // パッシブ: 魔力反発 (シールド残存時敵に6ダメージ)
       if (stats.armor.passive && stats.armor.passive.name === '魔力反発' && Battle.playerShield > 0) {
         Battle.enemy.hp = Math.max(0, Battle.enemy.hp - 6);
         if (Battle.enemy.hp <= 0) {
@@ -1309,14 +1313,11 @@
         }
       }
 
-      // 敵の反撃
       if (Battle.blockNextAttack) {
         Battle.blockNextAttack = false;
         Sound.shield();
       } else {
         let incoming = Battle.enemy.atk;
-
-        // パッシブ: 頑強 (-2) / 竜鱗の圧 (-5)
         if (stats.armor.passive && stats.armor.passive.name === '頑強') incoming = Math.max(1, incoming - 2);
         if (stats.armor.passive && stats.armor.passive.name === '竜鱗の圧') incoming = Math.max(1, incoming - 5);
 
@@ -1329,7 +1330,6 @@
           Battle.playerHp -= incoming;
           Sound.hit();
 
-          // パッシブ: トゲの棘甲 (受ダメの50%反射)
           if (stats.armor.passive && stats.armor.passive.name === 'トゲの棘甲' && incoming > 0) {
             const reflect = Math.max(1, Math.floor(incoming * 0.5));
             Battle.enemy.hp = Math.max(0, Battle.enemy.hp - reflect);
@@ -1337,12 +1337,10 @@
         }
       }
 
-      // パッシブ: 天恵 (HP4回復)
       if (stats.armor.passive && stats.armor.passive.name === '天恵') {
         Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 4);
       }
 
-      // パッシブ: 絶対不滅 (致死ダメを1回HP1で耐える)
       if (Battle.playerHp <= 0 && stats.armor.passive && stats.armor.passive.name === '絶対不滅' && !Battle.hasRevivedThisBattle) {
         Battle.playerHp = 1;
         Battle.hasRevivedThisBattle = true;
@@ -1471,14 +1469,15 @@
       showResultScreen(false);
     }
 
+    // ★ 中断ボタンを押したときはまず確認モーダル（ポーズ画面）を開く
     function handleRetreat() {
-      Sound.stopBattleBgm();
       Sound.click();
-      showResultScreen(true);
+      document.getElementById('modalPauseConfirm').classList.remove('hidden');
     }
 
     function showResultScreen(isRetreat) {
       document.getElementById('screenBattle').classList.add('hidden');
+      document.getElementById('modalPauseConfirm').classList.add('hidden');
       document.getElementById('modalResult').classList.remove('hidden');
 
       document.getElementById('resultIcon').textContent = isRetreat ? '🏃' : '💀';
@@ -1683,7 +1682,7 @@
     }
 
     /* ==========================================================================
-       8. オンラインランキングUI処理
+       8. オンラインランキングUI処理 (最高階層のみ表示)
        ========================================================================== */
     let currentRankTab = 'normal';
 
@@ -1702,7 +1701,7 @@
       `;
 
       if (currentRankTab === 'normal') {
-        colTitle.textContent = 'クリア階層';
+        colTitle.textContent = '最高階層';
         tabNormal.className = 'rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded';
         tabTower.className = 'rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded';
       } else {
@@ -1831,7 +1830,8 @@
 
       const curFloor = Player.currentAdventureFloor || 1;
       document.getElementById('titleCurrentFloor').textContent = `${curFloor}F`;
-      document.getElementById('titleMaxFloor').textContent = `${Player.towerBestFloor}F`;
+      document.getElementById('titleMaxFloor').textContent = `${Player.maxClearedFloor}F`;
+      document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
     }
 
@@ -1869,7 +1869,6 @@
       document.getElementById('playerHpBar').style.width = `${Math.max(0, (Battle.playerHp / stats.maxHp) * 100)}%`;
       document.getElementById('playerShieldVal').textContent = Battle.playerShield;
 
-      // ★常時発動している固有特性のバッジ表示
       const traitsBar = document.getElementById('battleTraitsBar');
       traitsBar.innerHTML = '';
       if (stats.weapon && stats.weapon.passive) {
@@ -1890,7 +1889,6 @@
         document.getElementById('enemySprite').innerHTML = getEnemySvg(Battle.enemy.type);
       }
 
-      // ★スキルスロット一覧描画（厳密な発動可能チェックによるハイライト制御）
       const skillArea = document.getElementById('skillArea');
       skillArea.innerHTML = '';
 
@@ -1898,8 +1896,6 @@
 
       Battle.skills.forEach((s, idx) => {
         const card = document.createElement('div');
-        
-        // ★ 選択中のダイス出目が本当に条件を満たしている場合のみ isEligible を true にする
         const isEligible = (currentSelectedDiceVal !== null) && !s.used && checkSkillRequirement(s.req, currentSelectedDiceVal);
 
         card.className = `p-2 rounded border flex items-center justify-between text-xs cursor-pointer ${
@@ -1928,7 +1924,6 @@
         skillArea.appendChild(card);
       });
 
-      // ダイスプール描画
       const dicePool = document.getElementById('dicePool');
       dicePool.innerHTML = '';
       Battle.activeDice.forEach((d, idx) => {
@@ -1981,6 +1976,19 @@
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
+      // ポーズ（中断）モーダル
+      document.getElementById('btnRetreat').onclick = handleRetreat;
+      document.getElementById('btnResumeBattle').onclick = () => {
+        Sound.click();
+        document.getElementById('modalPauseConfirm').classList.add('hidden');
+      };
+      document.getElementById('btnConfirmRetreat').onclick = () => {
+        Sound.stopBattleBgm();
+        Sound.click();
+        showResultScreen(true);
+      };
+
+      // ドロップカットイン閉じる
       document.getElementById('btnCloseDropCutin').onclick = () => {
         Sound.click();
         document.getElementById('modalDropCutin').classList.add('hidden');
@@ -2005,6 +2013,7 @@
         startBattle('tower', 1);
       };
 
+      // 図鑑
       document.getElementById('btnEncyclopedia').onclick = () => {
         Sound.click();
         renderEncyclopedia();
@@ -2025,6 +2034,7 @@
         renderEncyclopedia();
       };
 
+      // ランキング
       document.getElementById('btnRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
@@ -2049,6 +2059,7 @@
         renderRankingTable();
       };
 
+      // 装備箱
       document.getElementById('btnEquipBox').onclick = () => {
         Sound.click();
         renderEquipBox();
@@ -2082,6 +2093,7 @@
         renderEquipBox();
       };
 
+      // ガチャ
       document.getElementById('btnGacha').onclick = () => {
         Sound.click();
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
@@ -2096,7 +2108,6 @@
 
       document.getElementById('btnSoundToggle').onclick = () => Sound.toggleMute();
 
-      document.getElementById('btnRetreat').onclick = handleRetreat;
       document.getElementById('btnEndTurn').onclick = endTurn;
 
       document.getElementById('floorSelectDropdown').onchange = (e) => {
