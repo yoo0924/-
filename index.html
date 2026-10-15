@@ -240,7 +240,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.0.0 - Symphony & Collector Update</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.5.0 - Synergy & Skills Engine</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -308,13 +308,19 @@
 
       <div class="my-2 p-2 rpg-panel rounded space-y-1.5">
         <div class="text-[10px] text-slate-400 font-bold">【 現在の装備 】</div>
-        <div class="flex items-center justify-between text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
-          <span class="text-slate-400">武器:</span>
-          <span id="currentEqWeapon" class="font-bold">素手</span>
+        <div class="text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">武器:</span>
+            <span id="currentEqWeapon" class="font-bold">素手</span>
+          </div>
+          <div id="currentEqWeaponTraits" class="text-[9px] text-amber-300 mt-0.5"></div>
         </div>
-        <div class="flex items-center justify-between text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
-          <span class="text-slate-400">防具:</span>
-          <span id="currentEqArmor" class="font-bold">布の服</span>
+        <div class="text-xs p-1.5 bg-slate-950/70 rounded border border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">防具:</span>
+            <span id="currentEqArmor" class="font-bold">布の服</span>
+          </div>
+          <div id="currentEqArmorTraits" class="text-[9px] text-cyan-300 mt-0.5"></div>
         </div>
       </div>
 
@@ -328,7 +334,7 @@
         </button>
       </div>
 
-      <div id="equipItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[46vh]"></div>
+      <div id="equipItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[44vh]"></div>
     </div>
 
     <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
@@ -363,7 +369,6 @@
         </div>
       </div>
 
-      <!-- 排出確率表示パネル -->
       <div class="w-full bg-slate-900/90 border border-slate-700 rounded p-1.5 text-[9px] z-10">
         <div class="text-amber-300 font-bold mb-0.5">【 ガチャ排出確率 (計100% / 全16種) 】</div>
         <div class="grid grid-cols-4 gap-1 text-center font-bold">
@@ -374,13 +379,11 @@
         </div>
       </div>
 
-      <!-- ガチャ演出ステージ -->
       <div class="my-auto flex flex-col items-center justify-center z-10 min-h-[190px]">
         <div id="gachaTierBanner" class="hidden text-xs font-black px-3 py-0.5 rounded-full mb-2 tracking-widest"></div>
         <div id="gachaChest" class="text-6xl mb-3 filter drop-shadow-[0_0_12px_rgba(234,179,8,0.4)] transition-transform">🔮</div>
         <div id="gachaResultText" class="text-xs text-slate-300 min-h-[3.5rem] flex flex-col items-center justify-center px-2">
-          1回 50 コインでガチャ限定武具を召喚！<br>
-          <span class="text-[10px] text-slate-400">高レアほど召喚演出が豪華に変化します</span>
+          1回 50 コインでガチャ限定武具を召喚！
         </div>
       </div>
 
@@ -434,26 +437,32 @@
         </div>
       </section>
 
-      <!-- プレイヤー情報バー -->
-      <section class="px-3 py-1.5 bg-slate-950/85 backdrop-blur-md border-t border-amber-900 flex justify-between items-center text-xs shrink-0">
-        <div>
-          <div class="flex items-center gap-2 text-[10px]">
-            <span class="text-emerald-400 font-bold">HP: <span id="playerHpText">50/50</span></span>
-            <span class="text-amber-400 font-bold">Lv.<span id="battlePlayerLv">1</span></span>
+      <!-- プレイヤー情報バー ＆ ★常時発動特性表示エリア -->
+      <section class="px-3 py-1 bg-slate-950/85 backdrop-blur-md border-t border-amber-900 flex flex-col gap-1 shrink-0">
+        <div class="flex justify-between items-center text-xs">
+          <div>
+            <div class="flex items-center gap-2 text-[10px]">
+              <span class="text-emerald-400 font-bold">HP: <span id="playerHpText">50/50</span></span>
+              <span class="text-amber-400 font-bold">Lv.<span id="battlePlayerLv">1</span></span>
+            </div>
+            <div class="w-28 h-2 bg-slate-900 border border-slate-700 rounded overflow-hidden mt-0.5">
+              <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 100%;"></div>
+            </div>
           </div>
-          <div class="w-28 h-2 bg-slate-900 border border-slate-700 rounded overflow-hidden mt-0.5">
-            <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 100%;"></div>
+          <div class="flex items-center gap-1">
+            <div class="px-2 py-0.5 bg-blue-950/90 border border-cyan-500 rounded text-cyan-300 font-bold text-xs flex items-center gap-1">
+              <span>🛡️</span>
+              <span id="playerShieldVal">0</span>
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-1">
-          <div class="px-2 py-0.5 bg-blue-950/90 border border-cyan-500 rounded text-cyan-300 font-bold text-xs flex items-center gap-1">
-            <span>🛡️</span>
-            <span id="playerShieldVal">0</span>
-          </div>
+        <!-- 固有特性バッジバー -->
+        <div id="battleTraitsBar" class="flex gap-1 overflow-x-auto text-[8px] pt-0.5 border-t border-slate-800/80">
+          <!-- JSで動的挿入 -->
         </div>
       </section>
 
-      <!-- スキルスロット一覧 -->
+      <!-- スキルスロット一覧 (初期2種 + 武器固有 + 防具固有) -->
       <section id="skillArea" class="p-2 space-y-1.5 max-h-44 overflow-y-auto bg-slate-950/90 backdrop-blur-md border-t border-amber-900 shrink-0"></section>
 
       <!-- サイコロプール＆ターンエンドフッター -->
@@ -527,7 +536,7 @@
     };
 
     /* ==========================================================================
-       1. 交響曲風レトロサウンド & BGMエンジン (すぎやまこういち氏風モチーフ)
+       1. レトロサウンド音源 (Web Audio API)
        ========================================================================== */
     const Sound = {
       ctx: null,
@@ -572,8 +581,6 @@
           osc.stop(now + dur);
         } catch(e) {}
       },
-
-      // クラシカル・シンフォニックバトルBGM (Dマイナー対位法編成)
       startBattleBgm() {
         if (this.muted || this.isPlayingBgm) return;
         this.init();
@@ -594,38 +601,33 @@
         const N = {
           R: 0,
           G2: 98.00, A2: 110.00, Bb2: 116.54, C3: 130.81, Cs3: 138.59, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00,
-          Bb3: 233.08, C4: 261.63, Cs4: 277.18, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, Gs4: 415.30, A4: 440.00,
+          Bb3: 233.08, C4: 261.63, Cs4: 277.18, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00,
           Bb4: 466.16, C5: 523.25, Cs5: 554.37, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00
         };
 
-        // イントロ8ステップ（ブラスファンファーレ）＋ メインループ32ステップ
-        const introLead = [N.D5, N.R, N.D5, N.D5, N.Eb5 || 622.25, N.E5, N.F5, N.A5];
-        const introBass = [N.D3, N.R, N.D3, N.D3, N.C3,          N.Bb2, N.A2, N.A2];
+        const introLead = [N.D5, N.R, N.D5, N.D5, 622.25, N.E5, N.F5, N.A5];
+        const introBass = [N.D3, N.R, N.D3, N.D3, N.C3,   N.Bb2, N.A2, N.A2];
 
         const loopLead = [
-          // Aメロ: 緊迫した弦・ホルン風駆け上がり
           N.D5, N.A4, N.F4, N.D4,  N.Bb4, N.A4, N.G4, N.F4,
           N.E4, N.G4, N.Bb4, N.Cs5, N.D5, N.E5, N.F5, N.R,
-          // Bメロ: 勇壮な交響的展開
           N.G5, N.F5, N.E5, N.D5,  N.C5, N.Bb4, N.A4, N.G4,
           N.F4, N.A4, N.D5, N.F5,  N.E5, N.Cs5, N.A4, N.R
         ];
-
         const loopHarm = [
           N.F4, N.R,  N.D4, N.R,   N.D4, N.C4, N.Bb3, N.A3,
           N.Cs4, N.R, N.E4, N.G4,  N.F4, N.G4, N.A4, N.R,
           N.Bb4, N.A4, N.G4, N.F4, N.E4, N.D4, N.C4, N.Bb3,
           N.A3, N.D4, N.F4, N.A4,  N.A4, N.G4, N.E4, N.R
         ];
-
         const loopBass = [
-          N.D3, N.A2, N.D3, N.F3,  N.G3, N.D3, N.G2, N.B2 || 123.47,
+          N.D3, N.A2, N.D3, N.F3,  N.G3, N.D3, N.G2, 123.47,
           N.C3, N.G2, N.E3, N.A2,  N.D3, N.A2, N.D3, N.C3,
           N.Bb2, N.F3, N.Bb2, N.D3, N.C3, N.G3, N.C3, N.E3,
           N.D3, N.A2, N.F3, N.D3,  N.A2, N.E3, N.A2, N.G2
         ];
 
-        const stepTime = 0.145; // 疾走感あるテンポ
+        const stepTime = 0.145;
         let lead = 0, harm = 0, bass = 0;
 
         if (this.bgmStep < 8) {
@@ -645,15 +647,12 @@
         this.bgmStep++;
         this.bgmTimer = setTimeout(() => this.tickBattleBgm(), stepTime * 1000);
       },
-
       click() { this.tone(520, 0.04, 'square', 0.1); },
       roll() { this.tone(260, 0.05, 'triangle', 0.15); setTimeout(() => this.tone(340, 0.05, 'triangle', 0.15), 50); },
       hit() { this.tone(140, 0.15, 'sawtooth', 0.2); },
       shield() { this.tone(480, 0.08, 'sine', 0.15); setTimeout(() => this.tone(680, 0.1, 'sine', 0.15), 50); },
       win() { this.tone(523, 0.1); setTimeout(() => this.tone(659, 0.1), 80); setTimeout(() => this.tone(784, 0.15), 160); },
       fanfare() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, 'square', 0.18), i * 90)); },
-      
-      // レア度別ガチャ・ドロップ専用ファンファーレ
       rarityFanfare(rarity) {
         if (rarity === 'R') {
           [523, 659, 784].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, 'square', 0.15), i * 80));
@@ -670,55 +669,166 @@
     };
 
     /* ==========================================================================
-       2. 装備マスタデータ
-          - 初期装備: 武器1, 防具1
-          - ガチャ限定 (source: 'gacha'): 武器8 (R3, SR2, SSR2, UR1), 防具8 (R3, SR2, SSR2, UR1)
-          - ドロップ限定 (source: 'drop'): 武器3 (SR1, SSR1, UR1), 防具3 (SR1, SSR1, UR1)
+       2. 武器・防具マスタデータ（固有スキル ＆ 固有特性）
        ========================================================================== */
     const WEAPONS_MASTER = [
-      // 初期所持
-      { id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', atkBonus: 0, desc: '初期状態。何も持っていない。', refundCoin: 1 },
+      { 
+        id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', atkBonus: 0, 
+        desc: '何も持っていない。', refundCoin: 1 
+      },
 
-      // --- ガチャ限定武器 (8種: R×3, SR×2, SSR×2, UR×1) ---
-      { id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 4, desc: '基礎ダメージ+4。量産型の良質な剣。', refundCoin: 15 },
-      { id: 'wg_r2', name: 'シルバーレイピア', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 5, desc: '基礎ダメージ+5。白銀の刺突剣。', refundCoin: 15 },
-      { id: 'wg_r3', name: '重装バトルアクス', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 6, desc: '基礎ダメージ+6。重量級の戦斧。', refundCoin: 15 },
-      { id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', atkBonus: 11, desc: '基礎ダメージ+11。炎を纏う魔法剣。', refundCoin: 40 },
-      { id: 'wg_sr2', name: '迅雷のトールハンマー', type: 'weapon', source: 'gacha', rarity: 'SR', atkBonus: 13, desc: '基礎ダメージ+13。雷撃を放つ戦鎚。', refundCoin: 40 },
-      { id: 'wg_ssr1', name: '聖剣エクスカリバー', type: 'weapon', source: 'gacha', rarity: 'SSR', atkBonus: 20, desc: '基礎ダメージ+20。選ばれし勇者の聖剣。', refundCoin: 100 },
-      { id: 'wg_ssr2', name: '魔槍グングニル', type: 'weapon', source: 'gacha', rarity: 'SSR', atkBonus: 23, desc: '基礎ダメージ+23。必中の神槍。', refundCoin: 100 },
-      { id: 'wg_ur1', name: '星喰らいの終焉神剣', type: 'weapon', source: 'gacha', rarity: 'UR', atkBonus: 38, desc: '基礎ダメージ+38。星々を断つガチャ最高峰の神剣。', refundCoin: 300 },
+      // --- ガチャ限定武器 (8種) ---
+      { 
+        id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 4, 
+        desc: '基礎ダメージ+4', refundCoin: 15,
+        passive: { name: '鋭利な刃', desc: '攻撃時、追加固定+2ダメージ' },
+        skill: { name: '強撃', req: 'min4', desc: '出目4以上: 出目+6 ダメージ', fn: (v, st) => ({ dmg: v + 6 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_r2', name: 'シルバーレイピア', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 5, 
+        desc: '基礎ダメージ+5', refundCoin: 15,
+        passive: { name: '急所突き', desc: '奇数の出目でスキル発動時、ダメージ+3' },
+        skill: { name: 'ファントムスラスト', req: 'odd', desc: '奇数のみ: 出目×2 ダメージ', fn: (v, st) => ({ dmg: v * 2 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_r3', name: '重装バトルアクス', type: 'weapon', source: 'gacha', rarity: 'R', atkBonus: 6, 
+        desc: '基礎ダメージ+6', refundCoin: 15,
+        passive: { name: '粉砕圧', desc: '出目5以上使用時、敵攻撃力を2低下' },
+        skill: { name: '兜割り', req: 'min5', desc: '出目5以上: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', atkBonus: 11, 
+        desc: '基礎ダメージ+11', refundCoin: 40,
+        passive: { name: '火炎付与', desc: '毎ターン終了時、敵に火傷5ダメージ' },
+        skill: { name: '炎刃一閃', req: 'min4', desc: '出目4以上: 出目×2+10 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 10 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_sr2', name: '迅雷のトールハンマー', type: 'weapon', source: 'gacha', rarity: 'SR', atkBonus: 13, 
+        desc: '基礎ダメージ+13', refundCoin: 40,
+        passive: { name: '帯電', desc: '偶数の出目を使うたびシールド+4' },
+        skill: { name: '落雷破', req: 'even', desc: '偶数のみ: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_ssr1', name: '聖剣エクスカリバー', type: 'weapon', source: 'gacha', rarity: 'SSR', atkBonus: 20, 
+        desc: '基礎ダメージ+20', refundCoin: 100,
+        passive: { name: '聖なる加護', desc: 'ターン開始時、HP5自動回復' },
+        skill: { name: 'エクスカリバー', req: 'min5', desc: '出目5以上: 35 ダメージ+シールド15', fn: (v, st) => ({ dmg: 35 + st.stats.baseAtk, shd: 15 }) }
+      },
+      { 
+        id: 'wg_ssr2', name: '魔槍グングニル', type: 'weapon', source: 'gacha', rarity: 'SSR', atkBonus: 23, 
+        desc: '基礎ダメージ+23', refundCoin: 100,
+        passive: { name: '必中の呪い', desc: 'すべての攻撃ダメージが+6底上げ' },
+        skill: { name: '必中神穿', req: 'odd', desc: '奇数のみ: 固定28 防御無視ダメージ', fn: (v, st) => ({ dmg: 28 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wg_ur1', name: '星喰らいの終焉神剣', type: 'weapon', source: 'gacha', rarity: 'UR', atkBonus: 38, 
+        desc: '基礎ダメージ+38。ガチャ最高峰の神剣。', refundCoin: 300,
+        passive: { name: '終焉の狂気', desc: 'サイコロの最大出目が常に+1（上限6超え補正）' },
+        skill: { name: 'メギドカタストロフ', req: 'any', desc: '出目不問: 出目×8 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 8 + st.stats.baseAtk }) }
+      },
 
-      // --- ドロップ限定武器 (3種: SR×1, SSR×1, UR×1) ※確率は非表示 ---
-      { id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', atkBonus: 15, desc: '基礎ダメージ+15。魔物の怨念を宿す刀。', dropRate: 1/256, refundCoin: 50 },
-      { id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', atkBonus: 26, desc: '基礎ダメージ+26。竜の心臓から鍛えられた大剣。', dropRate: 1/512, refundCoin: 150 },
-      { id: 'wd_ur1', name: '創世神核・アポカリプス', type: 'weapon', source: 'drop', rarity: 'UR', atkBonus: 45, desc: '基礎ダメージ+45。深淵の覇者のみが落とす究極神器。', dropRate: 1/1024, refundCoin: 500 }
+      // --- ドロップ限定武器 (3種) ---
+      { 
+        id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', atkBonus: 15, 
+        desc: '基礎ダメージ+15。怨念の魔刀。', dropRate: 1/256, refundCoin: 50,
+        passive: { name: '吸血刃', desc: '与えたダメージの20%をHP回復' },
+        skill: { name: '怨嗟の乱れ刃', req: 'max3', desc: '出目3以下: (7 - 出目)×6 ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 6 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', atkBonus: 26, 
+        desc: '基礎ダメージ+26。古竜の骨剣。', dropRate: 1/512, refundCoin: 150,
+        passive: { name: '逆鱗', desc: 'HPが半分以下の時、全ダメージ2倍' },
+        skill: { name: 'ドラゴンバースト', req: 'min4', desc: '出目4以上: 出目×5 ダメージ', fn: (v, st) => ({ dmg: v * 5 + st.stats.baseAtk }) }
+      },
+      { 
+        id: 'wd_ur1', name: '創世神核・アポカリプス', type: 'weapon', source: 'drop', rarity: 'UR', atkBonus: 45, 
+        desc: '基礎ダメージ+45。究極のドロップ神器。', dropRate: 1/1024, refundCoin: 500,
+        passive: { name: '創世の脈動', desc: '毎ターン追加でサイコロが+1個振られる' },
+        skill: { name: 'ビッグバン・フォース', req: 'even', desc: '偶数のみ: 60 特大ダメージ', fn: (v, st) => ({ dmg: 60 + st.stats.baseAtk }) }
+      }
     ];
 
     const ARMORS_MASTER = [
-      // 初期所持
-      { id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', hpBonus: 0, shdBonus: 0, desc: '初期状態。旅人の普段着。', refundCoin: 1 },
+      { 
+        id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', hpBonus: 0, shdBonus: 0, 
+        desc: '普段着。', refundCoin: 1 
+      },
 
-      // --- ガチャ限定防具 (8種: R×3, SR×2, SSR×2, UR×1) ---
-      { id: 'ag_r1', name: '冒険者のレザーアーマー', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 20, shdBonus: 3, desc: '最大HP+20 / 初期シールド+3', refundCoin: 15 },
-      { id: 'ag_r2', name: '青銅のチェインメイル', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 25, shdBonus: 5, desc: '最大HP+25 / 初期シールド+5', refundCoin: 15 },
-      { id: 'ag_r3', name: '鋼のナイトプレート', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 30, shdBonus: 6, desc: '最大HP+30 / 初期シールド+6', refundCoin: 15 },
-      { id: 'ag_sr1', name: 'ミスリル銀の胸甲', type: 'armor', source: 'gacha', rarity: 'SR', hpBonus: 55, shdBonus: 10, desc: '最大HP+55 / 初期シールド+10', refundCoin: 40 },
-      { id: 'ag_sr2', name: '熾天使の羽衣', type: 'armor', source: 'gacha', rarity: 'SR', hpBonus: 65, shdBonus: 12, desc: '最大HP+65 / 初期シールド+12', refundCoin: 40 },
-      { id: 'ag_ssr1', name: 'イージスの輝盾鎧', type: 'armor', source: 'gacha', rarity: 'SSR', hpBonus: 100, shdBonus: 20, desc: '最大HP+100 / 初期シールド+20', refundCoin: 100 },
-      { id: 'ag_ssr2', name: '竜皇の紅蓮全身鎧', type: 'armor', source: 'gacha', rarity: 'SSR', hpBonus: 120, shdBonus: 24, desc: '最大HP+120 / 初期シールド+24', refundCoin: 100 },
-      { id: 'ag_ur1', name: '時空神クロノスの聖衣', type: 'armor', source: 'gacha', rarity: 'UR', hpBonus: 200, shdBonus: 40, desc: '最大HP+200 / 初期シールド+40。ガチャ最高峰の神衣。', refundCoin: 300 },
+      // --- ガチャ限定防具 (8種) ---
+      { 
+        id: 'ag_r1', name: '冒険者のレザーアーマー', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 20, shdBonus: 3, 
+        desc: '最大HP+20 / 初期シールド+3', refundCoin: 15,
+        passive: { name: '身軽', desc: '毎ターン開始時シールド+2' },
+        skill: { name: 'ステップ回避', req: 'odd', desc: '奇数のみ: シールド+8', fn: (v) => ({ shd: 8 }) }
+      },
+      { 
+        id: 'ag_r2', name: '青銅のチェインメイル', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 25, shdBonus: 5, 
+        desc: '最大HP+25 / 初期シールド+5', refundCoin: 15,
+        passive: { name: '頑強', desc: '受けるダメージを常時2軽減' },
+        skill: { name: '陣形防御', req: 'even', desc: '偶数のみ: 出目×2+4 シールド', fn: (v) => ({ shd: v * 2 + 4 }) }
+      },
+      { 
+        id: 'ag_r3', name: '鋼のナイトプレート', type: 'armor', source: 'gacha', rarity: 'R', hpBonus: 30, shdBonus: 6, 
+        desc: '最大HP+30 / 初期シールド+6', refundCoin: 15,
+        passive: { name: '重装の構え', desc: 'シールド獲得量がすべて+3' },
+        skill: { name: 'アイアンウォール', req: 'min4', desc: '出目4以上: シールド+14', fn: (v) => ({ shd: 14 }) }
+      },
+      { 
+        id: 'ag_sr1', name: 'ミスリル銀の胸甲', type: 'armor', source: 'gacha', rarity: 'SR', hpBonus: 55, shdBonus: 10, 
+        desc: '最大HP+55 / 初期シールド+10', refundCoin: 40,
+        passive: { name: '魔力反発', desc: 'シールド残存時、ターン終了時敵に6ダメージ' },
+        skill: { name: 'ミスリルシールド', req: 'any', desc: '出目不問: 出目+10 シールド', fn: (v) => ({ shd: v + 10 }) }
+      },
+      { 
+        id: 'ag_sr2', name: '熾天使の羽衣', type: 'armor', source: 'gacha', rarity: 'SR', hpBonus: 65, shdBonus: 12, 
+        desc: '最大HP+65 / 初期シールド+12', refundCoin: 40,
+        passive: { name: '天恵', desc: 'ターン終了時HPが4回復' },
+        skill: { name: 'セラフィックバリア', req: 'odd', desc: '奇数のみ: シールド+12 ＆ HP6回復', fn: (v) => ({ shd: 12, heal: 6 }) }
+      },
+      { 
+        id: 'ag_ssr1', name: 'イージスの輝盾鎧', type: 'armor', source: 'gacha', rarity: 'SSR', hpBonus: 100, shdBonus: 20, 
+        desc: '最大HP+100 / 初期シールド+20', refundCoin: 100,
+        passive: { name: '不撓不屈', desc: 'シールドがターン終了時に0リセットされず半分引き継ぐ' },
+        skill: { name: '天壁イージス', req: 'even', desc: '偶数のみ: シールド+25', fn: (v) => ({ shd: 25 }) }
+      },
+      { 
+        id: 'ag_ssr2', name: '竜皇の紅蓮全身鎧', type: 'armor', source: 'gacha', rarity: 'SSR', hpBonus: 120, shdBonus: 24, 
+        desc: '最大HP+120 / 初期シールド+24', refundCoin: 100,
+        passive: { name: '竜鱗の圧', desc: '受けるダメージを常に5軽減' },
+        skill: { name: 'ドラゴニックガード', req: 'min5', desc: '出目5以上: シールド+20 ＆ 敵に18反撃', fn: (v) => ({ shd: 20, dmg: 18 }) }
+      },
+      { 
+        id: 'ag_ur1', name: '時空神クロノスの聖衣', type: 'armor', source: 'gacha', rarity: 'UR', hpBonus: 200, shdBonus: 40, 
+        desc: '最大HP+200 / 初期シールド+40。ガチャ最高峰の神衣。', refundCoin: 300,
+        passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
+        skill: { name: 'タイムディストーション', req: 'any', desc: '出目不問: シールド+35 ＆ 敵の攻撃を完全遮断', fn: (v) => ({ shd: 35, block: true }) }
+      },
 
-      // --- ドロップ限定防具 (3種: SR×1, SSR×1, UR×1) ※確率は非表示 ---
-      { id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', hpBonus: 75, shdBonus: 15, desc: '最大HP+75 / 初期シールド+15。冥界の瘴気を纏う鎧。', dropRate: 1/256, refundCoin: 50 },
-      { id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', hpBonus: 140, shdBonus: 28, desc: '最大HP+140 / 初期シールド+28。魔王軍の秘宝。', dropRate: 1/512, refundCoin: 150 },
-      { id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', hpBonus: 250, shdBonus: 55, desc: '最大HP+250 / 初期シールド+55。絶対防御の究極神鎧。', dropRate: 1/1024, refundCoin: 500 }
+      // --- ドロップ限定防具 (3種) ---
+      { 
+        id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', hpBonus: 75, shdBonus: 15, 
+        desc: '最大HP+75 / 初期シールド+15。', dropRate: 1/256, refundCoin: 50,
+        passive: { name: 'トゲの棘甲', desc: '攻撃を受けた際、受けたダメージの50%を反射' },
+        skill: { name: '怨嗟の盾', req: 'max3', desc: '出目3以下: (7 - 出目)×4 シールド', fn: (v) => ({ shd: (7 - v) * 4 }) }
+      },
+      { 
+        id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', hpBonus: 140, shdBonus: 28, 
+        desc: '最大HP+140 / 初期シールド+28。魔王の秘宝。', dropRate: 1/512, refundCoin: 150,
+        passive: { name: '覇王の威圧', desc: '敵の攻撃力を常時30%ダウン' },
+        skill: { name: '覇王城壁', req: 'min4', desc: '出目4以上: シールド+30 ＆ 敵に15ダメージ', fn: (v) => ({ shd: 30, dmg: 15 }) }
+      },
+      { 
+        id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', hpBonus: 250, shdBonus: 55, 
+        desc: '最大HP+250 / 初期シールド+55。究極の防具神器。', dropRate: 1/1024, refundCoin: 500,
+        passive: { name: '絶対不滅', desc: '毎ターンHP15自動回復 ＆ 致命傷を1回だけHP1で耐える' },
+        skill: { name: '聖光アルテマウォール', req: 'min4', desc: '出目4以上: シールド+45 ＆ HP25回復', fn: (v) => ({ shd: 45, heal: 25 }) }
+      }
     ];
 
     /* ==========================================================================
        3. プレイヤーステータス & 永続セーブシステム
        ========================================================================== */
-    const SAVE_KEY = 'dice_hero_rpg_save_v6';
+    const SAVE_KEY = 'dice_hero_rpg_save_v7';
 
     let Player = {
       name: '',
@@ -781,7 +891,6 @@
         return;
       }
 
-      // ★ デバッグコマンド: debug0924 で全アイテム解放 ＆ ガチャ100回分(5000コイン)配布
       if (val.toLowerCase() === 'debug0924') {
         WEAPONS_MASTER.forEach(w => {
           if (!Player.ownedWeapons.includes(w.id)) Player.ownedWeapons.push(w.id);
@@ -835,14 +944,11 @@
           <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
             <defs>
               <linearGradient id="plainsSky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#38bdf8"/>
-                <stop offset="60%" stop-color="#bae6fd"/>
-                <stop offset="100%" stop-color="#f0f9ff"/>
+                <stop offset="0%" stop-color="#38bdf8"/><stop offset="60%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#f0f9ff"/>
               </linearGradient>
             </defs>
             <rect width="320" height="600" fill="url(#plainsSky)"/>
             <ellipse cx="60" cy="80" rx="35" ry="14" fill="#ffffff" opacity="0.9"/>
-            <ellipse cx="85" cy="74" rx="25" ry="16" fill="#ffffff" opacity="0.9"/>
             <ellipse cx="250" cy="110" rx="45" ry="18" fill="#ffffff" opacity="0.85"/>
             <polygon points="-20,240 80,160 180,250" fill="#93c5fd"/>
             <polygon points="120,250 220,150 340,260" fill="#60a5fa"/>
@@ -856,7 +962,6 @@
           <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
             <rect width="320" height="600" fill="#0f172a"/>
             <polygon points="10,0 25,70 40,0" fill="#334155"/>
-            <polygon points="70,0 90,110 110,0" fill="#1e293b"/>
             <polygon points="150,0 165,80 180,0" fill="#334155"/>
             <polygon points="220,0 245,130 270,0" fill="#1e293b"/>
             <rect x="0" y="400" width="320" height="200" fill="#090d16"/>
@@ -868,8 +973,7 @@
           <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
             <rect width="320" height="600" fill="#18181b"/>
             <path d="M80 340 L80 180 Q160 120 240 180 L240 340 Z" fill="#09090b" stroke="#3f3f46" stroke-width="4"/>
-            <circle cx="39" cy="205" r="9" fill="#f97316"/><circle cx="39" cy="203" r="5" fill="#fde047"/>
-            <circle cx="281" cy="205" r="9" fill="#f97316"/><circle cx="281" cy="203" r="5" fill="#fde047"/>
+            <circle cx="39" cy="205" r="9" fill="#f97316"/><circle cx="281" cy="205" r="9" fill="#f97316"/>
             <rect x="0" y="380" width="320" height="220" fill="#09090b"/>
           </svg>`;
       } else if (locationKey === 'castle') {
@@ -925,7 +1029,7 @@
     }
 
     /* ==========================================================================
-       5. 戦闘エンジン & ドロップ専用カットイン演出
+       5. 戦闘エンジン & 厳密なハイライト・スキル判定
        ========================================================================== */
     let Battle = {
       mode: 'normal',
@@ -938,21 +1042,39 @@
       selectedDiceIndex: null,
       turnKills: 0,
       turnGold: 0,
-      skills: [
-        { id: 's1', name: '連撃の一太刀', req: 'any', desc: '出目 + 武器攻撃力 ダメージ', fn: (v, st) => ({ dmg: v + st.stats.baseAtk }) },
-        { id: 's2', name: '鉄壁の構え', req: 'even', desc: '偶数のみ。出目×2のシールド', fn: (v) => ({ shd: v * 2 }) }
-      ]
+      hasRevivedThisBattle: false,
+      blockNextAttack: false,
+      skills: []
     };
+
+    // ★ スキル条件判定（厳密化）
+    function checkSkillRequirement(req, diceVal) {
+      if (!diceVal) return false;
+      if (req === 'any') return true;
+      if (req === 'even') return diceVal % 2 === 0;
+      if (req === 'odd') return diceVal % 2 !== 0;
+      if (req === 'max3') return diceVal <= 3;
+      if (req === 'max2') return diceVal <= 2;
+      if (req === 'min4') return diceVal >= 4;
+      if (req === 'min5') return diceVal >= 5;
+      if (req === 'six') return diceVal === 6;
+      return false;
+    }
 
     function startBattle(mode, startFloor = null) {
       Battle.mode = mode;
       Battle.floor = (mode === 'normal') ? (startFloor || Player.currentAdventureFloor || 1) : 1;
       Battle.turnKills = 0;
       Battle.turnGold = 0;
+      Battle.hasRevivedThisBattle = false;
+      Battle.blockNextAttack = false;
 
       const stats = getPlayerStats();
       Battle.playerHp = stats.maxHp;
       Battle.playerShield = stats.startShield;
+
+      // 戦闘スキルスロットの動的構成 (基本2種 + 武器固有 + 防具固有)
+      buildBattleSkills(stats);
 
       document.getElementById('screenTitle').classList.add('hidden');
       document.getElementById('modalTowerConfirm').classList.add('hidden');
@@ -963,6 +1085,37 @@
       Sound.startBattleBgm();
       updateFloorSelectDropdown();
       setupNextEnemy();
+    }
+
+    function buildBattleSkills(stats) {
+      Battle.skills = [
+        { id: 's_base1', origin: 'base', name: '連撃の一太刀', req: 'any', desc: '出目 + 武器攻撃力 ダメージ', fn: (v, st) => ({ dmg: v + st.stats.baseAtk }) },
+        { id: 's_base2', origin: 'base', name: '鉄壁の構え', req: 'even', desc: '偶数のみ。出目×2のシールド', fn: (v) => ({ shd: v * 2 }) }
+      ];
+
+      // 武器の固有スキル
+      if (stats.weapon && stats.weapon.skill) {
+        Battle.skills.push({
+          id: `sw_${stats.weapon.id}`,
+          origin: 'weapon',
+          name: stats.weapon.skill.name,
+          req: stats.weapon.skill.req,
+          desc: `[武器技] ${stats.weapon.skill.desc}`,
+          fn: stats.weapon.skill.fn
+        });
+      }
+
+      // 防具の固有スキル
+      if (stats.armor && stats.armor.skill) {
+        Battle.skills.push({
+          id: `sa_${stats.armor.id}`,
+          origin: 'armor',
+          name: stats.armor.skill.name,
+          req: stats.armor.skill.req,
+          desc: `[防具技] ${stats.armor.skill.desc}`,
+          fn: stats.armor.skill.fn
+        });
+      }
     }
 
     function setupNextEnemy() {
@@ -996,6 +1149,12 @@
         atk = Math.round((6 + f * 2.8) * curve);
       }
 
+      // 覇王の威圧 (防具パッシブ: 敵攻撃力30%ダウン)
+      const stats = getPlayerStats();
+      if (stats.armor && stats.armor.passive && stats.armor.passive.name === '覇王の威圧') {
+        atk = Math.max(1, Math.round(atk * 0.7));
+      }
+
       const types = ['slime', 'skeleton', 'knight', 'dragon'];
       const type = types[(f - 1) % types.length];
       const names = ['スライム', 'スケルトン', 'ダークナイト', 'ドラゴン'];
@@ -1008,7 +1167,39 @@
 
     function startTurn() {
       Battle.skills.forEach(s => s.used = false);
-      Battle.activeDice = [rollDie(), rollDie(), rollDie()];
+
+      const stats = getPlayerStats();
+
+      // パッシブ: 不撓不屈 (シールド半減引き継ぎ)
+      if (stats.armor && stats.armor.passive && stats.armor.passive.name === '不撓不屈') {
+        Battle.playerShield = Math.floor(Battle.playerShield / 2);
+      } else {
+        Battle.playerShield = 0;
+      }
+
+      // パッシブ: 聖なる加護 / 絶対不滅 (ターン開始時HP回復)
+      if (stats.weapon && stats.weapon.passive && stats.weapon.passive.name === '聖なる加護') {
+        Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 5);
+      }
+      if (stats.armor && stats.armor.passive && stats.armor.passive.name === '絶対不滅') {
+        Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 15);
+      }
+
+      // パッシブ: 身軽 (シールド+2)
+      if (stats.armor && stats.armor.passive && stats.armor.passive.name === '身軽') {
+        Battle.playerShield += 2;
+      }
+
+      // ダイス数決定 (通常3個。アポカリプスやクロノス所持で+1個)
+      let diceCount = 3;
+      if (stats.weapon && stats.weapon.passive && stats.weapon.passive.name === '創世の脈動') diceCount++;
+      if (stats.armor && stats.armor.passive && stats.armor.passive.name === '時間跳躍') diceCount++;
+
+      Battle.activeDice = [];
+      for (let i = 0; i < diceCount; i++) {
+        Battle.activeDice.push(rollDie());
+      }
+
       Battle.selectedDiceIndex = null;
       Sound.roll();
       renderBattleUI();
@@ -1024,9 +1215,11 @@
       if (skill.used) return;
 
       const diceVal = Battle.activeDice[Battle.selectedDiceIndex];
-      if (skill.req === 'even' && diceVal % 2 !== 0) {
+
+      // ★ 厳密な条件チェック
+      if (!checkSkillRequirement(skill.req, diceVal)) {
         Sound.hit();
-        alert('偶数のサイコロのみセットできます！');
+        alert('このサイコロの出目ではスキルを発動できません！');
         return;
       }
 
@@ -1037,17 +1230,54 @@
       const stats = getPlayerStats();
       const res = skill.fn(diceVal, { stats });
 
+      // パッシブ補正
       if (res.dmg) {
+        let finalDmg = res.dmg;
+        // 鋭利な刃 (+2)
+        if (stats.weapon.passive && stats.weapon.passive.name === '鋭利な刃') finalDmg += 2;
+        // 急所突き (奇数で+3)
+        if (stats.weapon.passive && stats.weapon.passive.name === '急所突き' && diceVal % 2 !== 0) finalDmg += 3;
+        // 必中の呪い (+6)
+        if (stats.weapon.passive && stats.weapon.passive.name === '必中の呪い') finalDmg += 6;
+        // 逆鱗 (HP半分以下で2倍)
+        if (stats.weapon.passive && stats.weapon.passive.name === '逆鱗' && Battle.playerHp <= stats.maxHp / 2) {
+          finalDmg *= 2;
+        }
+
+        Battle.enemy.hp = Math.max(0, Battle.enemy.hp - finalDmg);
         Sound.hit();
-        Battle.enemy.hp = Math.max(0, Battle.enemy.hp - res.dmg);
+
+        // 吸血刃 (与ダメの20%回復)
+        if (stats.weapon.passive && stats.weapon.passive.name === '吸血刃') {
+          const healVal = Math.max(1, Math.floor(finalDmg * 0.2));
+          Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + healVal);
+        }
+
         const spr = document.getElementById('enemySprite');
         spr.classList.remove('shake-anim');
         void spr.offsetWidth;
         spr.classList.add('shake-anim');
       }
+
       if (res.shd) {
+        let finalShd = res.shd;
+        // 重装の構え (+3)
+        if (stats.armor.passive && stats.armor.passive.name === '重装の構え') finalShd += 3;
+        Battle.playerShield += finalShd;
         Sound.shield();
-        Battle.playerShield += res.shd;
+      }
+
+      if (res.heal) {
+        Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + res.heal);
+      }
+
+      if (res.block) {
+        Battle.blockNextAttack = true;
+      }
+
+      // パッシブ: 帯電 (偶数使用時シールド+4)
+      if (stats.weapon.passive && stats.weapon.passive.name === '帯電' && diceVal % 2 === 0) {
+        Battle.playerShield += 4;
       }
 
       renderBattleUI();
@@ -1059,21 +1289,73 @@
 
     function endTurn() {
       Sound.click();
-      let incoming = Battle.enemy.atk;
-      if (Battle.playerShield >= incoming) {
-        Battle.playerShield -= incoming;
+      const stats = getPlayerStats();
+
+      // パッシブ: 火炎付与 (毎ターン敵に5ダメージ)
+      if (stats.weapon.passive && stats.weapon.passive.name === '火炎付与' && Battle.enemy.hp > 0) {
+        Battle.enemy.hp = Math.max(0, Battle.enemy.hp - 5);
+        if (Battle.enemy.hp <= 0) {
+          handleEnemyDefeat();
+          return;
+        }
+      }
+
+      // パッシブ: 魔力反発 (シールド残存時敵に6ダメージ)
+      if (stats.armor.passive && stats.armor.passive.name === '魔力反発' && Battle.playerShield > 0) {
+        Battle.enemy.hp = Math.max(0, Battle.enemy.hp - 6);
+        if (Battle.enemy.hp <= 0) {
+          handleEnemyDefeat();
+          return;
+        }
+      }
+
+      // 敵の反撃
+      if (Battle.blockNextAttack) {
+        Battle.blockNextAttack = false;
         Sound.shield();
       } else {
-        incoming -= Battle.playerShield;
-        Battle.playerShield = 0;
-        Battle.playerHp = Math.max(0, Battle.playerHp - incoming);
-        Sound.hit();
+        let incoming = Battle.enemy.atk;
+
+        // パッシブ: 頑強 (-2) / 竜鱗の圧 (-5)
+        if (stats.armor.passive && stats.armor.passive.name === '頑強') incoming = Math.max(1, incoming - 2);
+        if (stats.armor.passive && stats.armor.passive.name === '竜鱗の圧') incoming = Math.max(1, incoming - 5);
+
+        if (Battle.playerShield >= incoming) {
+          Battle.playerShield -= incoming;
+          Sound.shield();
+        } else {
+          incoming -= Battle.playerShield;
+          Battle.playerShield = 0;
+          Battle.playerHp -= incoming;
+          Sound.hit();
+
+          // パッシブ: トゲの棘甲 (受ダメの50%反射)
+          if (stats.armor.passive && stats.armor.passive.name === 'トゲの棘甲' && incoming > 0) {
+            const reflect = Math.max(1, Math.floor(incoming * 0.5));
+            Battle.enemy.hp = Math.max(0, Battle.enemy.hp - reflect);
+          }
+        }
+      }
+
+      // パッシブ: 天恵 (HP4回復)
+      if (stats.armor.passive && stats.armor.passive.name === '天恵') {
+        Battle.playerHp = Math.min(stats.maxHp, Battle.playerHp + 4);
+      }
+
+      // パッシブ: 絶対不滅 (致死ダメを1回HP1で耐える)
+      if (Battle.playerHp <= 0 && stats.armor.passive && stats.armor.passive.name === '絶対不滅' && !Battle.hasRevivedThisBattle) {
+        Battle.playerHp = 1;
+        Battle.hasRevivedThisBattle = true;
+        Sound.shield();
+        alert('【絶対不滅 発動】聖なる奇跡により、HP1で踏みとどまりました！');
       }
 
       renderBattleUI();
 
       if (Battle.playerHp <= 0) {
         handlePlayerDefeat();
+      } else if (Battle.enemy.hp <= 0) {
+        handleEnemyDefeat();
       } else {
         startTurn();
       }
@@ -1101,7 +1383,6 @@
         savePlayerData();
         updateFloorSelectDropdown();
 
-        // ドロップ判定（ドロップ演出が発生した場合はカットインを閉じた後に次へ進む）
         const droppedItem = rollLootDrop();
         if (droppedItem) {
           showDropCutin(droppedItem);
@@ -1120,10 +1401,8 @@
       }, 480);
     }
 
-    // ドロップ限定アイテムのみの抽選 (SR: 1/256, SSR: 1/512, UR: 1/1024)
     function rollLootDrop() {
       const dropPool = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(it => it.source === 'drop');
-      // レア度が高い順に判定
       const sortedPool = dropPool.sort((a, b) => a.dropRate - b.dropRate);
 
       for (let item of sortedPool) {
@@ -1134,7 +1413,6 @@
       return null;
     }
 
-    // ドロップ専用カットイン演出（ガチャとは異なる宝箱強奪演出）
     function showDropCutin(item) {
       const modal = document.getElementById('modalDropCutin');
       const flashBg = document.getElementById('dropFlashBg');
@@ -1149,7 +1427,6 @@
 
       Sound.rarityFanfare(item.rarity);
 
-      // レア度別の派手さ分岐
       visual.className = 'text-7xl my-2 select-none';
       if (item.rarity === 'SR') {
         flashBg.className = 'absolute inset-0 pointer-events-none opacity-30 bg-purple-700';
@@ -1223,7 +1500,7 @@
     }
 
     /* ==========================================================================
-       6. ガチャシステム (R:70%, SR:20%, SSR:7%, UR:3% + レア度別召喚演出)
+       6. ガチャシステム
        ========================================================================== */
     let isRollingGacha = false;
 
@@ -1250,7 +1527,6 @@
       rollBtn.disabled = true;
       banner.classList.add('hidden');
 
-      // 1. 確率抽選 (R:70%, SR:20%, SSR:7%, UR:3%)
       const rand = Math.random() * 100;
       let targetRarity = 'R';
       if (rand < 3) targetRarity = 'UR';
@@ -1263,7 +1539,6 @@
       );
       const won = gachaPool[Math.floor(Math.random() * gachaPool.length)];
 
-      // 2. 召喚溜め演出 (レア度が高いほど前兆オーラが派手になり時間も長い)
       chest.className = 'text-6xl mb-3 magic-spin';
       Sound.roll();
 
@@ -1296,7 +1571,6 @@
         rollBtn.disabled = false;
         Sound.rarityFanfare(targetRarity);
 
-        // 結果確定ビジュアル
         banner.classList.remove('hidden');
         if (targetRarity === 'R') {
           chest.className = 'text-6xl mb-3';
@@ -1349,7 +1623,7 @@
     /* ==========================================================================
        7. アイテム図鑑 (ENCYCLOPEDIA)
        ========================================================================== */
-    let currentDexTab = 'gacha'; // 'gacha' | 'drop'
+    let currentDexTab = 'gacha';
 
     function renderEncyclopedia() {
       const listEl = document.getElementById('dexItemList');
@@ -1396,6 +1670,7 @@
             <div class="text-[10px] text-slate-400 mt-0.5">
               ${isOwned ? it.desc : '未発見のアイテムです'}
             </div>
+            ${isOwned && it.passive ? `<div class="text-[9px] text-amber-300">特性: ${it.passive.name} (${it.passive.desc})</div>` : ''}
           </div>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded ${
             isOwned ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-500'
@@ -1482,7 +1757,14 @@
 
       const stats = getPlayerStats();
       document.getElementById('currentEqWeapon').innerHTML = `<span class="rarity-${stats.weapon.rarity.toLowerCase()}">[${stats.weapon.rarity}] ${stats.weapon.name}</span> (攻+${stats.weapon.atkBonus})`;
+      document.getElementById('currentEqWeaponTraits').innerHTML = stats.weapon.passive 
+        ? `★特性: 【${stats.weapon.passive.name}】 ${stats.weapon.passive.desc}` 
+        : '特性なし';
+
       document.getElementById('currentEqArmor').innerHTML = `<span class="rarity-${stats.armor.rarity.toLowerCase()}">[${stats.armor.rarity}] ${stats.armor.name}</span> (HP+${stats.armor.hpBonus})`;
+      document.getElementById('currentEqArmorTraits').innerHTML = stats.armor.passive 
+        ? `★特性: 【${stats.armor.passive.name}】 ${stats.armor.passive.desc}` 
+        : '特性なし';
 
       const isWep = currentEquipTab === 'weapon';
       let items = isWep 
@@ -1499,20 +1781,24 @@
       items.forEach(it => {
         const isEquipped = isWep ? (Player.equippedWeapon === it.id) : (Player.equippedArmor === it.id);
         const card = document.createElement('div');
-        card.className = `p-2 bg-slate-950/80 border rounded flex items-center justify-between text-xs ${
+        card.className = `p-2 bg-slate-950/80 border rounded flex flex-col gap-1 text-xs ${
           isEquipped ? 'border-amber-400 bg-amber-950/40 ring-1 ring-amber-500' : 'border-slate-800'
         }`;
 
         const badgeText = it.source === 'drop' ? '<span class="text-[8px] bg-rose-950 text-rose-300 border border-rose-700 px-1 rounded ml-1">Drop限定</span>' : '';
 
         card.innerHTML = `
-          <div>
-            <div class="font-bold rarity-${it.rarity.toLowerCase()}">[${it.rarity}] ${it.name}${badgeText}</div>
-            <div class="text-[10px] text-slate-400">${it.desc}</div>
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-bold rarity-${it.rarity.toLowerCase()}">[${it.rarity}] ${it.name}${badgeText}</span>
+              <span class="text-[10px] text-slate-400 ml-1">${it.desc}</span>
+            </div>
+            <button class="rpg-btn px-2.5 py-1 text-[10px] rounded shrink-0 ${isEquipped ? 'bg-amber-600 text-black font-bold' : 'bg-slate-800 text-slate-200'}">
+              ${isEquipped ? '装備中' : '装備する'}
+            </button>
           </div>
-          <button class="rpg-btn px-2.5 py-1 text-[10px] rounded shrink-0 ${isEquipped ? 'bg-amber-600 text-black font-bold' : 'bg-slate-800 text-slate-200'}">
-            ${isEquipped ? '装備中' : '装備する'}
-          </button>
+          ${it.passive ? `<div class="text-[9px] text-amber-300">★特性: 【${it.passive.name}】 ${it.passive.desc}</div>` : ''}
+          ${it.skill ? `<div class="text-[9px] text-cyan-300">⚔️専用技: 【${it.skill.name}】 (${it.skill.desc})</div>` : ''}
         `;
 
         card.querySelector('button').onclick = () => {
@@ -1583,6 +1869,19 @@
       document.getElementById('playerHpBar').style.width = `${Math.max(0, (Battle.playerHp / stats.maxHp) * 100)}%`;
       document.getElementById('playerShieldVal').textContent = Battle.playerShield;
 
+      // ★常時発動している固有特性のバッジ表示
+      const traitsBar = document.getElementById('battleTraitsBar');
+      traitsBar.innerHTML = '';
+      if (stats.weapon && stats.weapon.passive) {
+        traitsBar.innerHTML += `<span class="px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-600 text-amber-300 font-bold" title="${stats.weapon.passive.desc}">⚔️${stats.weapon.passive.name}</span>`;
+      }
+      if (stats.armor && stats.armor.passive) {
+        traitsBar.innerHTML += `<span class="px-1.5 py-0.5 rounded bg-blue-950/80 border border-cyan-600 text-cyan-300 font-bold" title="${stats.armor.passive.desc}">🛡️${stats.armor.passive.name}</span>`;
+      }
+      if (!stats.weapon.passive && !stats.armor.passive) {
+        traitsBar.innerHTML = '<span class="text-slate-500">特性なし</span>';
+      }
+
       if (Battle.enemy) {
         document.getElementById('enemyName').textContent = Battle.enemy.name;
         document.getElementById('enemyHpText').textContent = `${Battle.enemy.hp}/${Battle.enemy.maxHp}`;
@@ -1591,32 +1890,45 @@
         document.getElementById('enemySprite').innerHTML = getEnemySvg(Battle.enemy.type);
       }
 
+      // ★スキルスロット一覧描画（厳密な発動可能チェックによるハイライト制御）
       const skillArea = document.getElementById('skillArea');
       skillArea.innerHTML = '';
+
+      const currentSelectedDiceVal = (Battle.selectedDiceIndex !== null) ? Battle.activeDice[Battle.selectedDiceIndex] : null;
+
       Battle.skills.forEach((s, idx) => {
         const card = document.createElement('div');
-        const isEligible = Battle.selectedDiceIndex !== null && !s.used;
+        
+        // ★ 選択中のダイス出目が本当に条件を満たしている場合のみ isEligible を true にする
+        const isEligible = (currentSelectedDiceVal !== null) && !s.used && checkSkillRequirement(s.req, currentSelectedDiceVal);
+
         card.className = `p-2 rounded border flex items-center justify-between text-xs cursor-pointer ${
           s.used 
             ? 'bg-slate-900/40 border-slate-800 opacity-40' 
             : isEligible 
-              ? 'bg-amber-950/80 border-amber-400 ring-2 ring-amber-500 animate-pulse' 
+              ? 'bg-amber-950/90 border-amber-400 ring-2 ring-amber-400 animate-pulse shadow-[0_0_12px_rgba(251,191,36,0.5)]' 
               : 'bg-slate-900/90 border-slate-700'
         }`;
 
+        let originBadge = '';
+        if (s.origin === 'weapon') originBadge = '<span class="text-[8px] px-1 bg-amber-950 text-amber-300 border border-amber-700 rounded mr-1">武器技</span>';
+        if (s.origin === 'armor') originBadge = '<span class="text-[8px] px-1 bg-blue-950 text-cyan-300 border border-cyan-700 rounded mr-1">防具技</span>';
+
         card.innerHTML = `
           <div>
-            <div class="font-bold text-amber-200 text-xs">${s.name}</div>
+            <div class="font-bold text-amber-200 text-xs flex items-center">${originBadge}${s.name}</div>
             <div class="text-[9px] text-slate-300">${s.desc}</div>
           </div>
-          <div class="text-[10px] px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-amber-300 font-bold">
-            ${s.used ? '発動済' : 'セット'}
+          <div class="text-[10px] px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-amber-300 font-bold shrink-0 ml-1">
+            ${s.used ? '発動済' : (isEligible ? '★発動可' : 'セット')}
           </div>
         `;
+
         if (!s.used) card.onclick = () => handleUseSkill(idx);
         skillArea.appendChild(card);
       });
 
+      // ダイスプール描画
       const dicePool = document.getElementById('dicePool');
       dicePool.innerHTML = '';
       Battle.activeDice.forEach((d, idx) => {
@@ -1634,8 +1946,8 @@
         dicePool.appendChild(btn);
       });
 
-      document.getElementById('selectedDiceInfo').textContent = Battle.selectedDiceIndex !== null 
-        ? `選択中: 【 ${Battle.activeDice[Battle.selectedDiceIndex]} 】` 
+      document.getElementById('selectedDiceInfo').textContent = (currentSelectedDiceVal !== null)
+        ? `選択中: 【 ${currentSelectedDiceVal} 】` 
         : '選択中: なし';
     }
 
@@ -1669,7 +1981,6 @@
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
-      // ドロップカットイン閉じる
       document.getElementById('btnCloseDropCutin').onclick = () => {
         Sound.click();
         document.getElementById('modalDropCutin').classList.add('hidden');
@@ -1694,7 +2005,6 @@
         startBattle('tower', 1);
       };
 
-      // 図鑑
       document.getElementById('btnEncyclopedia').onclick = () => {
         Sound.click();
         renderEncyclopedia();
@@ -1715,7 +2025,6 @@
         renderEncyclopedia();
       };
 
-      // ランキング
       document.getElementById('btnRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
@@ -1740,7 +2049,6 @@
         renderRankingTable();
       };
 
-      // 装備箱
       document.getElementById('btnEquipBox').onclick = () => {
         Sound.click();
         renderEquipBox();
@@ -1774,7 +2082,6 @@
         renderEquipBox();
       };
 
-      // ガチャ
       document.getElementById('btnGacha').onclick = () => {
         Sound.click();
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
