@@ -30,7 +30,7 @@
       position: fixed;
       inset: 0;
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.02));
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
       background-size: 100% 3px, 3px 100%;
       pointer-events: none;
       z-index: 999;
@@ -260,7 +260,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.0 - Rank Filter & Pause Update</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.1 - Bug Fixed Stable Edition</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -521,7 +521,7 @@
     /* ==========================================================================
        0. Google Apps Script (GAS) 連携基盤モジュール
        ========================================================================== */
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycby1dE1CHIuMkWj8A3SF4E6XeZVkyiPK3ovh1I-fepf_GvvmWK1zdxQN1aGEmk-uQRdw/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec";
 
     const CloudSync = {
       async sendRecord(mode, floorVal) {
@@ -545,7 +545,6 @@
           const res = await fetch(`${GAS_API_URL}?type=${mode}`);
           const json = await res.json();
           if (json.status === 'ok') {
-            // クライアント側でも各プレイヤーの「最高階層のみ」を残すフィルタリング
             const map = new Map();
             json.data.forEach(item => {
               const nm = String(item.name || '').trim();
@@ -616,6 +615,7 @@
       },
       startBattleBgm() {
         if (this.muted || this.isPlayingBgm) return;
+        this.stopBattleBgm(); // 重複防止
         this.init();
         this.isPlayingBgm = true;
         this.bgmStep = 0;
@@ -1069,6 +1069,7 @@
       turnGold: 0,
       hasRevivedThisBattle: false,
       blockNextAttack: false,
+      isTransitioning: false, // 画面遷移・進行中の連打ガード
       skills: []
     };
 
@@ -1092,6 +1093,7 @@
       Battle.turnGold = 0;
       Battle.hasRevivedThisBattle = false;
       Battle.blockNextAttack = false;
+      Battle.isTransitioning = false;
 
       const stats = getPlayerStats();
       Battle.playerHp = stats.maxHp;
@@ -1141,6 +1143,7 @@
     }
 
     function setupNextEnemy() {
+      Battle.isTransitioning = false;
       const f = Battle.floor;
       const isTower = Battle.mode === 'tower';
 
@@ -1225,6 +1228,7 @@
     }
 
     function handleUseSkill(idx) {
+      if (Battle.isTransitioning) return;
       if (Battle.selectedDiceIndex === null) return;
       const skill = Battle.skills[idx];
       if (skill.used) return;
@@ -1294,6 +1298,7 @@
     }
 
     function endTurn() {
+      if (Battle.isTransitioning) return;
       Sound.click();
       const stats = getPlayerStats();
 
@@ -1360,6 +1365,8 @@
     }
 
     function handleEnemyDefeat() {
+      if (Battle.isTransitioning) return;
+      Battle.isTransitioning = true; // 二重発火防止
       Sound.win();
       Battle.turnKills++;
 
@@ -1469,7 +1476,6 @@
       showResultScreen(false);
     }
 
-    // ★ 中断ボタンを押したときはまず確認モーダル（ポーズ画面）を開く
     function handleRetreat() {
       Sound.click();
       document.getElementById('modalPauseConfirm').classList.remove('hidden');
@@ -1488,7 +1494,8 @@
       document.getElementById('resGold').textContent = `${Battle.turnGold}🪙`;
 
       if (Battle.mode === 'tower') {
-        const reached = Math.max(1, Battle.floor - (isRetreat ? 0 : 1));
+        // ★修正: 1Fで敗北しても0Fにならないよう下限1Fを保証
+        const reached = Math.max(1, isRetreat ? Battle.floor : Battle.floor - 1);
         if (reached > Player.towerBestFloor) {
           Player.towerBestFloor = reached;
           savePlayerData();
@@ -1621,7 +1628,7 @@
 
     /* ==========================================================================
        7. アイテム図鑑 (ENCYCLOPEDIA)
-       ========================================================================== */
+       ========================================================================= */
     let currentDexTab = 'gacha';
 
     function renderEncyclopedia() {
@@ -1682,7 +1689,7 @@
     }
 
     /* ==========================================================================
-       8. オンラインランキングUI処理 (最高階層のみ表示)
+       8. オンラインランキングUI処理
        ========================================================================== */
     let currentRankTab = 'normal';
 
@@ -1831,6 +1838,7 @@
       const curFloor = Player.currentAdventureFloor || 1;
       document.getElementById('titleCurrentFloor').textContent = `${curFloor}F`;
       document.getElementById('titleMaxFloor').textContent = `${Player.maxClearedFloor}F`;
+      // ★修正: 塔最高到達階層が正しくタイトルに反映されるよう修正
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
     }
