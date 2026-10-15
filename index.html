@@ -228,7 +228,7 @@
           <span class="truncate max-w-[48%]">防: <span id="titleArmorName" class="text-amber-200 font-bold">布の服</span></span>
         </div>
         <div class="flex justify-between text-[10px] text-amber-400/90 pt-0.5 border-t border-amber-950">
-          <span>通常最高: <span id="titleMaxFloor" class="font-bold text-white">1F</span></span>
+          <span>通常最高: <span id="titleMaxFloor" class="font-bold text-white">1F / 50F</span></span>
           <span>塔最高: <span id="titleTowerFloor" class="font-bold text-white">1F</span></span>
         </div>
       </div>
@@ -266,7 +266,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.7.0 - Clean & Working</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.7.0 - 50F Edition</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -278,7 +278,7 @@
 
       <div class="flex gap-2 my-2">
         <button id="tabRankNormal" class="rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded">
-          通常モード (最高階層)
+          通常モード (全50F)
         </button>
         <button id="tabRankTower" class="rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded">
           無限の塔 (最高到達)
@@ -430,7 +430,7 @@
         <div class="flex items-center gap-1.5">
           <span id="modeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-700">通常</span>
           <span id="locationBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">平原</span>
-          <span id="floorBadge" class="font-bold text-amber-400">1F</span>
+          <span id="floorBadge" class="font-bold text-amber-400">1F / 50F</span>
           
           <select id="floorSelectDropdown" class="bg-slate-900 border border-amber-700 text-amber-300 text-[10px] rounded px-1 py-0.5 outline-none font-bold"></select>
         </div>
@@ -525,8 +525,9 @@
 
   <script>
     /* ==========================================================================
-       0. Google Apps Script (GAS) 連携基盤モジュール
+       0. 定数 & Google Apps Script (GAS) 連携基盤モジュール
        ========================================================================== */
+    const MAX_NORMAL_FLOOR = 50; // 通常モードの最大階層 (50F)
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec";
 
     const CloudSync = {
@@ -889,6 +890,10 @@
         }
       } catch(e) {}
 
+      // 通常モードの階層上限(50F)を超えないよう補正
+      if (Player.currentAdventureFloor > MAX_NORMAL_FLOOR) Player.currentAdventureFloor = MAX_NORMAL_FLOOR;
+      if (Player.maxClearedFloor > MAX_NORMAL_FLOOR) Player.maxClearedFloor = MAX_NORMAL_FLOOR;
+
       if (!Player.name || Player.name.trim() === '') {
         openNameModal(true);
       } else {
@@ -1084,6 +1089,7 @@
       turnGold: 0,
       hasRevivedThisBattle: false,
       blockNextAttack: false,
+      pendingNormalClear: false,
       skills: []
     };
 
@@ -1102,11 +1108,12 @@
 
     function startBattle(mode, startFloor = null) {
       Battle.mode = mode;
-      Battle.floor = (mode === 'normal') ? (startFloor || Player.currentAdventureFloor || 1) : 1;
+      Battle.floor = (mode === 'normal') ? Math.min(MAX_NORMAL_FLOOR, startFloor || Player.currentAdventureFloor || 1) : 1;
       Battle.turnKills = 0;
       Battle.turnGold = 0;
       Battle.hasRevivedThisBattle = false;
       Battle.blockNextAttack = false;
+      Battle.pendingNormalClear = false;
 
       const stats = getPlayerStats();
       Battle.playerHp = stats.maxHp;
@@ -1164,12 +1171,13 @@
         savePlayerData();
       }
 
+      // 50階層に合わせたエリア背景進行 (1〜12F:平原, 13〜25F:洞窟, 26〜38F:迷宮, 39〜50F:王城)
       if (isTower) {
         Battle.location = 'tower';
       } else {
-        if (f <= 3) Battle.location = 'plains';
-        else if (f <= 6) Battle.location = 'cave';
-        else if (f <= 9) Battle.location = 'dungeon';
+        if (f <= 12) Battle.location = 'plains';
+        else if (f <= 25) Battle.location = 'cave';
+        else if (f <= 38) Battle.location = 'dungeon';
         else Battle.location = 'castle';
       }
 
@@ -1177,9 +1185,10 @@
 
       let level = f, hp, atk;
       if (!isTower) {
-        const curve = 1 + (f - 1) * 0.12 + Math.pow(Math.max(0, f - 6) * 0.15, 2);
-        hp = Math.round((22 + f * 5) * curve);
-        atk = Math.round((4 + f * 1.5) * curve);
+        // 全50階層向けに調整された成長曲線
+        const curve = 1 + (f - 1) * 0.05 + Math.pow(Math.max(0, f - 10) * 0.035, 2);
+        hp = Math.round((22 + f * 4) * curve);
+        atk = Math.round((4 + f * 1.1) * curve);
       } else {
         const curve = 1 + (f - 1) * 0.28 + Math.pow(f * 0.1, 2);
         hp = Math.round((26 + f * 8) * curve);
@@ -1385,12 +1394,23 @@
         Player.gold += goldGained;
         addExp(expGained);
 
-        Battle.floor++;
-        Player.currentAdventureFloor = Battle.floor;
+        // 50F(最終階層)を討伐した場合のクリア処理
+        const isFinalFloor = Battle.floor >= MAX_NORMAL_FLOOR;
 
-        if (Battle.floor > Player.maxClearedFloor) {
-          Player.maxClearedFloor = Battle.floor;
-          CloudSync.sendRecord('normal', Player.maxClearedFloor);
+        if (isFinalFloor) {
+          Battle.floor = MAX_NORMAL_FLOOR;
+          Player.currentAdventureFloor = MAX_NORMAL_FLOOR;
+          if (Player.maxClearedFloor < MAX_NORMAL_FLOOR) {
+            Player.maxClearedFloor = MAX_NORMAL_FLOOR;
+          }
+          CloudSync.sendRecord('normal', MAX_NORMAL_FLOOR);
+        } else {
+          Battle.floor++;
+          Player.currentAdventureFloor = Battle.floor;
+          if (Battle.floor > Player.maxClearedFloor) {
+            Player.maxClearedFloor = Battle.floor;
+            CloudSync.sendRecord('normal', Player.maxClearedFloor);
+          }
         }
 
         savePlayerData();
@@ -1398,7 +1418,17 @@
 
         const droppedItem = rollLootDrop();
         if (droppedItem) {
+          Battle.pendingNormalClear = isFinalFloor;
           showDropCutin(droppedItem);
+          return;
+        }
+
+        if (isFinalFloor) {
+          setTimeout(() => {
+            Sound.stopBattleBgm();
+            Sound.fanfare();
+            showResultScreen('clear');
+          }, 480);
           return;
         }
       } else {
@@ -1489,15 +1519,24 @@
       document.getElementById('modalPauseConfirm').classList.remove('hidden');
     }
 
-    function showResultScreen(isRetreat) {
+    function showResultScreen(status) {
       document.getElementById('screenBattle').classList.add('hidden');
       document.getElementById('modalPauseConfirm').classList.add('hidden');
       document.getElementById('modalResult').classList.remove('hidden');
 
-      document.getElementById('resultIcon').textContent = isRetreat ? '🏃' : '💀';
-      document.getElementById('resultTitle').textContent = isRetreat ? '戦闘中断・帰還' : '冒険の終焉';
+      const isClear = status === 'clear';
+      const isRetreat = status === true;
+
+      if (isClear) {
+        document.getElementById('resultIcon').textContent = '🏆';
+        document.getElementById('resultTitle').textContent = '通常モード全50階層 完全制覇！';
+      } else {
+        document.getElementById('resultIcon').textContent = isRetreat ? '🏃' : '💀';
+        document.getElementById('resultTitle').textContent = isRetreat ? '戦闘中断・帰還' : '冒険の終焉';
+      }
+
       document.getElementById('resMode').textContent = Battle.mode === 'normal' ? '通常モード' : '無限の塔';
-      document.getElementById('resFloor').textContent = `${Battle.floor}F`;
+      document.getElementById('resFloor').textContent = Battle.mode === 'normal' ? `${Battle.floor}F / ${MAX_NORMAL_FLOOR}F` : `${Battle.floor}F`;
       document.getElementById('resKills').textContent = `${Battle.turnKills}体`;
       document.getElementById('resGold').textContent = `${Battle.turnGold}🪙`;
 
@@ -1748,10 +1787,12 @@
         else if (index === 1) rankColor = 'text-slate-200 font-bold';
         else if (index === 2) rankColor = 'text-amber-600 font-bold';
 
+        const displayScore = currentRankTab === 'normal' ? Math.min(MAX_NORMAL_FLOOR, item.score) : item.score;
+
         tr.innerHTML = `
           <td class="py-1.5 ${rankColor}">${index + 1}位</td>
           <td class="py-1.5">${item.name} ${isMe ? '★(あなた)' : ''}</td>
-          <td class="py-1.5 text-right font-mono text-cyan-300 font-bold">${item.score}F</td>
+          <td class="py-1.5 text-right font-mono text-cyan-300 font-bold">${displayScore}F</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1842,11 +1883,12 @@
       document.getElementById('titleArmorName').textContent = stats.armor.name;
       document.getElementById('towerBestFloor').textContent = `${Player.towerBestFloor}F`;
 
-      const curFloor = Player.currentAdventureFloor || 1;
+      const curFloor = Math.min(MAX_NORMAL_FLOOR, Player.currentAdventureFloor || 1);
+      const maxNormal = Math.min(MAX_NORMAL_FLOOR, Player.maxClearedFloor || 1);
       const curFloorEl = document.getElementById('titleCurrentFloor');
       if (curFloorEl) curFloorEl.textContent = `${curFloor}F`;
 
-      document.getElementById('titleMaxFloor').textContent = `${Player.maxClearedFloor}F`;
+      document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${MAX_NORMAL_FLOOR}F`;
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
     }
@@ -1861,7 +1903,7 @@
       }
 
       sel.classList.remove('hidden');
-      const maxF = Math.max(1, Player.maxClearedFloor || 1);
+      const maxF = Math.min(MAX_NORMAL_FLOOR, Math.max(1, Player.maxClearedFloor || 1));
       for (let i = 1; i <= maxF; i++) {
         const opt = document.createElement('option');
         opt.value = i;
@@ -1876,7 +1918,7 @@
       
       const locNames = { plains: '平原', cave: '洞窟', dungeon: '迷宮', castle: '王城', tower: '虚空塔' };
       document.getElementById('locationBadge').textContent = locNames[Battle.location] || '平原';
-      document.getElementById('floorBadge').textContent = `${Battle.floor}F`;
+      document.getElementById('floorBadge').textContent = Battle.mode === 'normal' ? `${Battle.floor}F / ${MAX_NORMAL_FLOOR}F` : `${Battle.floor}F`;
       document.getElementById('battleGold').textContent = Player.gold;
       document.getElementById('battlePlayerLv').textContent = Player.level;
 
@@ -1983,7 +2025,6 @@
        11. 単純かつ確実なイベント登録（タッチ・クリック両対応）
        ========================================================================== */
     function attachListeners() {
-      // スマホ等のタッチ操作開始時にオーディオコンテキストを確実にアンロック
       const unlockAudio = () => {
         Sound.init();
       };
@@ -2015,7 +2056,14 @@
       document.getElementById('btnCloseDropCutin').onclick = () => {
         Sound.click();
         document.getElementById('modalDropCutin').classList.add('hidden');
-        setupNextEnemy();
+        if (Battle.pendingNormalClear) {
+          Battle.pendingNormalClear = false;
+          Sound.stopBattleBgm();
+          Sound.fanfare();
+          showResultScreen('clear');
+        } else {
+          setupNextEnemy();
+        }
       };
 
       document.getElementById('btnAdventure').onclick = () => {
