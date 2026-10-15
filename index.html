@@ -12,7 +12,7 @@
       user-select: none;
       -webkit-user-select: none;
       box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     body {
       background-color: #050508;
@@ -32,7 +32,7 @@
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
                   linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
       background-size: 100% 3px, 3px 100%;
-      pointer-events: none !important;
+      pointer-events: none;
       z-index: 999;
     }
     .rpg-frame {
@@ -48,7 +48,7 @@
       border: 2px solid #fef08a;
       box-shadow: 0 3px 0 #78350f, inset 0 1px 0 rgba(255,255,255,0.4);
       cursor: pointer;
-      touch-action: manipulation;
+      transition: transform 0.05s, box-shadow 0.05s;
     }
     .rpg-btn:active:not(:disabled) {
       transform: translateY(2px);
@@ -109,7 +109,6 @@
     .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
     .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
     .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
-    .hidden { display: none !important; }
     ::-webkit-scrollbar { display: none; }
   </style>
 </head>
@@ -120,7 +119,7 @@
   <div id="gameFrame" class="relative w-full max-w-sm h-full max-h-[760px] flex flex-col rpg-frame overflow-hidden bg-slate-950">
 
     <!-- ==================== 0. プレイヤー名入力モーダル ==================== -->
-    <div id="modalPlayerName" class="hidden absolute inset-0 z-[200] bg-slate-950/95 flex flex-col items-center justify-center p-4 text-center">
+    <div id="modalPlayerName" class="hidden absolute inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
         <div class="text-3xl animate-bounce">📜</div>
         <h3 id="nameModalTitle" class="text-sm font-bold text-amber-300">【 勇者の名前を決めよう 】</h3>
@@ -136,7 +135,7 @@
     </div>
 
     <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
-    <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 flex flex-col items-center justify-center p-4 text-center">
+    <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
         <div class="text-3xl">⏸️</div>
         <h3 class="text-sm font-bold text-amber-300">【 一時中断 】</h3>
@@ -155,7 +154,7 @@
       </div>
     </div>
 
-    <!-- ==================== 0.5 ドロップ専用カットイン演出 ==================== -->
+    <!-- ==================== 0.5 ドロップ専用カットイン演出オーバーレイ ==================== -->
     <div id="modalDropCutin" class="hidden absolute inset-0 z-[160] bg-black/95 flex flex-col items-center justify-center p-5 text-center">
       <div id="dropFlashBg" class="absolute inset-0 pointer-events-none opacity-30"></div>
       <div class="relative z-10 flex flex-col items-center space-y-3 max-w-xs w-full">
@@ -171,8 +170,8 @@
     </div>
 
     <!-- ==================== 1. タイトル画面 ==================== -->
-    <div id="screenTitle" class="absolute inset-0 z-30 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
-      <div class="absolute inset-0 -z-10 pointer-events-none">
+    <div id="screenTitle" class="absolute inset-0 z-50 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
+      <div class="absolute inset-0 -z-10">
         <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
           <defs>
             <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -230,28 +229,28 @@
 
       <!-- メインボタン群 -->
       <div class="w-full space-y-1.5">
-        <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
+        <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
           <span>⚔️</span> <span id="btnAdventureLabel">冒険に出る (1Fから再開)</span>
         </button>
 
-        <button id="btnTowerConfirm" class="rpg-btn w-full py-2 bg-gradient-to-r from-indigo-900 to-purple-900 text-purple-200 font-bold text-xs flex items-center justify-center gap-2 rounded">
+        <button id="btnTowerConfirm" class="rpg-btn w-full py-2 bg-gradient-to-r from-indigo-900 to-purple-900 hover:from-indigo-800 hover:to-purple-800 text-purple-200 font-bold text-xs flex items-center justify-center gap-2 rounded">
           <span>🗼</span> <span>無限の塔 (挑戦モード)</span>
         </button>
 
         <div class="grid grid-cols-2 gap-1.5">
-          <button id="btnEquipBox" class="rpg-btn py-1.5 bg-slate-800 text-amber-300 text-[11px] font-bold rounded">
+          <button id="btnEquipBox" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-amber-300 text-[11px] font-bold rounded">
             🎒 装備箱
           </button>
-          <button id="btnGacha" class="rpg-btn py-1.5 bg-slate-800 text-yellow-300 text-[11px] font-bold rounded">
+          <button id="btnGacha" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-yellow-300 text-[11px] font-bold rounded">
             🎰 装備ガチャ
           </button>
         </div>
 
         <div class="grid grid-cols-2 gap-1.5">
-          <button id="btnEncyclopedia" class="rpg-btn py-1.5 bg-emerald-950 text-emerald-300 text-[11px] font-bold rounded border-emerald-500">
+          <button id="btnEncyclopedia" class="rpg-btn py-1.5 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 text-[11px] font-bold rounded border-emerald-500">
             📖 アイテム図鑑
           </button>
-          <button id="btnRanking" class="rpg-btn py-1.5 bg-cyan-950 text-cyan-200 text-[11px] font-bold rounded border-cyan-400">
+          <button id="btnRanking" class="rpg-btn py-1.5 bg-cyan-950/90 hover:bg-cyan-900 text-cyan-200 text-[11px] font-bold rounded border-cyan-400">
             🏆 全国ランキング
           </button>
         </div>
@@ -261,11 +260,11 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.3 - Touch Event Fixed</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.4 - Reverted to Pure Click</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
-    <div id="modalRanking" class="hidden absolute inset-0 z-[110] bg-slate-950/95 flex flex-col justify-between p-3">
+    <div id="modalRanking" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-cyan-800 pb-1.5">
         <h2 class="text-xs font-bold text-cyan-400">🏆 全国オンラインランキング</h2>
         <button id="btnCloseRanking" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
@@ -301,7 +300,7 @@
     </div>
 
     <!-- ==================== 3. 無限の塔 挑戦確認モーダル ==================== -->
-    <div id="modalTowerConfirm" class="hidden absolute inset-0 z-[120] bg-slate-950/85 flex flex-col items-center justify-center p-4 text-center">
+    <div id="modalTowerConfirm" class="hidden absolute inset-0 z-[120] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-indigo-500 rounded p-4 space-y-3">
         <div class="text-3xl">🗼</div>
         <h3 class="text-sm font-bold text-indigo-300">【 無限の塔 】</h3>
@@ -321,7 +320,7 @@
     </div>
 
     <!-- ==================== 4. 装備箱モーダル ==================== -->
-    <div id="modalEquipBox" class="hidden absolute inset-0 z-[110] bg-slate-950/95 flex flex-col justify-between p-3">
+    <div id="modalEquipBox" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-amber-900 pb-1.5">
         <h2 class="text-xs font-bold text-amber-400">🎒 装備箱 (所持品一覧)</h2>
         <button id="btnCloseEquipBox" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
@@ -359,7 +358,7 @@
     </div>
 
     <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
-    <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 flex flex-col justify-between p-3">
+    <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-emerald-800 pb-1.5">
         <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑</h2>
         <button id="btnCloseEncyclopedia" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
@@ -379,7 +378,7 @@
     </div>
 
     <!-- ==================== 5. ガチャモーダル ==================== -->
-    <div id="modalGacha" class="hidden absolute inset-0 z-[110] bg-slate-950/95 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
+    <div id="modalGacha" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
       <div id="gachaBgEffect" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"></div>
 
       <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-1.5 z-10">
@@ -417,7 +416,7 @@
     </div>
 
     <!-- ==================== 6. 戦闘プレイ画面 ==================== -->
-    <div id="screenBattle" class="hidden absolute inset-0 z-20 flex flex-col overflow-hidden">
+    <div id="screenBattle" class="hidden absolute inset-0 z-10 flex flex-col overflow-hidden">
       <div id="battleBgLayer" class="absolute inset-0 -z-10 pointer-events-none transition-opacity duration-500"></div>
 
       <!-- 戦闘ヘッダー -->
@@ -1979,164 +1978,150 @@
     }
 
     /* ==========================================================================
-       11. タップバインドヘルパー (iOS/iPadOS最適化)
+       11. 純粋なクリックイベント結線（全体確認前と同じ仕様）
        ========================================================================== */
-    function bindTap(el, callback) {
-      if (!el) return;
-      let handled = false;
-      const fire = (e) => {
-        if (handled) return;
-        handled = true;
-        setTimeout(() => { handled = false; }, 300);
-        callback(e);
-      };
-
-      el.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        fire(e);
-      }, { passive: false });
-
-      el.addEventListener('click', (e) => {
-        fire(e);
-      });
-    }
-
     function attachListeners() {
-      bindTap(document.getElementById('btnSaveName'), savePlayerNameFromModal);
-      bindTap(document.getElementById('btnCancelName'), () => {
+      document.getElementById('btnSaveName').onclick = savePlayerNameFromModal;
+      document.getElementById('btnCancelName').onclick = () => {
         document.getElementById('modalPlayerName').classList.add('hidden');
-      });
-      bindTap(document.getElementById('btnPlayerBadge'), () => openNameModal(false));
+      };
+      document.getElementById('btnPlayerBadge').onclick = () => openNameModal(false);
       document.getElementById('inputPlayerName').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
-      bindTap(document.getElementById('btnRetreat'), handleRetreat);
-      bindTap(document.getElementById('btnResumeBattle'), () => {
+      // ポーズ（中断）モーダル
+      document.getElementById('btnRetreat').onclick = handleRetreat;
+      document.getElementById('btnResumeBattle').onclick = () => {
         Sound.click();
         document.getElementById('modalPauseConfirm').classList.add('hidden');
-      });
-      bindTap(document.getElementById('btnConfirmRetreat'), () => {
+      };
+      document.getElementById('btnConfirmRetreat').onclick = () => {
         Sound.stopBattleBgm();
         Sound.click();
         showResultScreen(true);
-      });
+      };
 
-      bindTap(document.getElementById('btnCloseDropCutin'), () => {
+      // ドロップカットイン閉じる
+      document.getElementById('btnCloseDropCutin').onclick = () => {
         Sound.click();
         document.getElementById('modalDropCutin').classList.add('hidden');
         setupNextEnemy();
-      });
+      };
 
-      bindTap(document.getElementById('btnAdventure'), () => {
+      document.getElementById('btnAdventure').onclick = () => {
         Sound.click();
         startBattle('normal', Player.currentAdventureFloor || 1);
-      });
+      };
 
-      bindTap(document.getElementById('btnTowerConfirm'), () => {
+      document.getElementById('btnTowerConfirm').onclick = () => {
         Sound.click();
         document.getElementById('modalTowerConfirm').classList.remove('hidden');
-      });
-      bindTap(document.getElementById('btnTowerCancel'), () => {
+      };
+      document.getElementById('btnTowerCancel').onclick = () => {
         Sound.click();
         document.getElementById('modalTowerConfirm').classList.add('hidden');
-      });
-      bindTap(document.getElementById('btnTowerStart'), () => {
+      };
+      document.getElementById('btnTowerStart').onclick = () => {
         Sound.click();
         startBattle('tower', 1);
-      });
+      };
 
-      bindTap(document.getElementById('btnEncyclopedia'), () => {
+      // 図鑑
+      document.getElementById('btnEncyclopedia').onclick = () => {
         Sound.click();
         renderEncyclopedia();
         document.getElementById('modalEncyclopedia').classList.remove('hidden');
-      });
-      bindTap(document.getElementById('btnCloseEncyclopedia'), () => {
+      };
+      document.getElementById('btnCloseEncyclopedia').onclick = () => {
         Sound.click();
         document.getElementById('modalEncyclopedia').classList.add('hidden');
       };
-      bindTap(document.getElementById('tabDexGacha'), () => {
+      document.getElementById('tabDexGacha').onclick = () => {
         Sound.click();
         currentDexTab = 'gacha';
         renderEncyclopedia();
-      });
-      bindTap(document.getElementById('tabDexDrop'), () => {
+      };
+      document.getElementById('tabDexDrop').onclick = () => {
         Sound.click();
         currentDexTab = 'drop';
         renderEncyclopedia();
-      });
+      };
 
-      bindTap(document.getElementById('btnRanking'), () => {
+      // ランキング
+      document.getElementById('btnRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
         renderRankingTable();
       };
-      bindTap(document.getElementById('btnCloseRanking'), () => {
+      document.getElementById('btnCloseRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.add('hidden');
-      });
-      bindTap(document.getElementById('tabRankNormal'), () => {
+      };
+      document.getElementById('tabRankNormal').onclick = () => {
         Sound.click();
         currentRankTab = 'normal';
         renderRankingTable();
       };
-      bindTap(document.getElementById('tabRankTower'), () => {
+      document.getElementById('tabRankTower').onclick = () => {
         Sound.click();
         currentRankTab = 'tower';
         renderRankingTable();
       };
-      bindTap(document.getElementById('btnRefreshRanking'), () => {
+      document.getElementById('btnRefreshRanking').onclick = () => {
         Sound.click();
         renderRankingTable();
-      });
+      };
 
-      bindTap(document.getElementById('btnEquipBox'), () => {
+      // 装備箱
+      document.getElementById('btnEquipBox').onclick = () => {
         Sound.click();
         renderEquipBox();
         document.getElementById('modalEquipBox').classList.remove('hidden');
-      });
-      bindTap(document.getElementById('btnCloseEquipBox'), () => {
+      };
+      document.getElementById('btnCloseEquipBox').onclick = () => {
         Sound.click();
         document.getElementById('modalEquipBox').classList.add('hidden');
-      });
+      };
 
-      bindTap(document.getElementById('tabWeapons'), () => {
+      document.getElementById('tabWeapons').onclick = () => {
         Sound.click();
         currentEquipTab = 'weapon';
         document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
         document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
         renderEquipBox();
-      });
+      };
 
-      bindTap(document.getElementById('tabArmors'), () => {
+      document.getElementById('tabArmors').onclick = () => {
         Sound.click();
         currentEquipTab = 'armor';
         document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
         document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
         renderEquipBox();
-      });
+      };
 
-      bindTap(document.getElementById('btnSortOrder'), () => {
+      document.getElementById('btnSortOrder').onclick = () => {
         Sound.click();
         currentSortMode = (currentSortMode === 'rarity') ? 'order' : 'rarity';
         document.getElementById('btnSortOrder').textContent = `ソート: ${currentSortMode === 'rarity' ? 'レア順 ▼' : '入手順 ▼'}`;
         renderEquipBox();
-      });
+      };
 
-      bindTap(document.getElementById('btnGacha'), () => {
+      // ガチャ
+      document.getElementById('btnGacha').onclick = () => {
         Sound.click();
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
         document.getElementById('modalGacha').classList.remove('hidden');
-      });
-      bindTap(document.getElementById('btnCloseGacha'), () => {
+      };
+      document.getElementById('btnCloseGacha').onclick = () => {
         if (isRollingGacha) return;
         Sound.click();
         document.getElementById('modalGacha').classList.add('hidden');
-      });
-      bindTap(document.getElementById('btnRollGacha'), rollGacha);
+      };
+      document.getElementById('btnRollGacha').onclick = rollGacha;
 
-      bindTap(document.getElementById('btnSoundToggle'), () => Sound.toggleMute());
-      bindTap(document.getElementById('btnEndTurn'), endTurn);
+      document.getElementById('btnSoundToggle').onclick = () => Sound.toggleMute();
+      document.getElementById('btnEndTurn').onclick = endTurn;
 
       document.getElementById('floorSelectDropdown').onchange = (e) => {
         Battle.floor = parseInt(e.target.value, 10);
@@ -2145,12 +2130,12 @@
         setupNextEnemy();
       };
 
-      bindTap(document.getElementById('btnReturnToTitle'), () => {
+      document.getElementById('btnReturnToTitle').onclick = () => {
         Sound.click();
         document.getElementById('modalResult').classList.add('hidden');
         document.getElementById('screenTitle').classList.remove('hidden');
         updateTitleUI();
-      });
+      };
     }
 
     window.onload = () => {
