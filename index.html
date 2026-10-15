@@ -12,6 +12,7 @@
       user-select: none;
       -webkit-user-select: none;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
     body {
       background-color: #050508;
@@ -108,6 +109,7 @@
     .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
     .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
     .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
+    .hidden { display: none !important; }
     ::-webkit-scrollbar { display: none; }
   </style>
 </head>
@@ -169,7 +171,7 @@
     </div>
 
     <!-- ==================== 1. タイトル画面 ==================== -->
-    <div id="screenTitle" class="absolute inset-0 z-40 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
+    <div id="screenTitle" class="absolute inset-0 z-30 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
       <div class="absolute inset-0 -z-10 pointer-events-none">
         <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
           <defs>
@@ -259,7 +261,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.2 - Touch & Cache Resolved</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.6.3 - Touch Event Fixed</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -415,7 +417,7 @@
     </div>
 
     <!-- ==================== 6. 戦闘プレイ画面 ==================== -->
-    <div id="screenBattle" class="hidden absolute inset-0 z-30 flex flex-col overflow-hidden">
+    <div id="screenBattle" class="hidden absolute inset-0 z-20 flex flex-col overflow-hidden">
       <div id="battleBgLayer" class="absolute inset-0 -z-10 pointer-events-none transition-opacity duration-500"></div>
 
       <!-- 戦闘ヘッダー -->
@@ -579,7 +581,7 @@
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+          if (AudioContext) this.ctx = new AudioContext();
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
@@ -881,7 +883,6 @@
         }
       } catch(e) {}
 
-      // 名前が未設定の場合のみモーダル表示
       if (!Player.name || Player.name.trim() === '') {
         openNameModal(true);
       } else {
@@ -918,7 +919,6 @@
         return;
       }
 
-      // ★ データ初期化コマンド
       if (val.toLowerCase() === 'reset') {
         localStorage.removeItem(SAVE_KEY);
         location.reload();
@@ -1063,7 +1063,7 @@
     }
 
     /* ==========================================================================
-       5. 戦闘エンジン & 厳密なハイライト・スキル判定
+       5. 戦闘エンジン
        ========================================================================== */
     let Battle = {
       mode: 'normal',
@@ -1635,7 +1635,7 @@
     }
 
     /* ==========================================================================
-       7. アイテム図鑑 (ENCYCLOPEDIA)
+       7. アイテム図鑑
        ========================================================================== */
     let currentDexTab = 'gacha';
 
@@ -1979,13 +1979,25 @@
     }
 
     /* ==========================================================================
-       11. タップバインドヘルパー & イベントリスナー結線
+       11. タップバインドヘルパー (iOS/iPadOS最適化)
        ========================================================================== */
     function bindTap(el, callback) {
       if (!el) return;
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
+      let handled = false;
+      const fire = (e) => {
+        if (handled) return;
+        handled = true;
+        setTimeout(() => { handled = false; }, 300);
         callback(e);
+      };
+
+      el.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        fire(e);
+      }, { passive: false });
+
+      el.addEventListener('click', (e) => {
+        fire(e);
       });
     }
 
@@ -2042,7 +2054,7 @@
       bindTap(document.getElementById('btnCloseEncyclopedia'), () => {
         Sound.click();
         document.getElementById('modalEncyclopedia').classList.add('hidden');
-      });
+      };
       bindTap(document.getElementById('tabDexGacha'), () => {
         Sound.click();
         currentDexTab = 'gacha';
@@ -2058,7 +2070,7 @@
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
         renderRankingTable();
-      });
+      };
       bindTap(document.getElementById('btnCloseRanking'), () => {
         Sound.click();
         document.getElementById('modalRanking').classList.add('hidden');
@@ -2067,7 +2079,7 @@
         Sound.click();
         currentRankTab = 'normal';
         renderRankingTable();
-      });
+      };
       bindTap(document.getElementById('tabRankTower'), () => {
         Sound.click();
         currentRankTab = 'tower';
