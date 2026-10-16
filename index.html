@@ -266,7 +266,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.7.2</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 3.7.3</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -1391,7 +1391,7 @@
 
       if (Battle.mode === 'normal') {
         const expGained = Math.round(12 + Battle.enemy.level * 4.5);
-        const goldGained = Math.round(5 + Battle.enemy.level * 2);
+        const goldGained = Math.round(2 + Battle.enemy.level * 0.5);
         Battle.turnGold += goldGained;
         Player.gold += goldGained;
         addExp(expGained);
