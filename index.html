@@ -417,7 +417,7 @@
         <button id="btnRollGacha" class="rpg-btn w-full py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-slate-950 font-black text-xs rounded">
           装備を召喚する (50🪙)
         </button>
-        <div class="text-[9px] text-slate-400">重複時はコイン還元 (R:15 / SR:40 / SSR:100 / UR:300)</div>
+        <div class="text-[9px] text-slate-400">重複時はコイン還元</div>
       </div>
     </div>
 
@@ -1652,11 +1652,11 @@
         const isOwned = isWep ? Player.ownedWeapons.includes(won.id) : Player.ownedArmors.includes(won.id);
 
         if (isOwned) {
-          Player.gold += won.refundCoin;
+          Player.gold += 5;
           resultText.innerHTML = `
             <span class="rarity-${won.rarity.toLowerCase()} text-sm font-bold">[${won.rarity}] ${won.name}</span>
             <span class="text-[10px] text-slate-300">${won.desc}</span>
-            <span class="text-[10px] text-orange-400 font-bold mt-1">【所持済】+${won.refundCoin} コイン還元！</span>
+            <span class="text-[10px] text-orange-400 font-bold mt-1">【所持済】+5 コイン還元！</span>
           `;
         } else {
           if (isWep) Player.ownedWeapons.push(won.id);
