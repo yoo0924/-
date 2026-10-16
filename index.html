@@ -114,6 +114,14 @@
     .ur-glow {
       animation: rainbowPulse 1.5s linear infinite;
     }
+    @keyframes bossIntroZoom {
+      0% { transform: scale(0.1) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 0px #ef4444); }
+      60% { transform: scale(1.2) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 30px #ef4444); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 15px #ef4444); }
+    }
+    .boss-intro-anim {
+      animation: bossIntroZoom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
     .rarity-n   { color: #cbd5e1; }
     .rarity-r   { color: #38bdf8; text-shadow: 0 0 4px rgba(56,189,248,0.5); }
     .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
@@ -156,8 +164,8 @@
       <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
         <div class="text-xs font-bold text-yellow-300">■ ver 4.0.3 の主な追加要素</div>
         <ul class="space-y-1.5 text-[11px] text-slate-200 leading-relaxed">
-          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fをクリアした後に、圧倒的な強さを誇るゴーレム型の「階層解除ボス」が出現！見事討伐すると51〜100Fへの挑戦権が解放されます。</li>
-          <li>・<b>51〜100Fの新エリア追加:</b> 50Fクリア後に、さらに奥の51〜100Fへ進めるようになりました。1〜50Fの敵の色違いモンスターが強力になって立ちはだかります。</li>
+          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fクリア後に、メニュー画面に出現する「階層解除ボスに挑む」ボタンから強力なゴーレムと戦えます。見事討伐すると51〜100Fへの挑戦権が解放されます！</li>
+          <li>・<b>51〜100Fの新エリア追加:</b> 50Fボスを倒すとさらに奥の51〜100Fへ進めるようになり、強力なカラーバリエーションの敵が立ちはだかります。</li>
           <li>・<b>レアドロップの継承:</b> 51〜100Fに出現する敵からも、1〜50Fと同様の強力なレアドロップ（SR・SSR・UR）を獲得可能です。</li>
         </ul>
       </div>
@@ -165,6 +173,23 @@
       <button id="btnCloseVersionLogBottom" class="rpg-btn w-full py-2 bg-gradient-to-r from-amber-600 to-yellow-600 text-slate-950 font-black text-xs rounded">
         確認して閉じる
       </button>
+    </div>
+
+    <!-- ==================== 0.25 階層解除ボス 挑戦確認モーダル ==================== -->
+    <div id="modalBossConfirm" class="hidden absolute inset-0 z-[125] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-rose-600 rounded p-4 space-y-3">
+        <div class="text-3xl animate-bounce">👹</div>
+        <h3 class="text-sm font-bold text-rose-400">【 階層解除守護者・決戦 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          すべての装備とダイス運の限界が試される<br>
+          強大なゴーレムとの一騎打ち。<br>
+          <span class="text-amber-300 font-bold">勝利して51〜100階層の扉を開け！</span>
+        </p>
+        <div class="flex gap-2 pt-1">
+          <button id="btnBossCancel" class="rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnBossStart" class="rpg-btn flex-1 py-2 bg-rose-700 hover:bg-rose-600 text-xs font-bold text-white rounded">決戦に挑む！</button>
+        </div>
+      </div>
     </div>
 
     <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
@@ -265,6 +290,11 @@
 
       <!-- メインボタン群 -->
       <div class="w-full space-y-1.5">
+        <!-- 50Fクリア後に出現する階層解除ボス挑戦ボタン -->
+        <button id="btnBossChallenge" class="hidden rpg-btn w-full py-2 bg-gradient-to-r from-rose-900 to-red-700 hover:from-rose-800 hover:to-red-600 text-white font-bold text-xs flex items-center justify-center gap-2 rounded animate-pulse">
+          <span>👹</span> <span>階層解除ボスに挑む (VS ゴーレム)</span>
+        </button>
+
         <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
           <span>⚔️</span> <span id="btnAdventureLabel">冒険に出る (1Fから再開)</span>
         </button>
@@ -588,10 +618,704 @@
     /* ==========================================================================
        0. 定数 & 属性・錬成システム定義 & GAS連携モジュール
        ========================================================================== */
-    let MAX_NORMAL_FLOOR = 50; // 50Fクリア後に100Fへ拡張
+    let MAX_NORMAL_FLOOR = 50; 
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec";
 
     // 属性情報と属性一致ボーナス定義
+    const ELEMENT_INFO = {
+      none: { name: '無', icon: '⚪', badgeClass: 'bg-slate-800 text-slate-300 border-slate-600', synergyName: '', synergyDesc: '' },
+      fire: {
+        name: '火', icon: '🔥', badgeClass: 'bg-red-950 text-red-300 border-red-600',
+        synergyName: '劫火の共鳴',
+        synergyDesc: '振ったダイスの出目合計が12以上のターン、全攻撃ダメージ1.35倍'
+      },
+      water: {
+        name: '水', icon: '💧', badgeClass: 'bg-sky-950 text-sky-300 border-sky-600',
+        synergyName: '絶対零度の陣',
+        synergyDesc: '毎ターン1個は確実に「4以上」のダイスが出現 ＆ ターン開始時盾+5'
+      },
+      nature: {
+        name: '自然', icon: '🌿', badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-600',
+        synergyName: '世界樹の脈動',
+        synergyDesc: '毎ターン開始時に最大HPの8%を自動回復 ＆ 全HP回復効果1.5倍'
+      },
+      luck: {
+        name: '運', icon: '🌟', badgeClass: 'bg-amber-950 text-yellow-300 border-yellow-500',
+        synergyName: '運命のいたずら',
+        synergyDesc: 'ゾロ目が出たターン、攻撃時30%で敵を即死(ボスには2.5倍特大ダメージ)'
+      }
+    };
+
+    function getRefineStoneCost(rarity, currentLevel) {
+      if (rarity === 'R') {
+        const table = [1, 5, 10, 25, 50];
+        if (currentLevel < table.length) return table[currentLevel];
+        return 50 + (currentLevel - 4) * 25;
+      } else if (rarity === 'SR') {
+        const table = [1, 3, 6, 12, 20];
+        if (currentLevel < table.length) return table[currentLevel];
+        return 20 + (currentLevel - 4) * 10;
+      } else if (rarity === 'SSR') {
+        const table = [1, 2, 3, 5, 8];
+        if (currentLevel < table.length) return table[currentLevel];
+        return 8 + (currentLevel - 4) * 4;
+      } else if (rarity === 'UR') {
+        if (currentLevel < 3) return 1;
+        if (currentLevel < 5) return 2;
+        if (currentLevel < 8) return 3;
+        return 4 + Math.floor((currentLevel - 8) / 3);
+      }
+      return 999;
+    }
+
+    function getRefineBonusPerLevel(rarity) {
+      if (rarity === 'R') return 1;
+      if (rarity === 'SR') return 1;
+      if (rarity === 'SSR') return 2;
+      if (rarity === 'UR') return 2;
+      return 0;
+    }
+
+    const CloudSync = {
+      async sendRecord(mode, floorVal) {
+        if (!GAS_API_URL || GAS提示いただいたご要望（**「一度のコピペでそのまま使える完全版のコード」**）に合わせ、現在のすべての要素とアップデート内容を反映した最終コードを作成しました。
+
+以下のコードをコピーして `index.html` に丸ごと貼り付けるだけでそのまま動作します！
+
+### 🛠️ 今回のアップデート・調整内容（ver 4.0.3）
+1. **バージョン情報（更新ノート）の簡易確認：** タイトル画面下部の `ver 4.0.3 (アップデート内容)` をタップすると、今回の最新アップデート内容だけが確認できるシンプルなモーダルが開きます[cite: 6]。
+2. **50Fクリア後の階層解除ボス戦：** 50Fは通常の敵として登場し、クリア後にタイトル画面の「冒険に出る」の上部に専用のボス挑戦ボタンが出現します。ボタンを押して確認画面を経ると、重厚なゴーレム風ボスの派手な登場アニメーションと共に決戦に挑めます[cite: 6]。
+3. **51〜100Fの新エリア＆色違い敵：** 階層解除ボスを討伐すると51〜100Fが解放され、1〜50Fの敵の色違いモンスターが強力になって立ちはだかります（ドロップ品やランキング対応も継承）[cite: 6]。
+4. **デバッグ機能（`debug0924`）の拡張：** プレイヤー名に `debug0924` を入力すると、全装備コンプリート・錬成石の支給に加えて、**「50Fクリア＆ボス討伐済み（全100階層全解放状態）」**に一発でセットされます[cite: 6]。
+
+---
+
+### 💻 完成コード（コピペ用）
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>サイコロ勇者の最果て行進</title>
+  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+  <link href="[https://fonts.googleapis.com/css2?family=DotGothic16&display=swap](https://fonts.googleapis.com/css2?family=DotGothic16&display=swap)" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'DotGothic16', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+    input, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    body {
+      background-color: #050508;
+      color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .crt-scanlines {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 3px 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .rpg-frame {
+      border: 4px solid #d97706;
+      box-shadow: 0 0 0 2px #451a03, inset 0 0 10px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.9);
+    }
+    .rpg-panel {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #78350f;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.6), 2px 2px 0 rgba(0,0,0,0.5);
+    }
+    .rpg-btn {
+      border: 2px solid #fef08a;
+      box-shadow: 0 3px 0 #78350f, inset 0 1px 0 rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: transform 0.05s, box-shadow 0.05s;
+    }
+    .rpg-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #78350f;
+    }
+    .rpg-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .dice-pip {
+      width: 5px;
+      height: 5px;
+      background-color: #0f172a;
+      border-radius: 9999px;
+    }
+    @keyframes enemyFloat {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-6px) scale(1.03); }
+    }
+    .enemy-floating {
+      animation: enemyFloat 2.6s ease-in-out infinite;
+    }
+    @keyframes hitShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-6px, 4px); }
+      40% { transform: translate(6px, -4px); }
+      60% { transform: translate(-4px, -2px); }
+      80% { transform: translate(4px, 2px); }
+    }
+    .shake-anim {
+      animation: hitShake 0.25s ease-in-out;
+    }
+    @keyframes megaShake {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      10% { transform: translate(-10px, -8px) scale(1.04); }
+      30% { transform: translate(10px, 6px) scale(0.98); }
+      50% { transform: translate(-8px, 8px) scale(1.04); }
+      70% { transform: translate(8px, -6px) scale(1.02); }
+      90% { transform: translate(-4px, 4px) scale(1); }
+    }
+    .mega-shake {
+      animation: megaShake 0.55s ease-in-out infinite;
+    }
+    @keyframes spinMagic {
+      0% { transform: rotate(0deg) scale(0.8); }
+      50% { transform: rotate(180deg) scale(1.15); }
+      100% { transform: rotate(360deg) scale(0.8); }
+    }
+    .magic-spin {
+      animation: spinMagic 1.2s linear infinite;
+    }
+    @keyframes rainbowPulse {
+      0%   { filter: drop-shadow(0 0 15px #ff0055) hue-rotate(0deg); }
+      50%  { filter: drop-shadow(0 0 28px #00ffcc) hue-rotate(180deg); }
+      100% { filter: drop-shadow(0 0 15px #ff0055) hue-rotate(360deg); }
+    }
+    .ur-glow {
+      animation: rainbowPulse 1.5s linear infinite;
+    }
+    @keyframes bossIntroZoom {
+      0% { transform: scale(0.1) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 0px #ef4444); }
+      60% { transform: scale(1.2) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 30px #ef4444); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 15px #ef4444); }
+    }
+    .boss-intro-anim {
+      animation: bossIntroZoom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .rarity-n   { color: #cbd5e1; }
+    .rarity-r   { color: #38bdf8; text-shadow: 0 0 4px rgba(56,189,248,0.5); }
+    .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
+    .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
+    .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="p-1 sm:p-2">
+  <div class="crt-scanlines"></div>
+
+  <!-- ゲーム全体フレーム -->
+  <div id="gameFrame" class="relative w-full max-w-sm h-full max-h-[760px] flex flex-col rpg-frame overflow-hidden bg-slate-950">
+
+    <!-- ==================== 0. プレイヤー名入力モーダル ==================== -->
+    <div id="modalPlayerName" class="hidden absolute inset-0 z-[150] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
+        <div class="text-3xl animate-bounce">📜</div>
+        <h3 id="nameModalTitle" class="text-sm font-bold text-amber-300">【 勇者の名前を決めよう 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          全国ランキングに記録される<br>あなたの名前を入力してください (最大10文字)
+        </p>
+        <input type="text" id="inputPlayerName" maxlength="10" placeholder="名無しの勇者" class="w-full bg-slate-950 border-2 border-amber-600 px-3 py-2 text-amber-300 text-center font-bold text-sm tracking-wider rounded focus:outline-none focus:border-yellow-400 select-text">
+        <div class="flex gap-2">
+          <button id="btnCancelName" class="hidden rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnSaveName" class="rpg-btn flex-1 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-bold rounded">決定する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
+    <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
+      <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
+        <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
+          <span>📜</span> <span>ver 4.0.3 アップデート内容</span>
+        </h2>
+        <button id="btnCloseVersionLog" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
+        <div class="text-xs font-bold text-yellow-300">■ ver 4.0.3 の主な追加要素</div>
+        <ul class="space-y-1.5 text-[11px] text-slate-200 leading-relaxed">
+          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fをクリアした後に、タイトル画面から圧倒的な強さを誇るゴーレム型のボスに挑戦可能！見事討伐すると51〜100Fへの挑戦権が解放されます[cite: 6]。</li>
+          <li>・<b>51〜100Fの新エリア追加:</b> ボス撃破後に、さらに奥の51〜100Fへ進めるようになりました。1〜50Fの敵の色違いモンスターが強力になって立ちはだかります[cite: 6]。</li>
+          <li>・<b>レアドロップの継承:</b> 51〜100Fに出現する敵からも、1〜50Fと同様の強力なレアドロップ（SR・SSR・UR）を獲得可能です[cite: 6]。</li>
+        </ul>
+      </div>
+
+      <button id="btnCloseVersionLogBottom" class="rpg-btn w-full py-2 bg-gradient-to-r from-amber-600 to-yellow-600 text-slate-950 font-black text-xs rounded">
+        確認して閉じる
+      </button>
+    </div>
+
+    <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
+    <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
+        <div class="text-3xl">⏸️</div>
+        <h3 class="text-sm font-bold text-amber-300">【 一時中断 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          戦闘を中断してタイトルへ戻りますか？<br>
+          <span class="text-amber-400">※現在の階層の最初から再開できます。</span>
+        </p>
+        <div class="space-y-2 pt-1">
+          <button id="btnResumeBattle" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold rounded">
+            ⚔️ 戦闘に戻る
+          </button>
+          <button id="btnConfirmRetreat" class="rpg-btn w-full py-2 bg-rose-950 border-rose-600 text-rose-300 text-xs font-bold rounded">
+            🏃 タイトルへ戻る
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 3.5 階層解除ボス 挑戦確認モーダル ==================== -->
+    <div id="modalBossConfirm" class="hidden absolute inset-0 z-[125] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-rose-600 rounded p-4 space-y-3">
+        <div class="text-3xl animate-bounce">👹</div>
+        <h3 class="text-sm font-bold text-rose-400">【 階層解除守護者・決戦 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          すべての装備とダイス運の限界が試される<br>
+          強大なゴーレムとの一騎打ち。<br>
+          <span class="text-amber-300 font-bold">勝利して51〜100階層の扉を開け！</span>
+        </p>
+        <div class="flex gap-2 pt-1">
+          <button id="btnBossCancel" class="rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnBossStart" class="rpg-btn flex-1 py-2 bg-rose-700 hover:bg-rose-600 text-xs font-bold text-white rounded">決戦に挑む！</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 0.5 ドロップ専用カットイン演出オーバーレイ ==================== -->
+    <div id="modalDropCutin" class="hidden absolute inset-0 z-[160] bg-black/95 flex flex-col items-center justify-center p-5 text-center">
+      <div id="dropFlashBg" class="absolute inset-0 pointer-events-none opacity-30"></div>
+      <div class="relative z-10 flex flex-col items-center space-y-3 max-w-xs w-full">
+        <div id="dropHeaderBadge" class="text-xs font-black tracking-widest px-3 py-1 rounded border">★ MONSTER DROP ★</div>
+        <div id="dropChestVisual" class="text-7xl my-2 select-none">🧰</div>
+        <h3 id="dropItemTitle" class="text-lg font-black"></h3>
+        <p id="dropItemDesc" class="text-xs text-slate-300"></p>
+        <div id="dropRefundNotice" class="text-[11px] text-yellow-300 font-bold"></div>
+        <button id="btnCloseDropCutin" class="rpg-btn w-full py-2.5 mt-4 bg-white text-slate-950 font-black text-xs rounded">
+          入手して次へ進む ▶
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 1. タイトル画面 ==================== -->
+    <div id="screenTitle" class="absolute inset-0 z-50 flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
+      <div class="absolute inset-0 -z-10 pointer-events-none">
+        <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1e1b4b"/>
+              <stop offset="35%" stop-color="#581c87"/>
+              <stop offset="70%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="600" fill="url(#skyGrad)"/>
+          <circle cx="160" cy="380" r="45" fill="#fef08a" opacity="0.85"/>
+          <polygon points="0,420 70,330 150,430" fill="#3b0764"/>
+          <polygon points="110,430 210,310 320,440" fill="#2e1065"/>
+          <rect x="30" y="380" width="40" height="60" fill="#180d2e"/>
+          <polygon points="25,380 50,340 75,380" fill="#180d2e"/>
+          <rect x="250" y="390" width="35" height="50" fill="#180d2e"/>
+          <polygon points="245,390 267,355 290,390" fill="#180d2e"/>
+          <rect x="70" y="410" width="180" height="30" fill="#180d2e"/>
+          <rect x="0" y="440" width="320" height="160" fill="#14532d"/>
+          <polygon points="0,440 320,440 320,455 0,465" fill="#166534"/>
+          <polygon points="0,458 320,450 320,470 0,480" fill="#0f3d20"/>
+        </svg>
+      </div>
+
+      <div class="mt-1 flex flex-col items-center">
+        <div class="text-3xl mb-0.5 select-none animate-bounce drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">🎲</div>
+        <h1 class="text-lg sm:text-xl font-black text-amber-300 tracking-wider drop-shadow-[2px_2px_0_#451a03]">サイコロ勇者の最果て行進</h1>
+        
+        <div id="btnPlayerBadge" class="mt-1 flex items-center gap-1.5 px-3 py-0.5 bg-slate-900/85 border border-amber-500/80 rounded-full cursor-pointer hover:bg-slate-800 transition shadow">
+          <span class="text-[9px] text-amber-300">勇者:</span>
+          <span id="titlePlayerName" class="text-xs text-yellow-300 font-bold underline">名無しの勇者</span>
+          <span class="text-[7px] text-amber-300 bg-amber-950 px-1 py-0.2 rounded border border-amber-600">変更</span>
+        </div>
+      </div>
+
+      <!-- プレイヤーステータスカード -->
+      <div class="w-full rpg-panel p-2 rounded text-left text-xs space-y-1">
+        <div class="flex justify-between items-center border-b border-amber-900/60 pb-1">
+          <span class="text-amber-300 font-bold">Lv.<span id="titlePlayerLv">1</span></span>
+          <span class="text-yellow-400 font-bold">🪙 <span id="titleGold">0</span> コイン</span>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-200">
+          <span>HP: <span id="titleHp">50</span></span>
+          <span>EXP: <span id="titleExp">0</span>/<span id="titleExpMax">20</span></span>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-300">
+          <span class="truncate max-w-[48%]">武: <span id="titleWeaponName" class="text-amber-200 font-bold">素手</span></span>
+          <span class="truncate max-w-[48%]">防: <span id="titleArmorName" class="text-amber-200 font-bold">布の服</span></span>
+        </div>
+        <div id="titleSynergyNotice" class="text-[9px] text-amber-300 bg-slate-950/80 px-1.5 py-0.5 rounded border border-amber-800/60 truncate">
+          属性一致: なし
+        </div>
+        <div class="flex justify-between text-[10px] text-amber-400/90 pt-0.5 border-t border-amber-950">
+          <span>通常最高: <span id="titleMaxFloor" class="font-bold text-white">1F / 50F</span></span>
+          <span>塔最高: <span id="titleTowerFloor" class="font-bold text-white">1F</span></span>
+        </div>
+      </div>
+
+      <!-- メインボタン群 -->
+      <div class="w-full space-y-1.5">
+        <!-- 50Fクリア後に現れる階層解除ボス挑戦ボタン -->
+        <button id="btnBossChallenge" class="hidden rpg-btn w-full py-2 bg-gradient-to-r from-rose-900 to-red-700 hover:from-rose-800 hover:to-red-600 text-white font-bold text-xs flex items-center justify-center gap-2 rounded animate-pulse">
+          <span>👹</span> <span>階層解除ボスに挑む (VS ゴーレム)</span>
+        </button>
+
+        <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
+          <span>⚔️</span> <span id="btnAdventureLabel">冒険に出る (1Fから再開)</span>
+        </button>
+
+        <button id="btnTowerConfirm" class="rpg-btn w-full py-2 bg-gradient-to-r from-indigo-900 to-purple-900 hover:from-indigo-800 hover:to-purple-800 text-purple-200 font-bold text-xs flex items-center justify-center gap-2 rounded">
+          <span>🗼</span> <span>無限の塔 (挑戦モード)</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="btnEquipBox" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-amber-300 text-[11px] font-bold rounded">
+            🎒 装備・錬成
+          </button>
+          <button id="btnGacha" class="rpg-btn py-1.5 bg-slate-800/90 hover:bg-slate-700 text-yellow-300 text-[11px] font-bold rounded">
+            🎰 装備ガチャ
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="btnEncyclopedia" class="rpg-btn py-1.5 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 text-[11px] font-bold rounded border-emerald-500">
+            📖 アイテム図鑑
+          </button>
+          <button id="btnRanking" class="rpg-btn py-1.5 bg-cyan-950/90 hover:bg-cyan-900 text-cyan-200 text-[11px] font-bold rounded border-cyan-400">
+            🏆 全国ランキング
+          </button>
+        </div>
+
+        <button id="btnSoundToggle" class="w-full py-0.5 text-[10px] text-amber-200 hover:text-white drop-shadow-[1px_1px_0_#000] cursor-pointer">
+          🔊 サウンド: ON
+        </button>
+      </div>
+
+      <!-- ver表記ボタン（タップでver4.0.3の内容確認） -->
+      <button id="btnVersionInfo" class="px-3 py-0.5 rounded-full bg-slate-900/80 border border-amber-500/60 text-[9px] text-amber-200 hover:text-white hover:bg-slate-800 transition cursor-pointer shadow flex items-center gap-1">
+        <span>📜</span>
+        <span class="underline font-bold">ver 4.0.3 (アップデート内容)</span>
+      </button>
+    </div>
+
+    <!-- ==================== 2. ランキングモーダル ==================== -->
+    <div id="modalRanking" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
+      <div class="flex justify-between items-center border-b border-cyan-800 pb-1.5">
+        <h2 class="text-xs font-bold text-cyan-400">🏆 全国オンラインランキング</h2>
+        <button id="btnCloseRanking" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <div class="flex gap-2 my-2">
+        <button id="tabRankNormal" class="rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded">
+          通常モード (<span id="maxFloorLabelTab">100F</span>)
+        </button>
+        <button id="tabRankTower" class="rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded">
+          無限の塔 (最高到達)
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-1.5 rpg-panel border-cyan-900 rounded max-h-[50vh]">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800 text-[10px]">
+              <th class="py-1 w-10">順位</th>
+              <th class="py-1">名前</th>
+              <th id="rankColTitle" class="py-1 text-right">最高階層</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-2">
+        <button id="btnRefreshRanking" class="text-[10px] text-cyan-400 underline cursor-pointer">
+          最新のランキングを再取得
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 3. 無限の塔 挑戦確認モーダル ==================== -->
+    <div id="modalTowerConfirm" class="hidden absolute inset-0 z-[120] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-indigo-500 rounded p-4 space-y-3">
+        <div class="text-3xl">🗼</div>
+        <h3 class="text-sm font-bold text-indigo-300">【 無限の塔 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          どこまで登れるかに挑む試練の塔。<br>
+          敵の強化速度が圧倒的に早く、<br>
+          <span class="text-rose-400 font-bold">経験値・ドロップは獲得できません。</span>
+        </p>
+        <div class="p-2 bg-slate-950/80 border border-indigo-900 rounded text-xs text-amber-400 font-bold">
+          最高到達階層: <span id="towerBestFloor" class="text-white">1F</span>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnTowerCancel" class="rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnTowerStart" class="rpg-btn flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded">挑戦する！</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. 装備箱・錬成モーダル ==================== -->
+    <div id="modalEquipBox" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
+      <div class="flex justify-between items-center border-b border-amber-900 pb-1">
+        <h2 class="text-xs font-bold text-amber-400">🎒 装備箱 ＆ 錬成工房</h2>
+        <button id="btnCloseEquipBox" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <!-- 所持錬成石バー -->
+      <div class="my-1 py-1 px-2 bg-slate-900 border border-slate-700 rounded flex justify-between items-center text-[10px]">
+        <span class="text-slate-400 font-bold">所持錬成石:</span>
+        <div class="flex gap-2 font-bold">
+          <span class="rarity-r">R:<span id="stoneCountR">0</span></span>
+          <span class="rarity-sr">SR:<span id="stoneCountSR">0</span></span>
+          <span class="rarity-ssr">SSR:<span id="stoneCountSSR">0</span></span>
+          <span class="rarity-ur">UR:<span id="stoneCountUR">0</span></span>
+        </div>
+      </div>
+
+      <!-- 現在の装備と属性シナジー表示 -->
+      <div class="mb-1.5 p-1.5 rpg-panel rounded space-y-1">
+        <div class="text-[10px] p-1 bg-slate-950/70 rounded border border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">武器:</span>
+            <span id="currentEqWeapon" class="font-bold">素手</span>
+          </div>
+          <div id="currentEqWeaponTraits" class="text-[9px] text-amber-300 mt-0.5"></div>
+        </div>
+        <div class="text-[10px] p-1 bg-slate-950/70 rounded border border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">防具:</span>
+            <span id="currentEqArmor" class="font-bold">布の服</span>
+          </div>
+          <div id="currentEqArmorTraits" class="text-[9px] text-cyan-300 mt-0.5"></div>
+        </div>
+        <div id="equipSynergyBox" class="text-[9px] px-1.5 py-1 rounded bg-slate-950 border border-slate-800 text-slate-400">
+          属性一致ボーナス: なし
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center gap-1 mb-1">
+        <div class="flex gap-1">
+          <button id="tabWeapons" class="rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded">武器一覧</button>
+          <button id="tabArmors" class="rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">防具一覧</button>
+        </div>
+        <button id="btnSortOrder" class="rpg-btn px-2 py-1 bg-slate-800 text-[9px] text-slate-300 rounded">
+          ソート: レア順 ▼
+        </button>
+      </div>
+
+      <div id="equipItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[42vh]"></div>
+    </div>
+
+    <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
+    <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
+      <div class="flex justify-between items-center border-b border-emerald-800 pb-1.5">
+        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全40種)</h2>
+        <button id="btnCloseEncyclopedia" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <div class="my-1.5 flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-xs">
+        <span class="text-slate-300">収集コンプリート率:</span>
+        <span id="dexCompRate" class="text-emerald-400 font-bold">2 / 40 (5%)</span>
+      </div>
+
+      <div class="flex gap-1 mb-1.5">
+        <button id="tabDexGacha" class="rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded">ガチャ限定 (28種)</button>
+        <button id="tabDexDrop" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ドロップ限定 (10種)</button>
+      </div>
+
+      <div id="dexItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[52vh]"></div>
+    </div>
+
+    <!-- ==================== 5. ガチャモーダル ==================== -->
+    <div id="modalGacha" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col items-center justify-between p-3.5 text-center overflow-hidden">
+      <div id="gachaBgEffect" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"></div>
+
+      <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-1.5 z-10">
+        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全28種)</h2>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-yellow-300 font-bold">🪙 <span id="gachaGoldDisplay">0</span></span>
+          <button id="btnCloseGacha" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] rounded">閉じる</button>
+        </div>
+      </div>
+
+      <div class="w-full bg-slate-900/90 border border-slate-700 rounded p-1.5 text-[9px] z-10 space-y-1">
+        <div class="text-amber-300 font-bold">【 ガチャ排出確率 (計100% / 全28種) 】</div>
+        <div class="grid grid-cols-4 gap-1 text-center font-bold">
+          <div class="bg-slate-950 py-0.5 rounded border border-sky-800 rarity-r">R: 80%</div>
+          <div class="bg-slate-950 py-0.5 rounded border border-purple-800 rarity-sr">SR: 15%</div>
+          <div class="bg-slate-950 py-0.5 rounded border border-yellow-700 rarity-ssr">SSR: 4%</div>
+          <div class="bg-slate-950 py-0.5 rounded border border-rose-700 rarity-ur">UR: 1%</div>
+        </div>
+        <div class="flex justify-between items-center px-1 pt-0.5 border-t border-slate-800 text-[9px]">
+          <span class="text-slate-400">所持錬成石:</span>
+          <div class="flex gap-2 font-bold">
+            <span class="rarity-r">R:<span id="gachaStoneR">0</span></span>
+            <span class="rarity-sr">SR:<span id="gachaStoneSR">0</span></span>
+            <span class="rarity-ssr">SSR:<span id="gachaStoneSSR">0</span></span>
+            <span class="rarity-ur">UR:<span id="gachaStoneUR">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="my-auto flex flex-col items-center justify-center z-10 min-h-[190px]">
+        <div id="gachaTierBanner" class="hidden text-xs font-black px-3 py-0.5 rounded-full mb-2 tracking-widest"></div>
+        <div id="gachaChest" class="text-6xl mb-3 filter drop-shadow-[0_0_12px_rgba(234,179,8,0.4)] transition-transform">🔮</div>
+        <div id="gachaResultText" class="text-xs text-slate-300 min-h-[3.5rem] flex flex-col items-center justify-center px-2">
+          1回 50 コインでガチャ限定武具を召喚！
+        </div>
+      </div>
+
+      <div class="w-full space-y-1.5 z-10">
+        <button id="btnRollGacha" class="rpg-btn w-full py-3 bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-slate-950 font-black text-xs rounded">
+          装備を召喚する (50🪙)
+        </button>
+        <div class="text-[9px] text-slate-400">※重複時はレア度に応じた「錬成石」を1個獲得します</div>
+      </div>
+    </div>
+
+    <!-- ==================== 6. 戦闘プレイ画面 ==================== -->
+    <div id="screenBattle" class="hidden absolute inset-0 z-10 flex flex-col overflow-hidden">
+      <div id="battleBgLayer" class="absolute inset-0 -z-10 pointer-events-none transition-opacity duration-500"></div>
+
+      <!-- 戦闘ヘッダー -->
+      <header class="p-2 bg-slate-950/85 backdrop-blur-md border-b-2 border-amber-900 flex justify-between items-center text-xs shrink-0">
+        <div class="flex items-center gap-1.5">
+          <span id="modeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-700">通常</span>
+          <span id="locationBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">平原</span>
+          <span id="floorBadge" class="font-bold text-amber-400">1F / 100F</span>
+          
+          <select id="floorSelectDropdown" class="bg-slate-900 border border-amber-700 text-amber-300 text-[10px] rounded px-1 py-0.5 outline-none font-bold"></select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-yellow-400 font-bold text-[11px]">🪙 <span id="battleGold">0</span></span>
+          <button id="btnRetreat" class="rpg-btn px-2.5 py-0.5 bg-rose-950 border-rose-700 text-rose-300 text-[10px] rounded" title="ポーズメニューを開く">
+            中断
+          </button>
+        </div>
+      </header>
+
+      <!-- 敵エリア -->
+      <section id="enemyArea" class="flex-1 flex flex-col items-center justify-center p-2 relative">
+        <div id="enemyIntent" class="mb-1 text-[11px] px-2.5 py-0.5 bg-slate-950/90 border border-rose-500/80 rounded-full text-rose-300 flex items-center gap-1 font-bold animate-pulse shadow-lg">
+          ⚔️ 6 ダメージ
+        </div>
+
+        <div id="enemySprite" class="w-24 h-24 my-1 select-none enemy-floating flex items-center justify-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"></div>
+        <div id="enemyName" class="text-xs font-bold text-slate-100 drop-shadow-[0_2px_4px_#000] bg-slate-950/60 px-2 py-0.5 rounded">洞窟スライム Lv.1</div>
+
+        <div class="w-48 mt-1 bg-slate-950/80 p-1 rounded border border-slate-800">
+          <div class="flex justify-between text-[9px] mb-0.5 text-slate-300 font-bold">
+            <span>HP</span>
+            <span id="enemyHpText">20 / 20</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-900 border border-slate-700 rounded overflow-hidden">
+            <div id="enemyHpBar" class="h-full bg-rose-600 transition-all duration-200" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- バトル中の発動エフェクト通知 -->
+        <div id="battleEffectToast" class="hidden absolute bottom-1 px-3 py-0.5 rounded-full bg-amber-950/95 border border-yellow-400 text-yellow-200 text-[10px] font-bold shadow-lg animate-bounce"></div>
+      </section>
+
+      <!-- プレイヤー情報バー ＆ 常時発動特性・属性一致表示エリア -->
+      <section class="px-3 py-1 bg-slate-950/85 backdrop-blur-md border-t border-amber-900 flex flex-col gap-1 shrink-0">
+        <div class="flex justify-between items-center text-xs">
+          <div>
+            <div class="flex items-center gap-2 text-[10px]">
+              <span class="text-emerald-400 font-bold">HP: <span id="playerHpText">50/50</span></span>
+              <span class="text-amber-400 font-bold">Lv.<span id="battlePlayerLv">1</span></span>
+              <span id="turnDiceStatusBadge" class="text-[9px] text-yellow-300 font-bold"></span>
+            </div>
+            <div class="w-28 h-2 bg-slate-900 border border-slate-700 rounded overflow-hidden mt-0.5">
+              <div id="playerHpBar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 100%;"></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1">
+            <div class="px-2 py-0.5 bg-blue-950/90 border border-cyan-500 rounded text-cyan-300 font-bold text-xs flex items-center gap-1">
+              <span>🛡️</span>
+              <span id="playerShieldVal">0</span>
+            </div>
+          </div>
+        </div>
+        <div id="battleTraitsBar" class="flex gap-1 overflow-x-auto text-[8px] pt-0.5 border-t border-slate-800/80 items-center"></div>
+      </section>
+
+      <!-- スキルスロット一覧 -->
+      <section id="skillArea" class="p-2 space-y-1.5 max-h-44 overflow-y-auto bg-slate-950/90 backdrop-blur-md border-t border-amber-900 shrink-0"></section>
+
+      <!-- サイコロプール＆ターンエンドフッター -->
+      <footer class="p-2 bg-slate-950/95 border-t-2 border-amber-800 flex flex-col gap-1.5 shrink-0">
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-slate-400 font-bold">手持ちダイス:</span>
+          <span id="selectedDiceInfo" class="text-amber-400 font-bold">選択中: なし</span>
+        </div>
+        
+        <div class="flex items-center justify-between gap-2">
+          <div id="dicePool" class="flex gap-2 flex-wrap min-h-[40px] items-center"></div>
+          <button id="btnEndTurn" class="rpg-btn px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs shrink-0 rounded">
+            ターン終了 ▶
+          </button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ==================== 7. リザルト画面 ==================== -->
+    <div id="modalResult" class="hidden absolute inset-0 z-[130] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+      <div id="resultIcon" class="text-5xl mb-2">🏁</div>
+      <h2 id="resultTitle" class="text-xl font-bold text-amber-400 mb-2">帰還完了</h2>
+      
+      <div class="w-full rpg-panel p-3 rounded mb-4 text-xs space-y-2 text-left">
+        <p class="flex justify-between"><span class="text-slate-400">モード:</span><span id="resMode" class="font-bold text-white">通常</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">到達階層:</span><span id="resFloor" class="font-bold text-amber-400">1F</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">討伐数:</span><span id="resKills" class="font-bold text-emerald-400">0体</span></p>
+        <p class="flex justify-between"><span class="text-slate-400">獲得コイン:</span><span id="resGold" class="font-bold text-yellow-400">0🪙</span></p>
+      </div>
+
+      <button id="btnReturnToTitle" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-xs rounded">
+        タイトルへもどる
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       0. 定数 & 属性・錬成システム定義 & GAS連携モジュール
+       ========================================================================== */
+    let MAX_NORMAL_FLOOR = 50;
+    const GAS_API_URL = "[https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec](https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec)";
+
     const ELEMENT_INFO = {
       none: { name: '無', icon: '⚪', badgeClass: 'bg-slate-800 text-slate-300 border-slate-600', synergyName: '', synergyDesc: '' },
       fire: {
@@ -1089,7 +1813,7 @@
       ownedArmors: ['a_clothes'],
       refineLevels: {},
       stones: { R: 0, SR: 0, SSR: 0, UR: 0 },
-      bossDefeated: false // 50Fボスの討伐フラグ
+      bossDefeated: false
     };
 
     function savePlayerData() {
@@ -1114,7 +1838,6 @@
       if (!Player.ownedWeapons.includes('w_bare')) Player.ownedWeapons.unshift('w_bare');
       if (!Player.ownedArmors.includes('a_clothes')) Player.ownedArmors.unshift('a_clothes');
 
-      // 50Fボスを倒していれば最大階層を100Fに拡張
       if (Player.bossDefeated) {
         MAX_NORMAL_FLOOR = 100;
       }
@@ -1176,8 +1899,14 @@
         Player.stones.SR += 50;
         Player.stones.SSR += 30;
         Player.stones.UR += 15;
+        
+        // debug0924で全階層クリア＆50Fクリア・ボス討伐済みに設定[cite: 5]
+        Player.maxClearedFloor = 100;
+        Player.bossDefeated = true;
+        MAX_NORMAL_FLOOR = 100;
+
         Sound.rarityFanfare('UR');
-        alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具(40種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
+        alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具(40種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！\n・50Fクリア＆全100階層解放状態にしました！');
       } else {
         Sound.fanfare();
       }
@@ -1326,7 +2055,6 @@
     }
 
     function getEnemySvg(type, isOver50 = false) {
-      // 51〜100Fの敵は1〜50Fの色違い（ダーク・異色トーン）として描画
       let col = '#22c55e';
       let strokeCol = '#15803d';
       if (type === 'skeleton') { col = '#94a3b8'; strokeCol = '#334155'; }
@@ -1334,7 +2062,7 @@
       else if (type === 'dragon') { col = '#d97706'; strokeCol = '#78350f'; }
 
       if (isOver50) {
-        col = '#475569'; // 51F以降の威圧的なカラー
+        col = '#475569';
         strokeCol = '#0f172a';
       }
 
@@ -1391,7 +2119,7 @@
       hasRevivedThisBattle: false,
       blockNextAttack35: false,
       pendingNormalClear: false,
-      isBossBattle: false, // 50Fクリア後の階層解除ボス戦フラグ
+      isBossBattle: false,
       skills: [],
       toastTimer: null
     };
@@ -1456,6 +2184,56 @@
       setupNextEnemy();
     }
 
+    function startBossBattle() {
+      Battle.mode = 'normal';
+      Battle.floor = 50;
+      Battle.turnKills = 0;
+      Battle.turnGold = 0;
+      Battle.hasRevivedThisBattle = false;
+      Battle.blockNextAttack35 = false;
+      Battle.pendingNormalClear = false;
+      Battle.isBossBattle = true;
+
+      const stats = getPlayerStats();
+      Battle.playerHp = stats.maxHp;
+      Battle.playerShield = stats.startShield;
+
+      buildBattleSkills(stats);
+
+      document.getElementById('modalBossConfirm').classList.add('hidden');
+      document.getElementById('screenTitle').classList.add('hidden');
+      document.getElementById('screenBattle').classList.remove('hidden');
+
+      Sound.startBattleBgm();
+      document.getElementById('floorSelectDropdown').classList.add('hidden');
+      document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg('castle', true);
+
+      const baseCurve = 1 + (49) * 0.038 + Math.pow(Math.max(0, 34) * 0.022, 2);
+      const standardHp = Math.round((22 + 50 * 3.6) * baseCurve);
+      const standardAtk = Math.round((4 + 50 * 0.8) * baseCurve);
+
+      Battle.enemy = {
+        name: '階層解除守護者・ゴーレム',
+        type: 'boss',
+        level: 50,
+        hp: standardHp * 4,
+        maxHp: standardHp * 4,
+        atk: Math.round(standardAtk * 3.5),
+        isBoss: true
+      };
+
+      startTurn();
+      renderBattleUI();
+
+      const spr = document.getElementById('enemySprite');
+      if (spr) {
+        spr.classList.remove('boss-intro-anim');
+        void spr.offsetWidth;
+        spr.classList.add('boss-intro-anim');
+        Sound.rarityFanfare('UR');
+      }
+    }
+
     function buildBattleSkills(stats) {
       Battle.skills = [
         { id: 's_base1', origin: 'base', name: '連撃の一太刀', req: 'any', desc: '出目 + 武器攻撃力 ダメージ', fn: (v, st) => ({ dmg: v + st.stats.baseAtk }) },
@@ -1503,38 +2281,13 @@
         else Battle.location = 'castle';
       }
 
-      // 50Fクリア後で、まだボスを倒していない場合は「階層解除ボス戦」を発生させる
-      if (Battle.mode === 'normal' && f === 50 && !Player.bossDefeated) {
-        Battle.isBossBattle = true;
-        document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, true);
-
-        // 50Fボスの強さ：50F通常ボスの約4倍（ビルドとダイス運が試される難易度）
-        const baseCurve = 1 + (49) * 0.038 + Math.pow(Math.max(0, 34) * 0.022, 2);
-        const standardHp = Math.round((22 + 50 * 3.6) * baseCurve);
-        const standardAtk = Math.round((4 + 50 * 0.8) * baseCurve);
-
-        Battle.enemy = {
-          name: '階層解除守護者・ゴーレム',
-          type: 'boss',
-          level: 50,
-          hp: standardHp * 4,
-          maxHp: standardHp * 4,
-          atk: Math.round(standardAtk * 3.5),
-          isBoss: true
-        };
-        startTurn();
-        renderBattleUI();
-        return;
-      }
-
       document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, false);
 
       let level = f, hp, atk;
       if (!isTower) {
-        // 51〜100Fの敵：51Fの敵は50Fと同じ強さになり、そこから100Fまでなだらかに上昇
         let effectiveF = f;
         if (f > 50) {
-          effectiveF = 50 + (f - 50) * 0.75; // 51F＝50Fと同等、100Fに向けて緩やかに強化
+          effectiveF = 50 + (f - 50) * 0.75;
         }
         const curve = 1 + (effectiveF - 1) * 0.038 + Math.pow(Math.max(0, effectiveF - 15) * 0.022, 2);
         hp = Math.round((22 + effectiveF * 3.6) * curve);
@@ -1828,7 +2581,7 @@
         Player.gold += goldGained;
         addExp(expGained);
 
-        // 50Fボスの討伐判定
+        // 階層解除ボス撃破時の判定
         if (Battle.isBossBattle) {
           Battle.isBossBattle = false;
           Player.bossDefeated = true;
@@ -1836,9 +2589,12 @@
           Player.maxClearedFloor = Math.max(Player.maxClearedFloor, 51);
           Player.currentAdventureFloor = 51;
           savePlayerData();
-          updateFloorSelectDropdown();
-          alert('🎉 階層解除ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！');
-          setupNextEnemy();
+          updateTitleUI();
+          alert('🎉 階層解除ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！[cite: 6]');
+          
+          document.getElementById('screenBattle').classList.add('hidden');
+          document.getElementById('screenTitle').classList.remove('hidden');
+          updateTitleUI();
           return;
         }
 
@@ -2468,12 +3224,25 @@
         synEl.textContent = `属性: 武[${ELEMENT_INFO[stats.weapon.element].name}] / 防[${ELEMENT_INFO[stats.armor.element].name}] (不一致)`;
       }
 
-      const curFloor = Math.min(MAX_NORMAL_FLOOR, Player.currentAdventureFloor || 1);
-      const maxNormal = Math.min(MAX_NORMAL_FLOOR, Player.maxClearedFloor || 1);
+      // 50Fクリア後（ボス討伐後）はタイトル画面の通常最高表示を100F基準に切り替え
+      const maxLimit = Player.bossDefeated ? 100 : 50;
+      const curFloor = Math.min(maxLimit, Player.currentAdventureFloor || 1);
+      const maxNormal = Math.min(maxLimit, Player.maxClearedFloor || 1);
 
-      document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${MAX_NORMAL_FLOOR}F`;
+      document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${maxLimit}F`;
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
+
+      // 50Fクリア済みで未討伐の場合のみ、冒険ボタンの上にボス挑戦ボタンを表示
+      const btnBoss = document.getElementById('btnBossChallenge');
+      if (btnBoss) {
+        if (Player.maxClearedFloor >= 50 && !Player.bossDefeated) {
+          btnBoss.classList.remove('hidden');
+        } else {
+          btnBoss.classList.add('hidden');
+        }
+      }
+
       updateStoneDisplays();
     }
 
@@ -2642,7 +3411,23 @@
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
-      // ver 4.0.3 アップデート確認モーダルの開閉
+      // 階層解除ボス挑戦ボタン・確認モーダルのイベント
+      const btnBossChallenge = document.getElementById('btnBossChallenge');
+      if (btnBossChallenge) {
+        btnBossChallenge.onclick = () => {
+          Sound.click();
+          document.getElementById('modalBossConfirm').classList.remove('hidden');
+        };
+      }
+      document.getElementById('btnBossCancel').onclick = () => {
+        Sound.click();
+        document.getElementById('modalBossConfirm').classList.add('hidden');
+      };
+      document.getElementById('btnBossStart').onclick = () => {
+        Sound.click();
+        startBossBattle();
+      };
+
       document.getElementById('btnVersionInfo').onclick = () => {
         Sound.click();
         document.getElementById('modalVersionLog').classList.remove('hidden');
