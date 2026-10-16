@@ -144,6 +144,29 @@
       </div>
     </div>
 
+    <!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
+    <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
+      <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
+        <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
+          <span>📜</span> <span>ver 4.0.3 アップデート内容</span>
+        </h2>
+        <button id="btnCloseVersionLog" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
+        <div class="text-xs font-bold text-yellow-300">■ ver 4.0.3 の主な追加要素</div>
+        <ul class="space-y-1.5 text-[11px] text-slate-200 leading-relaxed">
+          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fをクリアした後に、圧倒的な強さを誇るゴーレム型の「階層解除ボス」が出現！見事討伐すると51〜100Fへの挑戦権が解放されます。</li>
+          <li>・<b>51〜100Fの新エリア追加:</b> 50Fクリア後に、さらに奥の51〜100Fへ進めるようになりました。1〜50Fの敵の色違いモンスターが強力になって立ちはだかります。</li>
+          <li>・<b>レアドロップの継承:</b> 51〜100Fに出現する敵からも、1〜50Fと同様の強力なレアドロップ（SR・SSR・UR）を獲得可能です。</li>
+        </ul>
+      </div>
+
+      <button id="btnCloseVersionLogBottom" class="rpg-btn w-full py-2 bg-gradient-to-r from-amber-600 to-yellow-600 text-slate-950 font-black text-xs rounded">
+        確認して閉じる
+      </button>
+    </div>
+
     <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
     <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
@@ -273,7 +296,11 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 4.0.2</div>
+      <!-- ver表記ボタン（タップでver4.0.3の内容確認） -->
+      <button id="btnVersionInfo" class="px-3 py-0.5 rounded-full bg-slate-900/80 border border-amber-500/60 text-[9px] text-amber-200 hover:text-white hover:bg-slate-800 transition cursor-pointer shadow flex items-center gap-1">
+        <span>📜</span>
+        <span class="underline font-bold">ver 4.0.3 (アップデート内容)</span>
+      </button>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -285,7 +312,7 @@
 
       <div class="flex gap-2 my-2">
         <button id="tabRankNormal" class="rpg-btn flex-1 py-1.5 bg-amber-950 text-amber-300 border-amber-500 text-xs font-bold rounded">
-          通常モード (全50F)
+          通常モード (<span id="maxFloorLabelTab">100F</span>)
         </button>
         <button id="tabRankTower" class="rpg-btn flex-1 py-1.5 bg-slate-900 text-slate-400 border-slate-700 text-xs font-bold rounded">
           無限の塔 (最高到達)
@@ -460,7 +487,7 @@
         <div class="flex items-center gap-1.5">
           <span id="modeBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-300 border border-red-700">通常</span>
           <span id="locationBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">平原</span>
-          <span id="floorBadge" class="font-bold text-amber-400">1F / 50F</span>
+          <span id="floorBadge" class="font-bold text-amber-400">1F / 100F</span>
           
           <select id="floorSelectDropdown" class="bg-slate-900 border border-amber-700 text-amber-300 text-[10px] rounded px-1 py-0.5 outline-none font-bold"></select>
         </div>
@@ -561,7 +588,7 @@
     /* ==========================================================================
        0. 定数 & 属性・錬成システム定義 & GAS連携モジュール
        ========================================================================== */
-    const MAX_NORMAL_FLOOR = 50;
+    let MAX_NORMAL_FLOOR = 50; // 50Fクリア後に100Fへ拡張
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec";
 
     // 属性情報と属性一致ボーナス定義
@@ -589,7 +616,6 @@
       }
     };
 
-    // 錬成に必要な錬成石の個数計算（レア度が低いほど急増、高いほど緩やか）
     function getRefineStoneCost(rarity, currentLevel) {
       if (rarity === 'R') {
         const table = [1, 5, 10, 25, 50];
@@ -604,15 +630,14 @@
         if (currentLevel < table.length) return table[currentLevel];
         return 8 + (currentLevel - 4) * 4;
       } else if (rarity === 'UR') {
-        if (currentLevel < 3) return 1; // 1〜3回目: 1個
-        if (currentLevel < 5) return 2; // 4〜5回目: 2個
-        if (currentLevel < 8) return 3; // 6〜8回目: 3個
+        if (currentLevel < 3) return 1;
+        if (currentLevel < 5) return 2;
+        if (currentLevel < 8) return 3;
         return 4 + Math.floor((currentLevel - 8) / 3);
       }
       return 999;
     }
 
-    // 錬成1回あたりのステータス上昇幅（ほんのり強化される実感値）
     function getRefineBonusPerLevel(rarity) {
       if (rarity === 'R') return 1;
       if (rarity === 'SR') return 1;
@@ -801,15 +826,13 @@
     };
 
     /* ==========================================================================
-       2. 武器・防具マスタデータ (全40種: 武器20種 + 防具20種)
+       2. 武器・防具マスタデータ (全40種)
        ========================================================================== */
     const WEAPONS_MASTER = [
-      // 初期 (1)
       {
         id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', element: 'none', atkBonus: 0,
         desc: '何も持っていない。'
       },
-      // ガチャ R (6)
       {
         id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', element: 'fire', atkBonus: 4,
         desc: '基礎ダメージ+4',
@@ -846,7 +869,6 @@
         passive: { name: '幸運の小手試し', desc: '運属性一致時、討伐時の獲得コイン+25%' },
         skill: { name: 'ラッキースラッシュ', req: 'min5', desc: '出目5以上: 出目×2+6 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 6 + st.stats.baseAtk }) }
       },
-      // ガチャ SR (4)
       {
         id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'fire', atkBonus: 11,
         desc: '基礎ダメージ+11',
@@ -871,7 +893,6 @@
         passive: { name: '帯電', desc: '偶数の出目を使うたびシールド+4' },
         skill: { name: 'ロールバースト', req: 'even', desc: '偶数のみ: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) }
       },
-      // ガチャ SSR (3)
       {
         id: 'wg_ssr1', name: '聖剣エクスカリバー', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'fire', atkBonus: 20,
         desc: '基礎ダメージ+20',
@@ -890,14 +911,12 @@
         passive: { name: '必中の呪い', desc: 'すべての攻撃ダメージが+6底上げ' },
         skill: { name: '必中神穿', req: 'odd', desc: '奇数のみ: 固定28 ダメージ', fn: (v, st) => ({ dmg: 28 + st.stats.baseAtk }) }
       },
-      // ガチャ UR (1)
       {
         id: 'wg_ur1', name: '業火神剣・ムスペルヘイム', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'fire', atkBonus: 36,
         desc: '基礎ダメージ+36。ガチャ最高峰の炎神剣。',
         passive: { name: '神の業火', desc: '毎ターン終了時、敵に火傷12ダメージ' },
         skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目不問: 出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) }
       },
-      // ドロップ SR (2) - 確率 1/512
       {
         id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19,
         desc: '基礎ダメージ+19。怨念の魔刀。', dropRate: 1/512,
@@ -910,7 +929,6 @@
         passive: { name: '激流の力', desc: 'すべての攻撃ダメージ+5 ＆ ターン開始時盾+4' },
         skill: { name: 'ウォーターカッター', req: 'even', desc: '偶数のみ: 出目×3+14 ダメージ', fn: (v, st) => ({ dmg: v * 3 + 14 + st.stats.baseAtk }) }
       },
-      // ドロップ SSR (2) - 確率 1/1024
       {
         id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'fire', atkBonus: 33,
         desc: '基礎ダメージ+33。古竜の骨剣。', dropRate: 1/1024,
@@ -923,7 +941,6 @@
         passive: { name: '星の導き', desc: 'サイコロの最小出目が常に「2以上」になる' },
         skill: { name: 'スターダスト', req: 'even', desc: '偶数のみ: 36ダメージ＋シールド22', fn: (v, st) => ({ dmg: 36 + st.stats.baseAtk, shd: 22 }) }
       },
-      // ドロップ UR (1) - 確率 1/2048
       {
         id: 'wd_ur1', name: '大海神核・レヴィアタン', type: 'weapon', source: 'drop', rarity: 'UR', element: 'water', atkBonus: 52,
         desc: '基礎ダメージ+52。究極のドロップ水神核。', dropRate: 1/2048,
@@ -933,12 +950,10 @@
     ];
 
     const ARMORS_MASTER = [
-      // 初期 (1)
       {
         id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', element: 'none', hpBonus: 0, shdBonus: 0,
         desc: '普段着。'
       },
-      // ガチャ R (6)
       {
         id: 'ag_r1', name: '鋼のナイトプレート', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 30, shdBonus: 6,
         desc: '最大HP+30 / 初期シールド+6',
@@ -975,7 +990,6 @@
         passive: { name: '幸運の加護', desc: '運属性一致時、15%の確率で敵の攻撃を完全無効化' },
         skill: { name: 'ラッキーシールド', req: 'any', desc: '出目不問: シールド+9', fn: (v) => ({ shd: 9 }) }
       },
-      // ガチャ SR (4)
       {
         id: 'ag_sr1', name: 'バーニングアーマー', type: 'armor', source: 'gacha', rarity: 'SR', element: 'fire', hpBonus: 55, shdBonus: 11,
         desc: '最大HP+55 / 初期シールド+11',
@@ -1000,7 +1014,6 @@
         passive: { name: '天の導き', desc: '運属性一致時、毎ターン開始時シールド+6' },
         skill: { name: 'ホーリーバリア', req: 'min4', desc: '出目4以上: シールド+16', fn: (v) => ({ shd: 16 }) }
       },
-      // ガチャ SSR (3)
       {
         id: 'ag_ssr1', name: '竜皇の紅蓮全身鎧', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'fire', hpBonus: 120, shdBonus: 24,
         desc: '最大HP+120 / 初期シールド+24',
@@ -1019,14 +1032,12 @@
         passive: { name: '幸運の星', desc: '運属性一致時、25%で敵の攻撃を完全回避' },
         skill: { name: 'ルナティックシールド', req: 'odd', desc: '奇数のみ: シールド+22 ＆ 敵に12ダメ', fn: (v) => ({ shd: 22, dmg: 12 }) }
       },
-      // ガチャ UR (1)
       {
         id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36,
         desc: '最大HP+190 / 初期シールド+36。ガチャ最高峰の神衣。',
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
         skill: { name: '神威の障壁', req: 'any', desc: '出目不問: シールド+30 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 30, block35: true }) }
       },
-      // ドロップ SR (2) - 確率 1/512
       {
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19,
         desc: '最大HP+95 / 初期シールド+19。呪われた魔鎧。', dropRate: 1/512,
@@ -1039,7 +1050,6 @@
         passive: { name: '深海の重圧', desc: '受けるダメージを常時6軽減' },
         skill: { name: 'タイダルシールド', req: 'even', desc: '偶数のみ: シールド+24', fn: (v) => ({ shd: 24 }) }
       },
-      // ドロップ SSR (2) - 確率 1/1024
       {
         id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', element: 'fire', hpBonus: 175, shdBonus: 34,
         desc: '最大HP+175 / 初期シールド+34。魔王の秘宝。', dropRate: 1/1024,
@@ -1052,7 +1062,6 @@
         passive: { name: '自然の調和', desc: '毎ターン開始時HP12自動回復' },
         skill: { name: 'ガイアウォール', req: 'any', desc: '出目不問: シールド+32 ＆ HP15回復', fn: (v) => ({ shd: 32, heal: 15 }) }
       },
-      // ドロップ UR (1) - 確率 1/2048
       {
         id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', element: 'nature', hpBonus: 280, shdBonus: 65,
         desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/2048,
@@ -1064,7 +1073,7 @@
     /* ==========================================================================
        3. プレイヤーステータス & 永続セーブシステム
        ========================================================================== */
-    const SAVE_KEY = 'dice_hero_rpg_save_v8';
+    const SAVE_KEY = 'dice_hero_rpg_save_v9';
 
     let Player = {
       name: '',
@@ -1078,8 +1087,9 @@
       equippedArmor: 'a_clothes',
       ownedWeapons: ['w_bare'],
       ownedArmors: ['a_clothes'],
-      refineLevels: {}, // { itemId: level }
-      stones: { R: 0, SR: 0, SSR: 0, UR: 0 }
+      refineLevels: {},
+      stones: { R: 0, SR: 0, SSR: 0, UR: 0 },
+      bossDefeated: false // 50Fボスの討伐フラグ
     };
 
     function savePlayerData() {
@@ -1088,7 +1098,7 @@
 
     function loadPlayerData() {
       try {
-        const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem('dice_hero_rpg_save_v7');
+        const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem('dice_hero_rpg_save_v8');
         if (raw) {
           const parsed = JSON.parse(raw);
           Player = { ...Player, ...parsed };
@@ -1103,6 +1113,11 @@
       Player.ownedArmors = Player.ownedArmors.filter(id => ARMORS_MASTER.some(a => a.id === id));
       if (!Player.ownedWeapons.includes('w_bare')) Player.ownedWeapons.unshift('w_bare');
       if (!Player.ownedArmors.includes('a_clothes')) Player.ownedArmors.unshift('a_clothes');
+
+      // 50Fボスを倒していれば最大階層を100Fに拡張
+      if (Player.bossDefeated) {
+        MAX_NORMAL_FLOOR = 100;
+      }
 
       if (Player.currentAdventureFloor > MAX_NORMAL_FLOOR) Player.currentAdventureFloor = MAX_NORMAL_FLOOR;
       if (Player.maxClearedFloor > MAX_NORMAL_FLOOR) Player.maxClearedFloor = MAX_NORMAL_FLOOR;
@@ -1145,7 +1160,6 @@
 
       if (val.toLowerCase() === 'reset') {
         localStorage.removeItem(SAVE_KEY);
-        localStorage.removeItem('dice_hero_rpg_save_v7');
         location.reload();
         return;
       }
@@ -1231,9 +1245,18 @@
     }
 
     /* ==========================================================================
-       4. 背景SVG生成 & 敵SVGスプライト
+       4. 背景SVG生成 & 敵/ボスSVGスプライト
        ========================================================================== */
-    function getBattleBackgroundSvg(locationKey) {
+    function getBattleBackgroundSvg(locationKey, isBossFloor = false) {
+      if (isBossFloor) {
+        return `
+          <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
+            <rect width="320" height="600" fill="#380202"/>
+            <polygon points="0,0 320,0 160,350" fill="#7f1d1d" opacity="0.4"/>
+            <circle cx="160" cy="220" r="80" fill="#f59e0b" opacity="0.2"/>
+            <rect x="0" y="420" width="320" height="180" fill="#180505"/>
+          </svg>`;
+      }
       if (locationKey === 'plains') {
         return `
           <svg viewBox="0 0 320 600" preserveAspectRatio="none" class="w-full h-full">
@@ -1288,43 +1311,69 @@
       }
     }
 
-    function getEnemySvg(type) {
+    // 階層解除ボス専用スプライト（ゴーレム風の重厚な見た目）
+    function getBossSvg() {
+      return `
+        <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-[0_0_18px_rgba(239,68,68,0.8)]">
+          <rect x="25" y="20" width="50" height="60" rx="8" fill="#334155" stroke="#ef4444" stroke-width="4"/>
+          <rect x="35" y="32" width="10" height="8" fill="#f59e0b"/>
+          <rect x="55" y="32" width="10" height="8" fill="#f59e0b"/>
+          <path d="M15 35 L25 45 L25 65 L15 55 Z" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+          <path d="M85 35 L75 45 L75 65 L85 55 Z" fill="#475569" stroke="#cbd5e1" stroke-width="2"/>
+          <rect x="30" y="80" width="14" height="15" fill="#1e293b"/>
+          <rect x="56" y="80" width="14" height="15" fill="#1e293b"/>
+        </svg>`;
+    }
+
+    function getEnemySvg(type, isOver50 = false) {
+      // 51〜100Fの敵は1〜50Fの色違い（ダーク・異色トーン）として描画
+      let col = '#22c55e';
+      let strokeCol = '#15803d';
+      if (type === 'skeleton') { col = '#94a3b8'; strokeCol = '#334155'; }
+      else if (type === 'knight') { col = '#dc2626'; strokeCol = '#7f1d1d'; }
+      else if (type === 'dragon') { col = '#d97706'; strokeCol = '#78350f'; }
+
+      if (isOver50) {
+        col = '#475569'; // 51F以降の威圧的なカラー
+        strokeCol = '#0f172a';
+      }
+
       if (type === 'slime') {
         return `
-          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(34,197,94,0.6)]">
-            <path d="M40 10 C20 10, 8 30, 8 50 C8 68, 22 74, 40 74 C58 74, 72 68, 72 50 C72 30, 60 10, 40 10 Z" fill="#22c55e" stroke="#15803d" stroke-width="3"/>
-            <circle cx="28" cy="42" r="5" fill="#0f172a"/><circle cx="30" cy="40" r="1.5" fill="#fff"/>
-            <circle cx="52" cy="42" r="5" fill="#0f172a"/><circle cx="54" cy="40" r="1.5" fill="#fff"/>
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            <path d="M40 10 C20 10, 8 30, 8 50 C8 68, 22 74, 40 74 C58 74, 72 68, 72 50 C72 30, 60 10, 40 10 Z" fill="${col}" stroke="${strokeCol}" stroke-width="3"/>
+            <circle cx="28" cy="42" r="5" fill="#fff"/><circle cx="30" cy="40" r="1.5" fill="#ef4444"/>
+            <circle cx="52" cy="42" r="5" fill="#fff"/><circle cx="54" cy="40" r="1.5" fill="#ef4444"/>
           </svg>`;
       } else if (type === 'skeleton') {
         return `
-          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(148,163,184,0.6)]">
-            <rect x="22" y="14" width="36" height="34" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
-            <circle cx="32" cy="30" r="6" fill="#0f172a"/><circle cx="33" cy="30" r="2" fill="#38bdf8"/>
-            <circle cx="48" cy="30" r="6" fill="#0f172a"/><circle cx="49" cy="30" r="2" fill="#38bdf8"/>
-            <rect x="28" y="48" width="24" height="12" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            <rect x="22" y="14" width="36" height="34" rx="10" fill="${col}" stroke="${strokeCol}" stroke-width="3"/>
+            <circle cx="32" cy="30" r="6" fill="#0f172a"/><circle cx="33" cy="30" r="2" fill="#ef4444"/>
+            <circle cx="48" cy="30" r="6" fill="#0f172a"/><circle cx="49" cy="30" r="2" fill="#ef4444"/>
+            <rect x="28" y="48" width="24" height="12" rx="2" fill="${col}" stroke="${strokeCol}" stroke-width="2"/>
           </svg>`;
       } else if (type === 'knight') {
         return `
-          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(239,68,68,0.7)]">
-            <path d="M20 25 L40 10 L60 25 L56 65 L40 74 L24 65 Z" fill="#334155" stroke="#0f172a" stroke-width="3"/>
-            <path d="M40 18 L40 66 M26 38 L54 38" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+            <path d="M20 25 L40 10 L60 25 L56 65 L40 74 L24 65 Z" fill="${col}" stroke="${strokeCol}" stroke-width="3"/>
+            <path d="M40 18 L40 66 M26 38 L54 38" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
             <circle cx="40" cy="38" r="4" fill="#facc15"/>
           </svg>`;
       } else {
         return `
-          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_14px_rgba(245,158,11,0.8)]">
-            <polygon points="16,10 28,30 10,24" fill="#b45309"/>
-            <polygon points="64,10 52,30 70,24" fill="#b45309"/>
-            <path d="M24 22 L40 14 L56 22 L62 50 L40 72 L18 50 Z" fill="#d97706" stroke="#78350f" stroke-width="3"/>
-            <polygon points="28,36 38,40 30,44" fill="#fef08a"/>
-            <polygon points="52,36 42,40 50,44" fill="#fef08a"/>
+          <svg viewBox="0 0 80 80" class="w-20 h-20 drop-shadow-[0_4px_14px_rgba(0,0,0,0.8)]">
+            <polygon points="16,10 28,30 10,24" fill="${strokeCol}"/>
+            <polygon points="64,10 52,30 70,24" fill="${strokeCol}"/>
+            <path d="M24 22 L40 14 L56 22 L62 50 L40 72 L18 50 Z" fill="${col}" stroke="${strokeCol}" stroke-width="3"/>
+            <polygon points="28,36 38,40 30,44" fill="#ef4444"/>
+            <polygon points="52,36 42,40 50,44" fill="#ef4444"/>
           </svg>`;
       }
     }
 
     /* ==========================================================================
-       5. 戦闘エンジン & 属性一致シナジー・スキル判定
+       5. 戦闘エンジン & 階層解除ボス制御
        ========================================================================== */
     let Battle = {
       mode: 'normal',
@@ -1342,6 +1391,7 @@
       hasRevivedThisBattle: false,
       blockNextAttack35: false,
       pendingNormalClear: false,
+      isBossBattle: false, // 50Fクリア後の階層解除ボス戦フラグ
       skills: [],
       toastTimer: null
     };
@@ -1386,6 +1436,7 @@
       Battle.hasRevivedThisBattle = false;
       Battle.blockNextAttack35 = false;
       Battle.pendingNormalClear = false;
+      Battle.isBossBattle = false;
 
       const stats = getPlayerStats();
       Battle.playerHp = stats.maxHp;
@@ -1452,13 +1503,42 @@
         else Battle.location = 'castle';
       }
 
-      document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location);
+      // 50Fクリア後で、まだボスを倒していない場合は「階層解除ボス戦」を発生させる
+      if (Battle.mode === 'normal' && f === 50 && !Player.bossDefeated) {
+        Battle.isBossBattle = true;
+        document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, true);
+
+        // 50Fボスの強さ：50F通常ボスの約4倍（ビルドとダイス運が試される難易度）
+        const baseCurve = 1 + (49) * 0.038 + Math.pow(Math.max(0, 34) * 0.022, 2);
+        const standardHp = Math.round((22 + 50 * 3.6) * baseCurve);
+        const standardAtk = Math.round((4 + 50 * 0.8) * baseCurve);
+
+        Battle.enemy = {
+          name: '階層解除守護者・ゴーレム',
+          type: 'boss',
+          level: 50,
+          hp: standardHp * 4,
+          maxHp: standardHp * 4,
+          atk: Math.round(standardAtk * 3.5),
+          isBoss: true
+        };
+        startTurn();
+        renderBattleUI();
+        return;
+      }
+
+      document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, false);
 
       let level = f, hp, atk;
       if (!isTower) {
-        const curve = 1 + (f - 1) * 0.038 + Math.pow(Math.max(0, f - 15) * 0.022, 2);
-        hp = Math.round((22 + f * 3.6) * curve);
-        atk = Math.round((4 + f * 0.8) * curve);
+        // 51〜100Fの敵：51Fの敵は50Fと同じ強さになり、そこから100Fまでなだらかに上昇
+        let effectiveF = f;
+        if (f > 50) {
+          effectiveF = 50 + (f - 50) * 0.75; // 51F＝50Fと同等、100Fに向けて緩やかに強化
+        }
+        const curve = 1 + (effectiveF - 1) * 0.038 + Math.pow(Math.max(0, effectiveF - 15) * 0.022, 2);
+        hp = Math.round((22 + effectiveF * 3.6) * curve);
+        atk = Math.round((4 + effectiveF * 0.8) * curve);
       } else {
         const curve = 1 + (f - 1) * 0.28 + Math.pow(f * 0.1, 2);
         hp = Math.round((26 + f * 8) * curve);
@@ -1748,6 +1828,20 @@
         Player.gold += goldGained;
         addExp(expGained);
 
+        // 50Fボスの討伐判定
+        if (Battle.isBossBattle) {
+          Battle.isBossBattle = false;
+          Player.bossDefeated = true;
+          MAX_NORMAL_FLOOR = 100;
+          Player.maxClearedFloor = Math.max(Player.maxClearedFloor, 51);
+          Player.currentAdventureFloor = 51;
+          savePlayerData();
+          updateFloorSelectDropdown();
+          alert('🎉 階層解除ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！');
+          setupNextEnemy();
+          return;
+        }
+
         const isFinalFloor = Battle.floor >= MAX_NORMAL_FLOOR;
 
         if (isFinalFloor) {
@@ -1859,7 +1953,7 @@
       }
 
       savePlayerData();
-      modal.classList.remove('hidden');
+      modal.classList.add('hidden');
     }
 
     function handlePlayerDefeat() {
@@ -1883,7 +1977,7 @@
 
       if (isClear) {
         document.getElementById('resultIcon').textContent = '🏆';
-        document.getElementById('resultTitle').textContent = '通常モード全50階層 完全制覇！';
+        document.getElementById('resultTitle').textContent = '通常モード全100階層 完全制覇！';
       } else {
         document.getElementById('resultIcon').textContent = isRetreat ? '🏃' : '💀';
         document.getElementById('resultTitle').textContent = isRetreat ? '戦闘中断・帰還' : '冒険の終焉';
@@ -2045,7 +2139,7 @@
     }
 
     /* ==========================================================================
-       7. アイテム図鑑 (ENCYCLOPEDIA - 全40種)
+       7. アイテム図鑑
        ========================================================================== */
     let currentDexTab = 'gacha';
 
@@ -2122,6 +2216,11 @@
       const colTitle = document.getElementById('rankColTitle');
       const tabNormal = document.getElementById('tabRankNormal');
       const tabTower = document.getElementById('tabRankTower');
+      const maxFloorLabelTab = document.getElementById('maxFloorLabelTab');
+
+      if (maxFloorLabelTab) {
+        maxFloorLabelTab.textContent = Player.bossDefeated ? '全100F' : '全50F';
+      }
 
       tbody.innerHTML = `
         <tr>
@@ -2165,7 +2264,8 @@
         else if (index === 1) rankColor = 'text-slate-200 font-bold';
         else if (index === 2) rankColor = 'text-amber-600 font-bold';
 
-        const displayScore = currentRankTab === 'normal' ? Math.min(MAX_NORMAL_FLOOR, item.score) : item.score;
+        const maxLimit = Player.bossDefeated ? 100 : 50;
+        const displayScore = currentRankTab === 'normal' ? Math.min(maxLimit, item.score) : item.score;
 
         tr.innerHTML = `
           <td class="py-1.5 ${rankColor}">${index + 1}位</td>
@@ -2177,10 +2277,9 @@
     }
 
     /* ==========================================================================
-       9. 装備箱 & 錬成システム (INVENTORY & REFINEMENT & SORTING)
+       9. 装備箱 & 錬成システム
        ========================================================================== */
     let currentEquipTab = 'weapon';
-    // ソートモード: 'rarity' (レア順) ➔ 'element' (属性順) ➔ 'order' (入手順)
     let currentSortMode = 'rarity';
     const RARITY_WEIGHT = { 'N': 1, 'R': 2, 'SR': 3, 'SSR': 4, 'UR': 5 };
     const ELEMENT_WEIGHT = { 'fire': 1, 'water': 2, 'nature': 3, 'luck': 4, 'none': 5 };
@@ -2247,7 +2346,6 @@
         ? WEAPONS_MASTER.filter(w => Player.ownedWeapons.includes(w.id))
         : ARMORS_MASTER.filter(a => Player.ownedArmors.includes(a.id));
 
-      // ソート処理
       if (currentSortMode === 'rarity') {
         items.sort((a, b) => RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]);
       } else if (currentSortMode === 'element') {
@@ -2255,14 +2353,13 @@
           const wA = ELEMENT_WEIGHT[a.element] || 9;
           const wB = ELEMENT_WEIGHT[b.element] || 9;
           if (wA !== wB) return wA - wB;
-          return RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]; // 同じ属性内ならレア度順
+          return RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity];
         });
       } else {
         const ownedArr = isWep ? Player.ownedWeapons : Player.ownedArmors;
         items.sort((a, b) => ownedArr.indexOf(a.id) - ownedArr.indexOf(b.id));
       }
 
-      // ソートボタンのラベル更新
       const sortBtn = document.getElementById('btnSortOrder');
       if (currentSortMode === 'rarity') sortBtn.textContent = 'ソート: レア順 ▼';
       else if (currentSortMode === 'element') sortBtn.textContent = 'ソート: 属性順 ▼';
@@ -2444,7 +2541,12 @@
         document.getElementById('enemyHpText').textContent = `${Battle.enemy.hp}/${Battle.enemy.maxHp}`;
         document.getElementById('enemyHpBar').style.width = `${Math.max(0, (Battle.enemy.hp / Battle.enemy.maxHp) * 100)}%`;
         document.getElementById('enemyIntent').innerHTML = `⚔️ ${Battle.enemy.atk} ダメージ`;
-        document.getElementById('enemySprite').innerHTML = getEnemySvg(Battle.enemy.type);
+        
+        if (Battle.isBossBattle) {
+          document.getElementById('enemySprite').innerHTML = getBossSvg();
+        } else {
+          document.getElementById('enemySprite').innerHTML = getEnemySvg(Battle.enemy.type, Battle.floor > 50);
+        }
       }
 
       const skillArea = document.getElementById('skillArea');
@@ -2522,7 +2624,7 @@
     }
 
     /* ==========================================================================
-       11. イベント登録（タッチ・クリック両対応）
+       11. イベント登録
        ========================================================================== */
     function attachListeners() {
       const unlockAudio = () => {
@@ -2539,6 +2641,20 @@
       document.getElementById('inputPlayerName').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
+
+      // ver 4.0.3 アップデート確認モーダルの開閉
+      document.getElementById('btnVersionInfo').onclick = () => {
+        Sound.click();
+        document.getElementById('modalVersionLog').classList.remove('hidden');
+      };
+      document.getElementById('btnCloseVersionLog').onclick = () => {
+        Sound.click();
+        document.getElementById('modalVersionLog').classList.add('hidden');
+      };
+      document.getElementById('btnCloseVersionLogBottom').onclick = () => {
+        Sound.click();
+        document.getElementById('modalVersionLog').classList.add('hidden');
+      };
 
       document.getElementById('btnRetreat').onclick = handleRetreat;
       document.getElementById('btnResumeBattle').onclick = () => {
@@ -2652,7 +2768,6 @@
         renderEquipBox();
       };
 
-      // 装備箱ソート切り替えボタン (レア順 ➔ 属性順 ➔ 入手順)
       document.getElementById('btnSortOrder').onclick = () => {
         Sound.click();
         if (currentSortMode === 'rarity') {
