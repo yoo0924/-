@@ -1065,7 +1065,7 @@
         id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36,
         desc: '最大HP+190 / 初期シールド+36。ガチャ最高峰の神衣。',
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
-        skill: { name: '神威の障壁', req: 'any', desc: '出目不問: シールド+30 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 30, block35: true }) }
+        skill: { name: '神威の障壁', req: 'oneOrSix', desc: '出目1か6: シールド+35 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 35, block35: true }) }
       },
       {
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19,
@@ -1459,6 +1459,7 @@
       if (req === 'min4') return diceVal >= 4;
       if (req === 'min5') return diceVal >= 5;
       if (req === 'six') return diceVal === 6;
+      if (req === 'oneOrSix') return diceVal === 1 || diceVal === 6;
       return false;
     }
 
