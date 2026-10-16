@@ -119,7 +119,15 @@
     .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
     .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
     .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
-    ::-webkit-scrollbar { display: none; }
+    ::-webkit-scrollbar { display: none;}
+    @keyframes bossIntroZoom {
+      0% { transform: scale(0.1) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 0px #ef4444); }
+      60% { transform: scale(1.2) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 30px #ef4444); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 15px #ef4444); }
+    }
+    .boss-intro-anim {
+      animation: bossIntroZoom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
   </style>
 </head>
 <body class="p-1 sm:p-2">
@@ -265,6 +273,10 @@
 
       <!-- メインボタン群 -->
       <div class="w-full space-y-1.5">
+        <button id="btnBossChallenge" class="hidden rpg-btn w-full py-2 bg-gradient-to-r from-rose-900 to-red-700 hover:from-rose-800 hover:to-red-600 text-white font-bold text-xs flex items-center justify-center gap-2 rounded animate-pulse">
+          <span>👹</span> <span>ボスに挑む</span>
+        </button>
+        
         <button id="btnAdventure" class="rpg-btn w-full py-2.5 bg-gradient-to-r from-red-700 to-amber-700 hover:from-red-600 hover:to-amber-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 rounded">
           <span>⚔️</span> <span id="btnAdventureLabel">冒険に出る (1Fから再開)</span>
         </button>
@@ -359,6 +371,23 @@
       </div>
     </div>
 
+    <!-- ==================== 3.5 階層解除ボス 挑戦確認モーダル ==================== -->
+    <div id="modalBossConfirm" class="hidden absolute inset-0 z-[125] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
+      <div class="w-full max-w-xs rpg-panel border-rose-600 rounded p-4 space-y-3">
+        <div class="text-3xl animate-bounce">👹</div>
+        <h3 class="text-sm font-bold text-rose-400">【 守護者・決戦 】</h3>
+        <p class="text-[11px] text-slate-300 leading-relaxed">
+          すべての装備とダイス運の限界が試される<br>
+          強大なゴーレムとの一騎打ち。<br>
+          <span class="text-amber-300 font-bold">勝利して51〜100階層の扉を開け！</span>
+        </p>
+        <div class="flex gap-2 pt-1">
+          <button id="btnBossCancel" class="rpg-btn flex-1 py-2 bg-slate-800 text-xs text-slate-300 rounded">もどる</button>
+          <button id="btnBossStart" class="rpg-btn flex-1 py-2 bg-rose-700 hover:bg-rose-600 text-xs font-bold text-white rounded">決戦に挑む！</button>
+        </div>
+      </div>
+    </div>
+    
     <!-- ==================== 4. 装備箱・錬成モーダル ==================== -->
     <div id="modalEquipBox" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-amber-900 pb-1">
@@ -1176,6 +1205,11 @@
         Player.stones.SR += 50;
         Player.stones.SSR += 30;
         Player.stones.UR += 15;
+        Player.bossDefeated = true;
+        MAX_NORMAL_FLOOR = 100;
+        Player.maxClearedFloor = 100;
+        Player.currentAdventureFloor = 100;
+      
         Sound.rarityFanfare('UR');
         alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具(40種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
       } else {
