@@ -273,7 +273,7 @@
         </button>
       </div>
 
-      <div class="text-[8px] text-amber-200/60 font-bold">ver 4.0.0</div>
+      <div class="text-[8px] text-amber-200/60 font-bold">ver 4.0.2</div>
     </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
@@ -802,7 +802,6 @@
 
     /* ==========================================================================
        2. 武器・防具マスタデータ (全40種: 武器20種 + 防具20種)
-          ※ドロップ装備はガチャ産の1段階上の性能・低確率(1/1024〜1/4096)に設定
        ========================================================================== */
     const WEAPONS_MASTER = [
       // 初期 (1)
@@ -898,7 +897,7 @@
         passive: { name: '神の業火', desc: '毎ターン終了時、敵に火傷12ダメージ' },
         skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目不問: 出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) }
       },
-      // ドロップ SR (2) - 確率 1/512 (ガチャSSR級の強さ)
+      // ドロップ SR (2) - 確率 1/512
       {
         id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19,
         desc: '基礎ダメージ+19。怨念の魔刀。', dropRate: 1/512,
@@ -911,7 +910,7 @@
         passive: { name: '激流の力', desc: 'すべての攻撃ダメージ+5 ＆ ターン開始時盾+4' },
         skill: { name: 'ウォーターカッター', req: 'even', desc: '偶数のみ: 出目×3+14 ダメージ', fn: (v, st) => ({ dmg: v * 3 + 14 + st.stats.baseAtk }) }
       },
-      // ドロップ SSR (2) - 確率 1/1024 (ガチャURに迫る強さ)
+      // ドロップ SSR (2) - 確率 1/1024
       {
         id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'fire', atkBonus: 33,
         desc: '基礎ダメージ+33。古竜の骨剣。', dropRate: 1/1024,
@@ -924,7 +923,7 @@
         passive: { name: '星の導き', desc: 'サイコロの最小出目が常に「2以上」になる' },
         skill: { name: 'スターダスト', req: 'even', desc: '偶数のみ: 36ダメージ＋シールド22', fn: (v, st) => ({ dmg: 36 + st.stats.baseAtk, shd: 22 }) }
       },
-      // ドロップ UR (1) - 確率 1/2048 (全武器中ぶっちぎり最強)
+      // ドロップ UR (1) - 確率 1/2048
       {
         id: 'wd_ur1', name: '大海神核・レヴィアタン', type: 'weapon', source: 'drop', rarity: 'UR', element: 'water', atkBonus: 52,
         desc: '基礎ダメージ+52。究極のドロップ水神核。', dropRate: 1/2048,
@@ -1020,14 +1019,14 @@
         passive: { name: '幸運の星', desc: '運属性一致時、25%で敵の攻撃を完全回避' },
         skill: { name: 'ルナティックシールド', req: 'odd', desc: '奇数のみ: シールド+22 ＆ 敵に12ダメ', fn: (v) => ({ shd: 22, dmg: 12 }) }
       },
-      // ガチャ UR (1) - ※旧クロノスの聖衣から属性変更＆軽減率を35%にマイルド化
+      // ガチャ UR (1)
       {
         id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36,
         desc: '最大HP+190 / 初期シールド+36。ガチャ最高峰の神衣。',
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
         skill: { name: '神威の障壁', req: 'any', desc: '出目不問: シールド+30 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 30, block35: true }) }
       },
-      // ドロップ SR (2) - 確率 1/512 (ガチャSSR級の強さ)
+      // ドロップ SR (2) - 確率 1/512
       {
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19,
         desc: '最大HP+95 / 初期シールド+19。呪われた魔鎧。', dropRate: 1/512,
@@ -1040,7 +1039,7 @@
         passive: { name: '深海の重圧', desc: '受けるダメージを常時6軽減' },
         skill: { name: 'タイダルシールド', req: 'even', desc: '偶数のみ: シールド+24', fn: (v) => ({ shd: 24 }) }
       },
-      // ドロップ SSR (2) - 確率 1/1024 (ガチャURを超える堅牢さ)
+      // ドロップ SSR (2) - 確率 1/1024
       {
         id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', element: 'fire', hpBonus: 175, shdBonus: 34,
         desc: '最大HP+175 / 初期シールド+34。魔王の秘宝。', dropRate: 1/1024,
@@ -1053,7 +1052,7 @@
         passive: { name: '自然の調和', desc: '毎ターン開始時HP12自動回復' },
         skill: { name: 'ガイアウォール', req: 'any', desc: '出目不問: シールド+32 ＆ HP15回復', fn: (v) => ({ shd: 32, heal: 15 }) }
       },
-      // ドロップ UR (1) - 確率 1/2048 (全防具中ぶっちぎり最強)
+      // ドロップ UR (1) - 確率 1/2048
       {
         id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', element: 'nature', hpBonus: 280, shdBonus: 65,
         desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/2048,
@@ -1098,7 +1097,6 @@
         }
       } catch(e) {}
 
-      // 存在しない古いIDが装備されていた場合の安全フォールバック
       if (!WEAPONS_MASTER.some(w => w.id === Player.equippedWeapon)) Player.equippedWeapon = 'w_bare';
       if (!ARMORS_MASTER.some(a => a.id === Player.equippedArmor)) Player.equippedArmor = 'a_clothes';
       Player.ownedWeapons = Player.ownedWeapons.filter(id => WEAPONS_MASTER.some(w => w.id === id));
@@ -1205,12 +1203,10 @@
       const wepRefineBonus = wepRefLv * getRefineBonusPerLevel(wep.rarity);
       const armRefineBonus = armRefLv * getRefineBonusPerLevel(arm.rarity);
 
-      // 錬成は基礎ダメージ・初期シールドのみプラス（最大HPはプラスしない）
       const maxHp = 50 + (Player.level - 1) * 4 + arm.hpBonus;
       const baseAtk = 0 + Math.floor((Player.level - 1) / 2) + wep.atkBonus + wepRefineBonus;
       const startShield = 0 + arm.shdBonus + armRefineBonus;
 
-      // 属性一致判定 (無属性以外で武器と防具の属性が同じ場合)
       const matchedElement = (wep.element && wep.element !== 'none' && wep.element === arm.element)
         ? wep.element
         : null;
@@ -1363,7 +1359,6 @@
 
     function applyHeal(amount, stats) {
       let finalHeal = amount;
-      // 自然属性一致ボーナス: 全HP回復効果1.5倍
       if (stats.matchedElement === 'nature') {
         finalHeal = Math.round(finalHeal * 1.5);
       }
@@ -1461,7 +1456,6 @@
 
       let level = f, hp, atk;
       if (!isTower) {
-        // SSR装備＋錬成でも工夫次第で50F突破可能な成長曲線
         const curve = 1 + (f - 1) * 0.038 + Math.pow(Math.max(0, f - 15) * 0.022, 2);
         hp = Math.round((22 + f * 3.6) * curve);
         atk = Math.round((4 + f * 0.8) * curve);
@@ -1496,14 +1490,12 @@
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
 
-      // ターン開始時のシールド計算（防具の初期シールド＋錬成ボーナスをベースに付与）
       if (armPass === '不撓不屈') {
         Battle.playerShield = Math.floor(Battle.playerShield / 2) + stats.startShield;
       } else {
         Battle.playerShield = stats.startShield;
       }
 
-      // 武器・防具パッシブによるターン開始時効果
       if (wepPass === '聖なる加護') applyHeal(5, stats);
       if (wepPass === '豊穣の光' && stats.matchedElement === 'nature') applyHeal(4, stats);
       if (wepPass === '世界樹の加護' && stats.matchedElement === 'nature') applyHeal(8, stats);
@@ -1516,7 +1508,6 @@
       if (wepPass === '創世の脈動') Battle.playerShield += 10;
       if (armPass === '天の導き' && stats.matchedElement === 'luck') Battle.playerShield += 6;
 
-      // 属性一致ボーナス（ターン開始時発動分）
       if (stats.matchedElement === 'water') {
         Battle.playerShield += 5;
       }
@@ -1525,7 +1516,6 @@
         applyHeal(regen, stats);
       }
 
-      // ダイス個数決定
       let diceCount = 3;
       if (wepPass === '創世の脈動') diceCount++;
       if (armPass === '時間跳躍') diceCount++;
@@ -1533,17 +1523,14 @@
       Battle.activeDice = [];
       for (let i = 0; i < diceCount; i++) {
         let d = rollDie();
-        // 星の導き: ダイス最小値が2以上
         if (wepPass === '星の導き' && d < 2) d = 2;
         Battle.activeDice.push(d);
       }
 
-      // 水属性一致ボーナス: 最低1個は確実に「4以上」のダイスが出る
       if (stats.matchedElement === 'water' && !Battle.activeDice.some(d => d >= 4)) {
-        Battle.activeDice[0] = Math.floor(Math.random() * 3) + 4; // 4, 5, 6
+        Battle.activeDice[0] = Math.floor(Math.random() * 3) + 4;
       }
 
-      // 今ターンの初期出目合計 ＆ ゾロ目判定を記録（火・運の属性一致ボーナス用）
       Battle.turnDiceSum = Battle.activeDice.reduce((sum, v) => sum + v, 0);
       const counts = {};
       Battle.activeDice.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
@@ -1596,13 +1583,11 @@
           finalDmg *= 2;
         }
 
-        // 🔥 火属性一致ボーナス: ダイス合計12以上のターンは攻撃ダメージ1.35倍
         if (stats.matchedElement === 'fire' && Battle.turnDiceSum >= 12) {
           finalDmg = Math.round(finalDmg * 1.35);
           showBattleToast('🔥 劫火の共鳴！ダメージ1.35倍！');
         }
 
-        // 🌟 運属性一致ボーナス: ゾロ目のターン、30%で即死（ボスは2.5倍ダメージ）
         if (stats.matchedElement === 'luck' && Battle.turnHasDoubles && Math.random() < 0.30) {
           if (Battle.enemy.isBoss) {
             finalDmg = Math.round(finalDmg * 2.5);
@@ -1659,7 +1644,6 @@
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
 
-      // ターン終了時の継続ダメージ系
       let burnDmg = 0;
       if (wepPass === '火炎付与') burnDmg += 5;
       if (wepPass === '神の業火') burnDmg += 12;
@@ -1681,7 +1665,6 @@
         }
       }
 
-      // 運属性防具による完全回避判定
       let evaded = false;
       if (stats.matchedElement === 'luck') {
         if (armPass === '幸運の加護' && Math.random() < 0.15) evaded = true;
@@ -1694,13 +1677,11 @@
       } else {
         let incoming = Battle.enemy.atk;
 
-        // 神威の障壁: 35%軽減
         if (Battle.blockNextAttack35) {
           Battle.blockNextAttack35 = false;
           incoming = Math.max(1, Math.floor(incoming * 0.65));
         }
 
-        // 絶対不滅: 常時20%軽減
         if (armPass === '絶対不滅') {
           incoming = Math.max(1, Math.floor(incoming * 0.8));
         }
@@ -1925,7 +1906,7 @@
     }
 
     /* ==========================================================================
-       6. ガチャシステム (R:80%, SR:15%, SSR:4%, UR:1% / 重複時は錬成石獲得)
+       6. ガチャシステム
        ========================================================================== */
     let isRollingGacha = false;
 
@@ -1962,7 +1943,6 @@
       rollBtn.disabled = true;
       banner.classList.add('hidden');
 
-      // 新確率: UR 1%, SSR 4%, SR 15%, R 80%
       const rand = Math.random() * 100;
       let targetRarity = 'R';
       if (rand < 1) targetRarity = 'UR';
@@ -2197,11 +2177,13 @@
     }
 
     /* ==========================================================================
-       9. 装備箱 & 錬成システム (INVENTORY & REFINEMENT)
+       9. 装備箱 & 錬成システム (INVENTORY & REFINEMENT & SORTING)
        ========================================================================== */
     let currentEquipTab = 'weapon';
+    // ソートモード: 'rarity' (レア順) ➔ 'element' (属性順) ➔ 'order' (入手順)
     let currentSortMode = 'rarity';
     const RARITY_WEIGHT = { 'N': 1, 'R': 2, 'SR': 3, 'SSR': 4, 'UR': 5 };
+    const ELEMENT_WEIGHT = { 'fire': 1, 'water': 2, 'nature': 3, 'luck': 4, 'none': 5 };
 
     function handleRefineItem(item) {
       if (item.rarity === 'N') return;
@@ -2265,12 +2247,26 @@
         ? WEAPONS_MASTER.filter(w => Player.ownedWeapons.includes(w.id))
         : ARMORS_MASTER.filter(a => Player.ownedArmors.includes(a.id));
 
+      // ソート処理
       if (currentSortMode === 'rarity') {
         items.sort((a, b) => RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]);
+      } else if (currentSortMode === 'element') {
+        items.sort((a, b) => {
+          const wA = ELEMENT_WEIGHT[a.element] || 9;
+          const wB = ELEMENT_WEIGHT[b.element] || 9;
+          if (wA !== wB) return wA - wB;
+          return RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]; // 同じ属性内ならレア度順
+        });
       } else {
         const ownedArr = isWep ? Player.ownedWeapons : Player.ownedArmors;
         items.sort((a, b) => ownedArr.indexOf(a.id) - ownedArr.indexOf(b.id));
       }
+
+      // ソートボタンのラベル更新
+      const sortBtn = document.getElementById('btnSortOrder');
+      if (currentSortMode === 'rarity') sortBtn.textContent = 'ソート: レア順 ▼';
+      else if (currentSortMode === 'element') sortBtn.textContent = 'ソート: 属性順 ▼';
+      else sortBtn.textContent = 'ソート: 入手順 ▼';
 
       items.forEach(it => {
         const isEquipped = isWep ? (Player.equippedWeapon === it.id) : (Player.equippedArmor === it.id);
@@ -2293,7 +2289,6 @@
             : ` <span class="text-yellow-300 font-bold">(錬成盾+${refBonus} ➔ 計+${it.shdBonus + refBonus})</span>`;
         }
 
-        // 錬成ボタン生成 (N以外の装備)
         let refineBtnHtml = '';
         if (it.rarity !== 'N') {
           const cost = getRefineStoneCost(it.rarity, refLv);
@@ -2419,7 +2414,6 @@
       document.getElementById('playerHpBar').style.width = `${Math.max(0, (Battle.playerHp / stats.maxHp) * 100)}%`;
       document.getElementById('playerShieldVal').textContent = Battle.playerShield;
 
-      // ターン中の属性シナジー条件達成表示
       const diceStatusBadge = document.getElementById('turnDiceStatusBadge');
       if (stats.matchedElement === 'fire' && Battle.turnDiceSum >= 12) {
         diceStatusBadge.textContent = `🔥合計${Battle.turnDiceSum}(火力1.35倍!)`;
@@ -2546,7 +2540,6 @@
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
-      // ポーズ（中断）モーダル
       document.getElementById('btnRetreat').onclick = handleRetreat;
       document.getElementById('btnResumeBattle').onclick = () => {
         Sound.click();
@@ -2558,7 +2551,6 @@
         showResultScreen(true);
       };
 
-      // ドロップカットイン閉じる
       document.getElementById('btnCloseDropCutin').onclick = () => {
         Sound.click();
         document.getElementById('modalDropCutin').classList.add('hidden');
@@ -2590,7 +2582,6 @@
         startBattle('tower', 1);
       };
 
-      // 図鑑
       document.getElementById('btnEncyclopedia').onclick = () => {
         Sound.click();
         renderEncyclopedia();
@@ -2611,7 +2602,6 @@
         renderEncyclopedia();
       };
 
-      // ランキング
       document.getElementById('btnRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
@@ -2636,7 +2626,6 @@
         renderRankingTable();
       };
 
-      // 装備箱
       document.getElementById('btnEquipBox').onclick = () => {
         Sound.click();
         renderEquipBox();
@@ -2663,14 +2652,19 @@
         renderEquipBox();
       };
 
+      // 装備箱ソート切り替えボタン (レア順 ➔ 属性順 ➔ 入手順)
       document.getElementById('btnSortOrder').onclick = () => {
         Sound.click();
-        currentSortMode = (currentSortMode === 'rarity') ? 'order' : 'rarity';
-        document.getElementById('btnSortOrder').textContent = `ソート: ${currentSortMode === 'rarity' ? 'レア順 ▼' : '入手順 ▼'}`;
+        if (currentSortMode === 'rarity') {
+          currentSortMode = 'element';
+        } else if (currentSortMode === 'element') {
+          currentSortMode = 'order';
+        } else {
+          currentSortMode = 'rarity';
+        }
         renderEquipBox();
       };
 
-      // ガチャ
       document.getElementById('btnGacha').onclick = () => {
         Sound.click();
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
