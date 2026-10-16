@@ -1888,17 +1888,24 @@
         Player.gold += goldGained;
         addExp(expGained);
 
-       // 50Fボスの討伐判定
+        // 50Fボスの討伐判定
         if (Battle.isBossBattle) {
           Battle.isBossBattle = false;
+          const isFirstKill = !Player.bossDefeated;
           Player.bossDefeated = true;
-          MAX_NORMAL_FLOOR = 50;
-          Player.maxClearedFloor = Math.max(Player.maxClearedFloor, 51);
-          Player.currentAdventureFloor = 51;
+          MAX_NORMAL_FLOOR = 100;
+
+          if (isFirstKill) {
+            Player.maxClearedFloor = Math.max(Player.maxClearedFloor, 51);
+            Player.currentAdventureFloor = 51;
+            alert('🎉 ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！');
+          } else {
+            alert('🎉 守護者ゴーレムを撃破しました！');
+          }
+
           savePlayerData();
           Sound.stopBattleBgm();
           Sound.fanfare();
-          alert('🎉 階層解除ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！');
           document.getElementById('screenBattle').classList.add('hidden');
           document.getElementById('screenTitle').classList.remove('hidden');
           updateTitleUI();
@@ -2537,10 +2544,17 @@
       document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${MAX_NORMAL_FLOOR}F`;
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
-      const btnBoss = document.getElementById('btnBossChallenge');
+const btnBoss = document.getElementById('btnBossChallenge');
       if (btnBoss) {
-        if (Player.maxClearedFloor >= 50 && !Player.bossDefeated) {
+        if (Player.maxClearedFloor >= 50) {
           btnBoss.classList.remove('hidden');
+          if (Player.bossDefeated) {
+            btnBoss.innerHTML = '<span>👹</span> <span>守護者ゴーレムと再戦</span>';
+            btnBoss.classList.remove('animate-pulse'); // 討伐後は点滅を止める
+          } else {
+            btnBoss.innerHTML = '<span>👹</span> <span>階層解除ボスに挑む (VS ゴーレム)</span>';
+            btnBoss.classList.add('animate-pulse');
+          }
         } else {
           btnBoss.classList.add('hidden');
         }
