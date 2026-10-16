@@ -114,12 +114,6 @@
     .ur-glow {
       animation: rainbowPulse 1.5s linear infinite;
     }
-    .rarity-n   { color: #cbd5e1; }
-    .rarity-r   { color: #38bdf8; text-shadow: 0 0 4px rgba(56,189,248,0.5); }
-    .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
-    .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
-    .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
-    ::-webkit-scrollbar { display: none;}
     @keyframes bossIntroZoom {
       0% { transform: scale(0.1) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 0px #ef4444); }
       60% { transform: scale(1.2) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 30px #ef4444); }
@@ -128,6 +122,12 @@
     .boss-intro-anim {
       animation: bossIntroZoom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+    .rarity-n   { color: #cbd5e1; }
+    .rarity-r   { color: #38bdf8; text-shadow: 0 0 4px rgba(56,189,248,0.5); }
+    .rarity-sr  { color: #c084fc; text-shadow: 0 0 5px rgba(192,132,252,0.7); }
+    .rarity-ssr { color: #facc15; text-shadow: 0 0 7px rgba(250,204,21,0.9); }
+    .rarity-ur  { color: #f43f5e; text-shadow: 0 0 10px rgba(244,63,94,1), 1px 1px 0 #fef08a; font-weight: 900; }
+    ::-webkit-scrollbar { display: none;}
   </style>
 </head>
 <body class="p-1 sm:p-2">
@@ -371,7 +371,7 @@
       </div>
     </div>
 
-    <!-- ==================== 3.5 階層解除ボス 挑戦確認モーダル ==================== -->
+<!-- ==================== 3.5 階層解除ボス 挑戦確認モーダル ==================== -->
     <div id="modalBossConfirm" class="hidden absolute inset-0 z-[125] bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-rose-600 rounded p-4 space-y-3">
         <div class="text-3xl animate-bounce">👹</div>
@@ -1490,6 +1490,56 @@
       setupNextEnemy();
     }
 
+    function startBossBattle() {
+      Battle.mode = 'normal';
+      Battle.floor = 50;
+      Battle.turnKills = 0;
+      Battle.turnGold = 0;
+      Battle.hasRevivedThisBattle = false;
+      Battle.blockNextAttack35 = false;
+      Battle.pendingNormalClear = false;
+      Battle.isBossBattle = true;
+
+      const stats = getPlayerStats();
+      Battle.playerHp = stats.maxHp;
+      Battle.playerShield = stats.startShield;
+
+      buildBattleSkills(stats);
+
+      document.getElementById('modalBossConfirm').classList.add('hidden');
+      document.getElementById('screenTitle').classList.add('hidden');
+      document.getElementById('screenBattle').classList.remove('hidden');
+
+      Sound.startBattleBgm();
+      document.getElementById('floorSelectDropdown').classList.add('hidden');
+      document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg('castle', true);
+
+      const baseCurve = 1 + (49) * 0.038 + Math.pow(Math.max(0, 34) * 0.022, 2);
+      const standardHp = Math.round((22 + 50 * 3.6) * baseCurve);
+      const standardAtk = Math.round((4 + 50 * 0.8) * baseCurve);
+
+      Battle.enemy = {
+        name: '階層解除守護者・ゴーレム',
+        type: 'boss',
+        level: 50,
+        hp: standardHp * 4,
+        maxHp: standardHp * 4,
+        atk: Math.round(standardAtk * 3.5),
+        isBoss: true
+      };
+
+      startTurn();
+      renderBattleUI();
+
+      const spr = document.getElementById('enemySprite');
+      if (spr) {
+        spr.classList.remove('boss-intro-anim');
+        void spr.offsetWidth;
+        spr.classList.add('boss-intro-anim');
+        Sound.rarityFanfare('UR');
+      }
+    }
+    
     function buildBattleSkills(stats) {
       Battle.skills = [
         { id: 's_base1', origin: 'base', name: '連撃の一太刀', req: 'any', desc: '出目 + 武器攻撃力 ダメージ', fn: (v, st) => ({ dmg: v + st.stats.baseAtk }) },
@@ -1535,30 +1585,6 @@
         else if (f <= 25) Battle.location = 'cave';
         else if (f <= 38) Battle.location = 'dungeon';
         else Battle.location = 'castle';
-      }
-
-      // 50Fクリア後で、まだボスを倒していない場合は「階層解除ボス戦」を発生させる
-      if (Battle.mode === 'normal' && f === 50 && !Player.bossDefeated) {
-        Battle.isBossBattle = true;
-        document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, true);
-
-        // 50Fボスの強さ：50F通常ボスの約4倍（ビルドとダイス運が試される難易度）
-        const baseCurve = 1 + (49) * 0.038 + Math.pow(Math.max(0, 34) * 0.022, 2);
-        const standardHp = Math.round((22 + 50 * 3.6) * baseCurve);
-        const standardAtk = Math.round((4 + 50 * 0.8) * baseCurve);
-
-        Battle.enemy = {
-          name: '階層解除守護者・ゴーレム',
-          type: 'boss',
-          level: 50,
-          hp: standardHp * 4,
-          maxHp: standardHp * 4,
-          atk: Math.round(standardAtk * 3.5),
-          isBoss: true
-        };
-        startTurn();
-        renderBattleUI();
-        return;
       }
 
       document.getElementById('battleBgLayer').innerHTML = getBattleBackgroundSvg(Battle.location, false);
@@ -1862,22 +1888,25 @@
         Player.gold += goldGained;
         addExp(expGained);
 
-        // 50Fボスの討伐判定
+       // 50Fボスの討伐判定
         if (Battle.isBossBattle) {
           Battle.isBossBattle = false;
           Player.bossDefeated = true;
-          MAX_NORMAL_FLOOR = 100;
+          MAX_NORMAL_FLOOR = 50;
           Player.maxClearedFloor = Math.max(Player.maxClearedFloor, 51);
           Player.currentAdventureFloor = 51;
           savePlayerData();
-          updateFloorSelectDropdown();
+          Sound.stopBattleBgm();
+          Sound.fanfare();
           alert('🎉 階層解除ボスを撃破しました！\n【51〜100階層】の新エリアが解放されました！');
-          setupNextEnemy();
+          document.getElementById('screenBattle').classList.add('hidden');
+          document.getElementById('screenTitle').classList.remove('hidden');
+          updateTitleUI();
           return;
         }
 
-        const isFinalFloor = Battle.floor >= MAX_NORMAL_FLOOR;
-
+        const currentMaxFloor = Player.bossDefeated ? 100 : 50;
+        const isFinalFloor = Battle.floor >= currentMaxFloor;
         if (isFinalFloor) {
           Battle.floor = MAX_NORMAL_FLOOR;
           Player.currentAdventureFloor = MAX_NORMAL_FLOOR;
@@ -2508,6 +2537,14 @@
       document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${MAX_NORMAL_FLOOR}F`;
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
+      const btnBoss = document.getElementById('btnBossChallenge');
+      if (btnBoss) {
+        if (Player.maxClearedFloor >= 50 && !Player.bossDefeated) {
+          btnBoss.classList.remove('hidden');
+        } else {
+          btnBoss.classList.add('hidden');
+        }
+      }
       updateStoneDisplays();
     }
 
@@ -2690,6 +2727,23 @@
         document.getElementById('modalVersionLog').classList.add('hidden');
       };
 
+      // 階層解除ボス挑戦ボタン・確認モーダルの開閉
+      const btnBossChallenge = document.getElementById('btnBossChallenge');
+      if (btnBossChallenge) {
+        btnBossChallenge.onclick = () => {
+          Sound.click();
+          document.getElementById('modalBossConfirm').classList.remove('hidden');
+        };
+      }
+      document.getElementById('btnBossCancel').onclick = () => {
+        Sound.click();
+        document.getElementById('modalBossConfirm').classList.add('hidden');
+      };
+      document.getElementById('btnBossStart').onclick = () => {
+        Sound.click();
+        startBossBattle();
+      };
+      
       document.getElementById('btnRetreat').onclick = handleRetreat;
       document.getElementById('btnResumeBattle').onclick = () => {
         Sound.click();
