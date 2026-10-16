@@ -834,9 +834,9 @@
       },
       { 
         id: 'ag_ur1', name: '時空神クロノスの聖衣', type: 'armor', source: 'gacha', rarity: 'UR', hpBonus: 200, shdBonus: 40, 
-        desc: '最大HP+200 / 初期シールド+40。ガチャ最高峰の神衣。', refundCoin: 300,
+        desc: '最大HP+200 / 初期シールド+40。ガチャ最高峰の神衣。', refundCoin: 5,
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
-        skill: { name: 'タイムディストーション', req: 'any', desc: '出目不問: シールド+35 ＆ 敵の攻撃を完全遮断', fn: (v) => ({ shd: 35, block: true }) }
+        skill: { name: 'タイムディストーション', req: 'any', desc: '出目不問: シールド+35 ＆ 敵の攻撃ダメージ50%軽減', fn: (v) => ({ shd: 35, block: true }) }
       },
       { 
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', hpBonus: 75, shdBonus: 15, 
@@ -1337,27 +1337,29 @@
         }
       }
 
+      let incoming = Battle.enemy.atk;
+
+      // タイムディストーション発動時：敵の攻撃ダメージを50%軽減
       if (Battle.blockNextAttack) {
         Battle.blockNextAttack = false;
+        incoming = Math.max(1, Math.floor(incoming * 0.5));
+      }
+
+      if (stats.armor.passive && stats.armor.passive.name === '頑強') incoming = Math.max(1, incoming - 2);
+      if (stats.armor.passive && stats.armor.passive.name === '竜鱗の圧') incoming = Math.max(1, incoming - 5);
+
+      if (Battle.playerShield >= incoming) {
+        Battle.playerShield -= incoming;
         Sound.shield();
       } else {
-        let incoming = Battle.enemy.atk;
-        if (stats.armor.passive && stats.armor.passive.name === '頑強') incoming = Math.max(1, incoming - 2);
-        if (stats.armor.passive && stats.armor.passive.name === '竜鱗の圧') incoming = Math.max(1, incoming - 5);
+        incoming -= Battle.playerShield;
+        Battle.playerShield = 0;
+        Battle.playerHp -= incoming;
+        Sound.hit();
 
-        if (Battle.playerShield >= incoming) {
-          Battle.playerShield -= incoming;
-          Sound.shield();
-        } else {
-          incoming -= Battle.playerShield;
-          Battle.playerShield = 0;
-          Battle.playerHp -= incoming;
-          Sound.hit();
-
-          if (stats.armor.passive && stats.armor.passive.name === 'トゲの棘甲' && incoming > 0) {
-            const reflect = Math.max(1, Math.floor(incoming * 0.5));
-            Battle.enemy.hp = Math.max(0, Battle.enemy.hp - reflect);
-          }
+        if (stats.armor.passive && stats.armor.passive.name === 'トゲの棘甲' && incoming > 0) {
+          const reflect = Math.max(1, Math.floor(incoming * 0.5));
+          Battle.enemy.hp = Math.max(0, Battle.enemy.hp - reflect);
         }
       }
 
