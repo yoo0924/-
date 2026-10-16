@@ -898,36 +898,36 @@
         passive: { name: '神の業火', desc: '毎ターン終了時、敵に火傷12ダメージ' },
         skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目不問: 出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) }
       },
-      // ドロップ SR (2) - 確率 1/1024 (ガチャSSR級の強さ)
+      // ドロップ SR (2) - 確率 1/512 (ガチャSSR級の強さ)
       {
         id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19,
-        desc: '基礎ダメージ+19。怨念の魔刀。', dropRate: 1/1024,
+        desc: '基礎ダメージ+19。怨念の魔刀。', dropRate: 1/512,
         passive: { name: '吸血刃', desc: '与えたダメージの20%をHP回復' },
         skill: { name: '怨嗟の乱れ刃', req: 'max3', desc: '出目3以下: (7 - 出目)×7 ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 7 + st.stats.baseAtk }) }
       },
       {
         id: 'wd_sr2', name: 'タイダルエッジ', type: 'weapon', source: 'drop', rarity: 'SR', element: 'water', atkBonus: 19,
-        desc: '基礎ダメージ+19。深海の秘剣。', dropRate: 1/1024,
+        desc: '基礎ダメージ+19。深海の秘剣。', dropRate: 1/512,
         passive: { name: '激流の力', desc: 'すべての攻撃ダメージ+5 ＆ ターン開始時盾+4' },
         skill: { name: 'ウォーターカッター', req: 'even', desc: '偶数のみ: 出目×3+14 ダメージ', fn: (v, st) => ({ dmg: v * 3 + 14 + st.stats.baseAtk }) }
       },
-      // ドロップ SSR (2) - 確率 1/2048 (ガチャURに迫る強さ)
+      // ドロップ SSR (2) - 確率 1/1024 (ガチャURに迫る強さ)
       {
         id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'fire', atkBonus: 33,
-        desc: '基礎ダメージ+33。古竜の骨剣。', dropRate: 1/2048,
+        desc: '基礎ダメージ+33。古竜の骨剣。', dropRate: 1/1024,
         passive: { name: '逆鱗', desc: 'HPが半分以下の時、全ダメージ2倍' },
         skill: { name: 'ドラゴンバースト', req: 'min4', desc: '出目4以上: 出目×6 ダメージ', fn: (v, st) => ({ dmg: v * 6 + st.stats.baseAtk }) }
       },
       {
         id: 'wd_ssr2', name: '星屑の天杖', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'water', atkBonus: 32,
-        desc: '基礎ダメージ+32。星光を宿す神杖。', dropRate: 1/2048,
+        desc: '基礎ダメージ+32。星光を宿す神杖。', dropRate: 1/1024,
         passive: { name: '星の導き', desc: 'サイコロの最小出目が常に「2以上」になる' },
         skill: { name: 'スターダスト', req: 'even', desc: '偶数のみ: 36ダメージ＋シールド22', fn: (v, st) => ({ dmg: 36 + st.stats.baseAtk, shd: 22 }) }
       },
-      // ドロップ UR (1) - 確率 1/4096 (全武器中ぶっちぎり最強)
+      // ドロップ UR (1) - 確率 1/2048 (全武器中ぶっちぎり最強)
       {
         id: 'wd_ur1', name: '大海神核・レヴィアタン', type: 'weapon', source: 'drop', rarity: 'UR', element: 'water', atkBonus: 52,
-        desc: '基礎ダメージ+52。究極のドロップ水神核。', dropRate: 1/4096,
+        desc: '基礎ダメージ+52。究極のドロップ水神核。', dropRate: 1/2048,
         passive: { name: '創世の脈動', desc: '毎ターン追加でサイコロが+1個振られる ＆ 盾+10' },
         skill: { name: 'タイダル・ディザスター', req: 'even', desc: '偶数のみ: 75 特大ダメージ ＆ シールド20', fn: (v, st) => ({ dmg: 75 + st.stats.baseAtk, shd: 20 }) }
       }
@@ -1027,36 +1027,36 @@
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
         skill: { name: '神威の障壁', req: 'any', desc: '出目不問: シールド+30 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 30, block35: true }) }
       },
-      // ドロップ SR (2) - 確率 1/1024 (ガチャSSR級の強さ)
+      // ドロップ SR (2) - 確率 1/512 (ガチャSSR級の強さ)
       {
         id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19,
-        desc: '最大HP+95 / 初期シールド+19。呪われた魔鎧。', dropRate: 1/1024,
+        desc: '最大HP+95 / 初期シールド+19。呪われた魔鎧。', dropRate: 1/512,
         passive: { name: 'トゲの棘甲', desc: '攻撃を受けた際、受けたダメージの50%を反射' },
         skill: { name: '怨嗟の盾', req: 'max3', desc: '出目3以下: (7 - 出目)×5 シールド', fn: (v) => ({ shd: (7 - v) * 5 }) }
       },
       {
         id: 'ad_sr2', name: '深海の鱗甲', type: 'armor', source: 'drop', rarity: 'SR', element: 'water', hpBonus: 100, shdBonus: 20,
-        desc: '最大HP+100 / 初期シールド+20。海竜の鱗鎧。', dropRate: 1/1024,
+        desc: '最大HP+100 / 初期シールド+20。海竜の鱗鎧。', dropRate: 1/512,
         passive: { name: '深海の重圧', desc: '受けるダメージを常時6軽減' },
         skill: { name: 'タイダルシールド', req: 'even', desc: '偶数のみ: シールド+24', fn: (v) => ({ shd: 24 }) }
       },
-      // ドロップ SSR (2) - 確率 1/2048 (ガチャURを超える堅牢さ)
+      // ドロップ SSR (2) - 確率 1/1024 (ガチャURを超える堅牢さ)
       {
         id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', element: 'fire', hpBonus: 175, shdBonus: 34,
-        desc: '最大HP+175 / 初期シールド+34。魔王の秘宝。', dropRate: 1/2048,
+        desc: '最大HP+175 / 初期シールド+34。魔王の秘宝。', dropRate: 1/1024,
         passive: { name: '覇王の威圧', desc: '敵の攻撃力を常時30%ダウン' },
         skill: { name: '覇王城壁', req: 'min4', desc: '出目4以上: シールド+34 ＆ 敵に20ダメージ', fn: (v) => ({ shd: 34, dmg: 20 }) }
       },
       {
         id: 'ad_ssr2', name: '大自然の神衣', type: 'armor', source: 'drop', rarity: 'SSR', element: 'nature', hpBonus: 185, shdBonus: 35,
-        desc: '最大HP+185 / 初期シールド+35。精霊王の衣。', dropRate: 1/2048,
+        desc: '最大HP+185 / 初期シールド+35。精霊王の衣。', dropRate: 1/1024,
         passive: { name: '自然の調和', desc: '毎ターン開始時HP12自動回復' },
         skill: { name: 'ガイアウォール', req: 'any', desc: '出目不問: シールド+32 ＆ HP15回復', fn: (v) => ({ shd: 32, heal: 15 }) }
       },
-      // ドロップ UR (1) - 確率 1/4096 (全防具中ぶっちぎり最強)
+      // ドロップ UR (1) - 確率 1/2048 (全防具中ぶっちぎり最強)
       {
         id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', element: 'nature', hpBonus: 280, shdBonus: 65,
-        desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/4096,
+        desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/2048,
         passive: { name: '絶対不滅', desc: '毎ターンHP20回復 ＆ 敵ダメ20%軽減 ＆ 1回HP1で耐える' },
         skill: { name: '聖光アルテマウォール', req: 'min4', desc: '出目4以上: シールド+55 ＆ HP30回復', fn: (v) => ({ shd: 55, heal: 30 }) }
       }
