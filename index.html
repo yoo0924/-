@@ -114,6 +114,15 @@
     .ur-glow {
       animation: rainbowPulse 1.5s linear infinite;
     }
+    @keyframes diceDropFall {
+      0% { transform: translateY(-320px) rotateX(0deg) rotateY(0deg) scale(0.5); opacity: 0; }
+      55% { transform: translateY(15px) rotateX(720deg) rotateY(540deg) scale(1.15); opacity: 1; }
+      75% { transform: translateY(-8px) rotateX(1000deg) rotateY(760deg) scale(0.95); }
+      100% { transform: translateY(0px) rotateX(1440deg) rotateY(1080deg) scale(1); opacity: 1; }
+    }
+    .dice-anim-drop {
+      animation: diceDropFall 1.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
     @keyframes bossIntroZoom {
       0% { transform: scale(0.1) rotate(-180deg); opacity: 0; filter: drop-shadow(0 0 0px #ef4444); }
       60% { transform: scale(1.2) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 30px #ef4444); }
@@ -491,10 +500,15 @@
         </div>
       </div>
 
-      <div class="my-auto flex flex-col items-center justify-center z-10 min-h-[190px]">
-        <div id="gachaTierBanner" class="hidden text-xs font-black px-3 py-0.5 rounded-full mb-2 tracking-widest"></div>
-        <div id="gachaChest" class="text-6xl mb-3 filter drop-shadow-[0_0_12px_rgba(234,179,8,0.4)] transition-transform">🔮</div>
-        <div id="gachaResultText" class="text-xs text-slate-300 min-h-[3.5rem] flex flex-col items-center justify-center px-2">
+      <div class="my-auto flex flex-col items-center justify-center z-10 min-h-[220px] w-full relative">
+        <div id="gachaTierBanner" class="hidden text-xs font-black px-3 py-0.5 rounded-full mb-2 tracking-widest z-20"></div>
+        
+        <!-- サイコロ落下コンテナ -->
+        <div id="gachaDiceContainer" class="w-24 h-24 flex items-center justify-center my-2">
+          <div id="gachaInitialIcon" class="text-6xl filter drop-shadow-[0_0_12px_rgba(234,179,8,0.5)] select-none animate-bounce">🎲</div>
+        </div>
+
+        <div id="gachaResultText" class="text-xs text-slate-300 min-h-[4rem] flex flex-col items-center justify-center px-2 z-20">
           1回 50 コインでガチャ限定武具を召喚！
         </div>
       </div>
@@ -2073,8 +2087,6 @@
     /* ==========================================================================
        6. ガチャシステム
        ========================================================================== */
-    let isRollingGacha = false;
-
     function updateStoneDisplays() {
       ['R', 'SR', 'SSR', 'UR'].forEach(r => {
         const val = Player.stones[r] || 0;
@@ -2083,6 +2095,34 @@
         if (el1) el1.textContent = val;
         if (el2) el2.textContent = val;
       });
+    }
+
+    function render3dDiceSvg(rarity) {
+      let bgGrad = 'from-sky-400 to-sky-600';
+      let borderColor = 'border-sky-200';
+      let shadowColor = 'shadow-[0_0_15px_rgba(56,189,248,0.8)]';
+
+      if (rarity === 'SR') {
+        bgGrad = 'from-purple-500 to-purple-800';
+        borderColor = 'border-purple-200';
+        shadowColor = 'shadow-[0_0_20px_rgba(192,132,252,0.9)]';
+      } else if (rarity === 'SSR') {
+        bgGrad = 'from-yellow-400 via-amber-500 to-yellow-600';
+        borderColor = 'border-yellow-100';
+        shadowColor = 'shadow-[0_0_25px_rgba(250,204,21,1)]';
+      } else if (rarity === 'UR') {
+        bgGrad = 'from-rose-500 via-fuchsia-600 to-amber-400';
+        borderColor = 'border-white';
+        shadowColor = 'shadow-[0_0_35px_rgba(244,63,94,1)]';
+      }
+
+      return `
+        <div class="w-20 h-20 bg-gradient-to-br ${bgGrad} border-2 ${borderColor} rounded-2xl flex items-center justify-center ${shadowColor} dice-anim-drop">
+          <div class="text-3xl font-black text-slate-950 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+            ${rarity}
+          </div>
+        </div>
+      `;
     }
 
     function rollGacha() {
@@ -2100,7 +2140,7 @@
 
       isRollingGacha = true;
       const rollBtn = document.getElementById('btnRollGacha');
-      const chest = document.getElementById('gachaChest');
+      const diceContainer = document.getElementById('gachaDiceContainer');
       const bgEffect = document.getElementById('gachaBgEffect');
       const banner = document.getElementById('gachaTierBanner');
       const resultText = document.getElementById('gachaResultText');
@@ -2120,33 +2160,35 @@
       );
       const won = gachaPool[Math.floor(Math.random() * gachaPool.length)];
 
-      chest.className = 'text-6xl mb-3 magic-spin';
       Sound.roll();
+      bgEffect.className = 'absolute inset-0 pointer-events-none opacity-20 bg-slate-900 transition-opacity';
+      resultText.innerHTML = '<span class="text-amber-300 animate-pulse">運命のサイコロが天から降下中...！</span>';
 
-      let waitMs = 700;
-      if (targetRarity === 'R') {
-        chest.textContent = '🔵';
-        bgEffect.className = 'absolute inset-0 pointer-events-none opacity-25 bg-sky-900 transition-opacity';
-        resultText.innerHTML = '<span class="text-sky-300 animate-pulse">青い魔力が集まっている...</span>';
-        waitMs = 750;
-      } else if (targetRarity === 'SR') {
-        chest.textContent = '🟣';
-        bgEffect.className = 'absolute inset-0 pointer-events-none opacity-40 bg-purple-900 transition-opacity';
-        resultText.innerHTML = '<span class="text-purple-300 font-bold animate-pulse">強い紫電が迸っている...！</span>';
-        waitMs = 1100;
-      } else if (targetRarity === 'SSR') {
-        chest.textContent = '🌟';
-        bgEffect.className = 'absolute inset-0 pointer-events-none opacity-60 bg-gradient-to-b from-yellow-600 via-amber-900 to-slate-950 transition-opacity';
-        resultText.innerHTML = '<span class="text-yellow-300 font-black animate-bounce">黄金の聖光が溢れ出す...！！</span>';
-        waitMs = 1500;
-      } else if (targetRarity === 'UR') {
-        chest.textContent = '🌌';
-        chest.classList.add('ur-glow');
-        bgEffect.className = 'absolute inset-0 pointer-events-none opacity-80 bg-gradient-to-tr from-rose-600 via-purple-700 to-yellow-400 animate-pulse';
-        resultText.innerHTML = '<span class="rarity-ur text-sm animate-bounce">★ 天地鳴動！神話級の波動！！ ★</span>';
-        waitMs = 2000;
-      }
+      // 落下中の初期サイコロ（ネタバレ防止用）
+      diceContainer.innerHTML = `
+        <div class="w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-900 border-2 border-slate-400 rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.2)] dice-anim-drop">
+          <div class="text-3xl font-black text-amber-300">🎲</div>
+        </div>
+      `;
 
+      let waitMs = 1250;
+
+      // 1.1秒後にレア度に応じた3Dカラーサイコロブロックと背景エフェクトを解放
+      setTimeout(() => {
+        diceContainer.innerHTML = render3dDiceSvg(targetRarity);
+
+        if (targetRarity === 'R') {
+          bgEffect.className = 'absolute inset-0 pointer-events-none opacity-30 bg-sky-900 transition-opacity';
+        } else if (targetRarity === 'SR') {
+          bgEffect.className = 'absolute inset-0 pointer-events-none opacity-45 bg-purple-900 transition-opacity';
+        } else if (targetRarity === 'SSR') {
+          bgEffect.className = 'absolute inset-0 pointer-events-none opacity-60 bg-gradient-to-b from-yellow-600 via-amber-900 to-slate-950 transition-opacity';
+        } else if (targetRarity === 'UR') {
+          bgEffect.className = 'absolute inset-0 pointer-events-none opacity-80 bg-gradient-to-tr from-rose-600 via-purple-700 to-amber-400 animate-pulse';
+        }
+      }, 1100);
+
+      // アニメーション完了後の結果表示（従来通りの詳細テキスト）
       setTimeout(() => {
         isRollingGacha = false;
         rollBtn.disabled = false;
@@ -2154,23 +2196,15 @@
 
         banner.classList.remove('hidden');
         if (targetRarity === 'R') {
-          chest.className = 'text-6xl mb-3';
-          chest.textContent = won.type === 'weapon' ? '🗡️' : '🛡️';
           banner.className = 'text-[10px] font-bold px-3 py-0.5 rounded-full mb-1 bg-sky-950 text-sky-300 border border-sky-500';
           banner.textContent = 'RARE SUMMON';
         } else if (targetRarity === 'SR') {
-          chest.className = 'text-6xl mb-3 shake-anim';
-          chest.textContent = won.type === 'weapon' ? '⚔️' : '🛡️';
           banner.className = 'text-xs font-bold px-3 py-0.5 rounded-full mb-1 bg-purple-950 text-purple-300 border border-purple-400';
           banner.textContent = '★ SUPER RARE! ★';
         } else if (targetRarity === 'SSR') {
-          chest.className = 'text-7xl mb-3 mega-shake';
-          chest.textContent = '👑';
           banner.className = 'text-xs font-black px-3 py-0.5 rounded-full mb-1 bg-amber-950 text-yellow-300 border-2 border-yellow-400 animate-bounce';
           banner.textContent = '★★ DOUBLE SUPER RARE!! ★★';
         } else if (targetRarity === 'UR') {
-          chest.className = 'text-7xl mb-3 mega-shake ur-glow';
-          chest.textContent = '💎';
           banner.className = 'text-xs font-black px-4 py-1 rounded-full mb-1 bg-rose-950 text-yellow-200 border-2 border-white animate-bounce';
           banner.textContent = '★★★ ULTRA RARE MYTHIC!! ★★★';
         }
@@ -2182,7 +2216,7 @@
         if (isOwned) {
           Player.stones[won.rarity] = (Player.stones[won.rarity] || 0) + 1;
           resultText.innerHTML = `
-            <div class="flex items-center gap-1 justify-center">
+            <div class="flex items-center gap-1 justify-center mb-1">
               ${elBadge}
               <span class="rarity-${won.rarity.toLowerCase()} text-sm font-bold">[${won.rarity}] ${won.name}</span>
             </div>
@@ -2194,11 +2228,11 @@
           else Player.ownedArmors.push(won.id);
 
           resultText.innerHTML = `
-            <div class="flex items-center gap-1 justify-center">
+            <div class="flex items-center gap-1 justify-center mb-1">
               ${elBadge}
               <span class="rarity-${won.rarity.toLowerCase()} text-sm font-bold">✨ NEW! [${won.rarity}] ${won.name} ✨</span>
             </div>
-            <span class="text-[10px] text-slate-200 mt-0.5">${won.desc}</span>
+            <span class="text-[10px] text-slate-200">${won.desc}</span>
           `;
         }
 
@@ -2208,7 +2242,7 @@
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
       }, waitMs);
     }
-
+    
     /* ==========================================================================
        7. アイテム図鑑
        ========================================================================== */
