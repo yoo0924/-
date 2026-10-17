@@ -162,20 +162,23 @@
     </div>
 
     <!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
+
     <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
       <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
         <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
-          <span>📜</span> <span>ver 4.0.3 アップデート内容</span>
+          <span>📜</span> <span>ver 4.1.1 アップデート内容</span>
         </h2>
         <button id="btnCloseVersionLog" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
-        <div class="text-xs font-bold text-yellow-300">■ ver 4.0.3 の主な追加要素</div>
-        <ul class="space-y-1.5 text-[11px] text-slate-200 leading-relaxed">
-          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fをクリアした後に、圧倒的な強さを誇るゴーレム型の「階層解除ボス」が出現！見事討伐すると51〜100Fへの挑戦権が解放されます。</li>
-          <li>・<b>51〜100Fの新エリア追加:</b> 50Fクリア後に、さらに奥の51〜100Fへ進めるようになりました。1〜50Fの敵の色違いモンスターが強力になって立ちはだかります。</li>
-          <li>・<b>レアドロップの継承:</b> 51〜100Fに出現する敵からも、1〜50Fと同様の強力なレアドロップ（SR・SSR・UR）を獲得可能です。</li>
+        <div class="text-xs font-bold text-yellow-300">■ ver 4.1.1 の主な追加・調整要素</div>
+        <ul class="space-y-2 text-[11px] text-slate-200 leading-relaxed">
+          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fクリア後に、圧倒的な強さを誇るゴーレム型のボスに挑戦可能！見事討伐すると51〜100Fへの挑戦権が解放されます[cite: 2]。</li>
+          <li>・<b>51〜100Fの新エリア追加:</b> ボス撃破後に、さらに奥の51〜100Fへ進めるようになりました。強力なモンスターたちが立ちはだかります[cite: 2]。</li>
+          <li>・<b>レアドロップの継承:</b> 51〜100Fに出現する敵からも、同様に強力なレアドロップ（SR・SSR・UR）を獲得可能です[cite: 2]。</li>
+          <li>・<b>ガチャ演出のリニューアル:</b> ガチャ召喚時に天からダイスが回転しながら落下して結果を告げる派手な新演出を追加しました[cite: 1]！</li>
+          <li>・<b>UR防具のバランス調整:</b> 「神王の聖衣・オーディン」のスキル条件を「出目が1または6のとき」に変更し、ダイスゲームとしての戦略性を高めました。</li>
         </ul>
       </div>
 
@@ -320,7 +323,7 @@
       <!-- ver表記ボタン（タップでver4.0.3の内容確認） -->
       <button id="btnVersionInfo" class="px-3 py-0.5 rounded-full bg-slate-900/80 border border-amber-500/60 text-[9px] text-amber-200 hover:text-white hover:bg-slate-800 transition cursor-pointer shadow flex items-center gap-1">
         <span>📜</span>
-        <span class="underline font-bold">ver 4.0.3 (アップデート内容)</span>
+        <span class="underline font-bold">ver 4.1.1 (アップデート内容)</span>
       </button>
     </div>
 
@@ -2282,9 +2285,6 @@
 
         const typeIcon = it.type === 'weapon' ? '⚔️武器' : '🛡️防具';
         const elBadge = formatElementBadge(it.element);
-        const dropRateText = (it.source === 'drop' && it.dropRate)
-          ? `<span class="text-[8px] text-rose-300 ml-1">(確率 1/${Math.round(1/it.dropRate)})</span>`
-          : '';
 
         row.innerHTML = `
           <div>
@@ -2294,7 +2294,6 @@
               <span class="font-bold rarity-${it.rarity.toLowerCase()}">
                 [${it.rarity}] ${isOwned ? it.name : '？？？？？？'}
               </span>
-              ${dropRateText}
             </div>
             <div class="text-[10px] text-slate-400 mt-0.5">
               ${isOwned ? it.desc : '未発見のアイテムです'}
@@ -2309,7 +2308,6 @@
         `;
         listEl.appendChild(row);
       });
-    }
 
     /* ==========================================================================
        8. オンラインランキングUI処理
@@ -2919,8 +2917,13 @@ const btnBoss = document.getElementById('btnBossChallenge');
 
       document.getElementById('btnGacha').onclick = () => {
         Sound.click();
-        document.getElementById('gachaGoldDisplay').textContent = Player.gold;
         updateStoneDisplays();
+        document.getElementById('gachaGoldDisplay').textContent = Player.gold;
+        // ガチャコンテナを初期の跳ねるサイコロアイコンにリセット
+        document.getElementById('gachaDiceContainer').innerHTML = '<div class="text-6xl filter drop-shadow-[0_0_12px_rgba(234,179,8,0.5)] select-none animate-bounce">🎲</div>';
+        document.getElementById('gachaTierBanner').classList.add('hidden');
+        document.getElementById('gachaResultText').textContent = '1回 50 コインで武具を召喚！';
+        document.getElementById('gachaBgEffect').className = 'absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300';
         document.getElementById('modalGacha').classList.remove('hidden');
       };
       document.getElementById('btnCloseGacha').onclick = () => {
