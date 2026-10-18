@@ -1252,6 +1252,10 @@
       while (Player.exp >= getExpToNextLevel()) {
         Player.exp -= getExpToNextLevel();
         Player.level++;
+        
+        const rewardGold = 50;
+        Player.gold += rewardGold;
+        
         Sound.fanfare();
       }
       savePlayerData();
@@ -2045,7 +2049,7 @@
       }
 
       savePlayerData();
-      modal.classList.add('hidden');
+      modal.classList.remove('hidden');
     }
 
     function handlePlayerDefeat() {
