@@ -539,7 +539,11 @@
           <span id="locationBadge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700">平原</span>
           <span id="floorBadge" class="font-bold text-amber-400">1F / 100F</span>
           
-          <select id="floorSelectDropdown" class="bg-slate-900 border border-amber-700 text-amber-300 text-[10px] rounded px-1 py-0.5 outline-none font-bold"></select>
+          <!-- ラベルと枠線を添えて選択できることを分かりやすくした部分 -->
+          <div class="flex items-center gap-1 bg-amber-950/50 border border-amber-600 rounded px-1.5 py-0.5 shadow">
+            <span class="text-[9px] text-amber-300 font-bold">📍階層変更:</span>
+            <select id="floorSelectDropdown" class="bg-slate-900 text-yellow-300 text-[10px] rounded outline-none font-bold cursor-pointer"></select>
+          </div>
         </div>
 
         <div class="flex items-center gap-2">
