@@ -966,10 +966,22 @@
         skill: { name: '必中神穿', req: 'odd', desc: '奇数のみ: 固定28 ダメージ', fn: (v, st) => ({ dmg: 28 + st.stats.baseAtk }) }
       },
       {
+        id: 'wg_ssr4', name: '零式・無明短刀', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'luck', atkBonus: 18,
+        desc: '基礎ダメージ+18。低い目を強力な一閃に変換する短刀。',
+        passive: { name: '低空飛行の極意', desc: '1や2を含むターン、被ダメージを常時3軽減' },
+        skill: { name: '見切りの一閃', req: 'max2', desc: '出目2以下: 1なら固定36ダメ / 2なら固定26ダメ', fn: (v, st) => ({ dmg: (v === 1 ? 36 : 26) + st.stats.baseAtk }) }
+      },
+      {
         id: 'wg_ur1', name: '業火神剣・ムスペルヘイム', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'fire', atkBonus: 36,
         desc: '基礎ダメージ+36。ガチャ最高峰の炎神剣。',
         passive: { name: '神の業火', desc: '毎ターン終了時、敵に火傷12ダメージ' },
         skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目不問: 出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) }
+      },
+      {
+        id: 'wg_ur2', name: '混沌神核・ウロボロス', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'luck', atkBonus: 34,
+        desc: '基礎ダメージ+34。低い目ほど威力が跳ね上がる終焉の武器。',
+        passive: { name: '逆転の輪廻', desc: '出目合計6以下のターン、獲得コイン+50% ＆ HP6回復' },
+        skill: { name: 'ウロボロス・バースト', req: 'max3', desc: '出目3以下: (7 - 出目) × 8 の爆発的ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 8 + st.stats.baseAtk }) }
       },
       {
         id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19,
@@ -1087,6 +1099,12 @@
         skill: { name: 'ルナティックシールド', req: 'odd', desc: '奇数のみ: シールド+22 ＆ 敵に12ダメ', fn: (v) => ({ shd: 22, dmg: 12 }) }
       },
       {
+        id: 'ag_ssr4', name: '宵闇の隠密マント', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'water', hpBonus: 90, shdBonus: 16,
+        desc: '最大HP+90 / 初期シールド+16。低い目が出たときに堅牢な守りを発揮。',
+        passive: { name: '影走り', desc: '1や2を含むターン、自動でシールド+8追加' },
+        skill: { name: 'シャドウヴェール', req: 'max2', desc: '出目2以下: シールド+28 ＆ 敵に反撃10ダメ', fn: (v) => ({ shd: 28, dmg: 10 }) }
+      },
+      {
         id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36,
         desc: '最大HP+190 / 初期シールド+36。ガチャ最高峰の神衣。',
         passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
@@ -1121,8 +1139,28 @@
         desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/2048,
         passive: { name: '絶対不滅', desc: '毎ターンHP20回復 ＆ 敵ダメ20%軽減 ＆ 1回HP1で耐える' },
         skill: { name: '聖光アルテマウォール', req: 'min4', desc: '出目4以上: シールド+55 ＆ HP30回復', fn: (v) => ({ shd: 55, heal: 30 }) }
+      },
+      {
+        id: 'ag_ur2', name: '虚空神衣・ゼロ・アビス', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 170, shdBonus: 32,
+        desc: '最大HP+170 / 初期シールド+32。1の出目でHPを大回復する神衣。',
+        passive: { name: '虚無の加護', desc: 'ターン開始時、手持ちの「1」の数に応じてHP自動回復' },
+        skill: { name: 'アビス・カウンター', req: 'oneOrSix', desc: '1か6: 6ならシールド+35 / 1ならHP25%回復＆シールド+45', fn: (v, st) => {
+          if (v === 1) return { heal: Math.round(st.stats.maxHp * 0.25), shd: 45 };
+          return { shd: 35 };
+        }}
       }
     ];
+
+    const DICES_MASTER = {
+      d_normal: { name: "ノーマルダイス", rarity: "R", desc: "普通の六面体ダイス。", type: "normal" },
+      d_heavy: { name: "重厚な鉄ダイス", rarity: "R", desc: "3つのうち1個目が常に4以上になる安定型。", type: "min_fixed", val: 4 },
+      d_lucky: { name: "幸運の四葉ダイス", rarity: "SR", desc: "3つのうち1個目が常に6になりシールド+3。", type: "force_six" },
+      d_heavy_low: { name: "鉛の重低音ダイス", rarity: "SR", desc: "1か2しか出ない代わりに低出目スキル威力が1.2倍に。", type: "low_boost" },
+      d_void_core: { name: "虚空の神核ダイス", rarity: "UR", desc: "1が必ず出て低出目スキル効果を1.5倍にブースト。", type: "ur_low_boost" },
+      d_crystal: { name: "星屑のクリスタルダイス", rarity: "SSR", desc: "最低でも3以上しか出ない事故防止ダイス。", type: "min_fixed", val: 3 },
+      d_deep_sea: { name: "深海の鎮魂ダイス", rarity: "SSR", desc: "3以下しか出ず、低出目終了時に追加シールド獲得。", type: "max_fixed", val: 3 },
+      d_golden: { name: "天恵の黄金ダイス", rarity: "UR", desc: "5か6しか出ない最高峰の高出目アタッカーダイス。", type: "min_fixed", val: 5 }
+    };
 
     /* ==========================================================================
        3. プレイヤーステータス & 永続セーブシステム
@@ -1139,6 +1177,8 @@
       towerBestFloor: 1,
       equippedWeapon: 'w_bare',
       equippedArmor: 'a_clothes',
+      equippedDice: 'd_normal', 
+      ownedDices: ['d_normal'], 
       ownedWeapons: ['w_bare'],
       ownedArmors: ['a_clothes'],
       refineLevels: {},
@@ -1690,15 +1730,31 @@
       if (wepPass === '創世の脈動') diceCount++;
       if (armPass === '時間跳躍') diceCount++;
 
-      Battle.activeDice = [];
-      for (let i = 0; i < diceCount; i++) {
+Battle.activeDice = [];
+      const equippedDiceType = Player.equippedDice || 'd_normal';
+      let firstDice = Math.floor(Math.random() * 6) + 1;
+
+      if (equippedDiceType === 'd_heavy') {
+        firstDice = Math.floor(Math.random() * 3) + 4; // 4, 5, 6
+      } else if (equippedDiceType === 'd_lucky') {
+        firstDice = 6; 
+      } else if (equippedDiceType === 'd_heavy_low') {
+        firstDice = Math.random() < 0.5 ? 1 : 2; // 1 or 2
+      } else if (equippedDiceType === 'd_void_core') {
+        firstDice = 1; // 常に1
+      } else if (equippedDiceType === 'd_crystal') {
+        firstDice = Math.floor(Math.random() * 4) + 3; // 3, 4, 5, 6
+      } else if (equippedDiceType === 'd_deep_sea') {
+        firstDice = Math.floor(Math.random() * 3) + 1; // 1, 2, 3
+      } else if (equippedDiceType === 'd_golden') {
+        firstDice = Math.random() < 0.5 ? 5 : 6; // 5 or 6
+      }
+      Battle.activeDice.push(firstDice);
+
+      for (let i = 1; i < diceCount; i++) {
         let d = rollDie();
         if (wepPass === '星の導き' && d < 2) d = 2;
         Battle.activeDice.push(d);
-      }
-
-      if (stats.matchedElement === 'water' && !Battle.activeDice.some(d => d >= 4)) {
-        Battle.activeDice[0] = Math.floor(Math.random() * 3) + 4;
       }
 
       Battle.turnDiceSum = Battle.activeDice.reduce((sum, v) => sum + v, 0);
