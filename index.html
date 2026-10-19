@@ -2249,12 +2249,14 @@ Battle.activeDice = [];
       else if (rand < 20) targetRarity = 'SR';
       else targetRarity = 'R';
 
-      // 🔽 【修正】ガチャプールに武器・防具だけでなくガチャ産ダイスも含める
-      const diceGachaPool = Object.values(DICES_MASTER).filter(d => d.source === 'gacha' && d.rarity === targetRarity);
-      const gachaPool = [...WEAPONS_MASTER, ...ARMORS_MASTER, ...diceGachaPool].filter(
-        it => it.source === 'gacha' && it.rarity === targetRarity
-      );
-      const won = gachaPool[Math.floor(Math.random() * gachaPool.length)];
+      // ガチャから出る武器・防具・ダイスをすべて一つのプールにまとめる
+      const allGachaItems = [
+        ...WEAPONS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
+        ...ARMORS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
+        ...Object.values(DICES_MASTER).filter(d => d.source === 'gacha' && d.rarity === targetRarity)
+      ];
+      
+      const won = allGachaItems[Math.floor(Math.random() * allGachaItems.length)];
 
       Sound.roll();
       bgEffect.className = 'absolute inset-0 pointer-events-none opacity-20 bg-slate-900 transition-opacity';
