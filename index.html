@@ -463,19 +463,19 @@
     <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
     <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-emerald-800 pb-1.5">
-        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全40種)</h2>
+        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全47種)</h2>
         <button id="btnCloseEncyclopedia" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="my-1.5 flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-xs">
         <span class="text-slate-300">収集コンプリート率:</span>
-        <span id="dexCompRate" class="text-emerald-400 font-bold">2 / 40 (5%)</span>
+        <span id="dexCompRate" class="text-emerald-400 font-bold">2 / 47 (5%)</span>
       </div>
 
       <div class="flex gap-1 mb-1.5">
-        <button id="tabDexGacha" class="rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded">ガチャ限定 (28種)</button>
-        <button id="tabDexDrop" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ドロップ限定 (10種)</button>
-        <button id="tabDexDice" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ダイス図鑑 (7種)</button>
+        <button id="tabDexWeapon" class="rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded">武器図鑑</button>
+        <button id="tabDexArmor" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">装備図鑑</button>
+        <button id="tabDexDice" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ダイス図鑑</button>
       </div>
 
       <div id="dexItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[52vh]"></div>
@@ -2438,7 +2438,7 @@ Battle.activeDice = [];
     /* ==========================================================================
        7. アイテム図鑑
        ========================================================================== */
-    let currentDexTab = 'gacha';
+    let currentDexTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
 
     function renderEncyclopedia() {
       const listEl = document.getElementById('dexItemList');
@@ -2452,24 +2452,35 @@ Battle.activeDice = [];
       const pct = Math.round((totalOwned / allItemsCount) * 100);
       document.getElementById('dexCompRate').textContent = `${totalOwned} / ${allItemsCount} (${pct}%)`;
 
-      const tabGacha = document.getElementById('tabDexGacha');
-      const tabDrop = document.getElementById('tabDexDrop');
+      const tabWeapon = document.getElementById('tabDexWeapon');
+      const tabArmor = document.getElementById('tabDexArmor');
       const tabDice = document.getElementById('tabDexDice');
 
-      tabGacha.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
-      tabDrop.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+      tabWeapon.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+      tabArmor.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
       if (tabDice) tabDice.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
 
       let filtered = [];
-      if (currentDexTab === 'gacha') {
-        tabGacha.className = 'rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded';
-        filtered = allWeaponsAndArmors.filter(it => it.source === 'gacha');
-      } else if (currentDexTab === 'drop') {
-        tabDrop.className = 'rpg-btn flex-1 py-1 bg-rose-950 text-rose-300 border-rose-500 text-[10px] font-bold rounded';
-        filtered = allWeaponsAndArmors.filter(it => it.source === 'drop');
+      if (currentDexTab === 'weapon') {
+        tabWeapon.className = 'rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded';
+        // 武器のみ抽出し、ガチャ産(source === 'gacha')を上、ドロップ産(source === 'drop')を下にする
+        filtered = WEAPONS_MASTER.filter(it => it.source !== 'init');
+      } else if (currentDexTab === 'armor') {
+        tabArmor.className = 'rpg-btn flex-1 py-1 bg-blue-950 text-cyan-300 border-cyan-500 text-[10px] font-bold rounded';
+        // 防具のみ抽出し、ガチャ産を上、ドロップ産を下にする
+        filtered = ARMORS_MASTER.filter(it => it.source !== 'init');
       } else {
         if (tabDice) tabDice.className = 'rpg-btn flex-1 py-1 bg-indigo-950 text-indigo-300 border-indigo-500 text-[10px] font-bold rounded';
         filtered = allDices;
+      }
+
+      // ガチャ限定(gacha)を上、ドロップ限定(drop)を下にするためのソート
+      if (currentDexTab === 'weapon' || currentDexTab === 'armor') {
+        filtered.sort((a, b) => {
+          const scoreA = a.source === 'gacha' ? 0 : 1;
+          const scoreB = b.source === 'gacha' ? 0 : 1;
+          return scoreA - scoreB;
+        });
       }
 
       filtered.forEach(it => {
@@ -3065,21 +3076,28 @@ const btnBoss = document.getElementById('btnBossChallenge');
         Sound.click();
         document.getElementById('modalEncyclopedia').classList.add('hidden');
       };
-      document.getElementById('tabDexGacha').onclick = () => {
-        Sound.click();
-        currentDexTab = 'gacha';
-        renderEncyclopedia();
-      };
-      document.getElementById('tabDexDrop').onclick = () => {
-        Sound.click();
-        currentDexTab = 'drop';
-        renderEncyclopedia();
-      };
 
-      // ── 図鑑：ダイス図鑑タブのイベント追加 ──
-      const tabDexDice = document.getElementById('tabDexDice');
-      if (tabDexDice) {
-        tabDexDice.onclick = () => {
+      // ── 図鑑タブの切り替えイベント設定 ──
+      const tabWeapon = document.getElementById('tabDexWeapon');
+      const tabArmor = document.getElementById('tabDexArmor');
+      const tabDice = document.getElementById('tabDexDice');
+
+      if (tabWeapon) {
+        tabWeapon.onclick = () => {
+          Sound.click();
+          currentDexTab = 'weapon';
+          renderEncyclopedia();
+        };
+      }
+      if (tabArmor) {
+        tabArmor.onclick = () => {
+          Sound.click();
+          currentDexTab = 'armor';
+          renderEncyclopedia();
+        };
+      }
+      if (tabDice) {
+        tabDice.onclick = () => {
           Sound.click();
           currentDexTab = 'dice';
           renderEncyclopedia();
