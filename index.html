@@ -2448,7 +2448,7 @@
       const maxFloorLabelTab = document.getElementById('maxFloorLabelTab');
 
       if (maxFloorLabelTab) {
-        maxFloorLabelTab.textContent = Player.bossDefeated ? '全100F' : '全50F';
+        maxFloorLabelTab.textContent ='全100F';
       }
 
       tbody.innerHTML = `
@@ -2493,7 +2493,7 @@
         else if (index === 1) rankColor = 'text-slate-200 font-bold';
         else if (index === 2) rankColor = 'text-amber-600 font-bold';
 
-        const maxLimit = Player.bossDefeated ? 100 : 50;
+        const maxLimit = 100;
         const displayScore = currentRankTab === 'normal' ? Math.min(maxLimit, item.score) : item.score;
 
         tr.innerHTML = `
