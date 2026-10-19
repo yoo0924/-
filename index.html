@@ -2412,10 +2412,13 @@ Battle.activeDice = [];
             highestRarity = targetRarity;
           }
 
-          const gachaPool = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(
-            it => it.source === 'gacha' && it.rarity === targetRarity
-          );
-          const won = gachaPool[Math.floor(Math.random() * gachaPool.length)];
+          // 🔽 10連側でも武器・防具・ガチャ産ダイスをすべてプールに含める
+          const allGachaItems = [
+            ...WEAPONS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
+            ...ARMORS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
+            ...Object.values(DICES_MASTER).filter(d => d.source === 'gacha' && d.rarity === targetRarity)
+          ];
+          const won = allGachaItems[Math.floor(Math.random() * allGachaItems.length)];
           wonItems.push(won);
 
           // 所持・重複判定
