@@ -462,13 +462,13 @@
 <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
     <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-emerald-800 pb-1.5">
-        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全61種)</h2>
+        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全64種)</h2>
         <button id="btnCloseEncyclopedia" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="my-1.5 flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-xs">
         <span class="text-slate-300">収集コンプリート率:</span>
-        <span id="dexCompRate" class="text-emerald-400 font-bold">0 / 61 (0%)</span>
+        <span id="dexCompRate" class="text-emerald-400 font-bold">0 / 64 (0%)</span>
       </div>
       
       <div class="flex gap-1 mb-1.5">
@@ -485,7 +485,7 @@
       <div id="gachaBgEffect" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"></div>
 
       <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-1.5 z-10">
-        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全48種)</h2>
+        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全51種)</h2>
         <div class="flex items-center gap-2">
           <span class="text-[11px] text-yellow-300 font-bold">🪙 <span id="gachaGoldDisplay">0</span></span>
           <button id="btnCloseGacha" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] rounded">閉じる</button>
@@ -493,7 +493,7 @@
       </div>
 
       <div class="w-full bg-slate-900/90 border border-slate-700 rounded p-1.5 text-[9px] z-10 space-y-1">
-        <div class="text-amber-300 font-bold">【 ガチャ排出確率 (計100% / 全28種) 】</div>
+        <div class="text-amber-300 font-bold">【 ガチャ排出確率 (計100% / 全51種) 】</div>
         <div class="grid grid-cols-4 gap-1 text-center font-bold">
           <div class="bg-slate-950 py-0.5 rounded border border-sky-800 rarity-r">R: 80%</div>
           <div class="bg-slate-950 py-0.5 rounded border border-purple-800 rarity-sr">SR: 15%</div>
@@ -900,10 +900,6 @@
       { id: 'wg_r5', name: 'アクアロッド', type: 'weapon', source: 'gacha', rarity: 'R', element: 'water', atkBonus: 5, desc: '基礎ダメージ+5', passive: { name: '流水の心得', desc: '水一致時毎ターン開始時盾+3' }, skill: { name: 'アクアバースト', req: 'even', desc: '偶数のみ: 出目+4ダメ ＆ 盾+6', fn: (v, st) => ({ dmg: v + 4 + st.stats.baseAtk, shd: 6 }) } },
       { id: 'wg_r6', name: 'ラッキーダガー', type: 'weapon', source: 'gacha', rarity: 'R', element: 'luck', atkBonus: 4, desc: '基礎ダメージ+4', passive: { name: '幸運の小手試し', desc: '運一致時討伐時コイン+25%' }, skill: { name: 'ラッキースラッシュ', req: 'min5', desc: '出目5以上: 出目×2+6ダメ', fn: (v, st) => ({ dmg: v * 2 + 6 + st.stats.baseAtk }) } },
 
-      // --- ガチャ RE武器 (経験値・ゴールド稼ぎ特化: 2種) ---
-      { id: 're_w1', name: '商人の黄金短剣', type: 'weapon', source: 'gacha', rarity: 'RE', element: 'luck', atkBonus: 5, desc: '獲得コインが常時1.5倍に増加する', passive: { name: '金脈の導き', desc: '戦闘勝利時の獲得コイン+50%' }, skill: { name: 'コインストライク', req: 'any', desc: '出目不問: 出目×2ダメ', fn: (v, st) => ({ dmg: v * 2 + st.stats.baseAtk }) } },
-      { id: 're_w2', name: '賢者の学習スタッフ', type: 'weapon', source: 'gacha', rarity: 'RE', element: 'nature', atkBonus: 6, desc: '獲得経験値が常時1.5倍に増加する', passive: { name: '探求の知恵', desc: '戦闘勝利時の獲得EXP+50%' }, skill: { name: 'エクスプロードEXP', req: 'min4', desc: '出目4以上: 出目×2.5ダメ', fn: (v, st) => ({ dmg: Math.round(v * 2.5) + st.stats.baseAtk }) } },
-
       // --- ガチャ SR武器 (6種) ---
       { id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'fire', atkBonus: 11, desc: '基礎ダメージ+11', passive: { name: '火炎付与', desc: '敵に火傷5ダメージ' }, skill: { name: '炎刃一閃', req: 'min4', desc: '出目4以上: 出目×2+10 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 10 + st.stats.baseAtk }) } },
       { id: 'wg_sr2', name: 'フロストハルバード', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'water', atkBonus: 12, desc: '基礎ダメージ+12', passive: { name: '氷結の構え', desc: '敵攻撃力10%低下' }, skill: { name: 'アイスランス', req: 'odd', desc: '奇数のみ: 出目×2+8 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 8 + st.stats.baseAtk }) } },
@@ -947,10 +943,6 @@
       { id: 'ag_r4', name: 'ブレイズメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 24, shdBonus: 4, desc: '最大HP+24/初期盾+4', passive: { name: '炎の反撃', desc: '被弾時敵へ4ダメ反射' }, skill: { name: 'フレイムウォール', req: 'even', desc: '偶数のみ: 盾+10 ＆ 敵4ダメ', fn: (v) => ({ shd: 10, dmg: 4 }) } },
       { id: 'ag_r5', name: 'タイダルローブ', type: 'armor', source: 'gacha', rarity: 'R', element: 'water', hpBonus: 28, shdBonus: 4, desc: '最大HP+28/初期盾+4', passive: { name: '水の加護', desc: '被ダメさらに2軽減' }, skill: { name: 'アクアヒール', req: 'odd', desc: '奇数のみ: 盾+8 ＆ HP4回復', fn: (v) => ({ shd: 8, heal: 4 }) } },
       { id: 'ag_r6', name: 'ラッキーメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'luck', hpBonus: 25, shdBonus: 4, desc: '最大HP+25/初期盾+4', passive: { name: '幸運の加護', desc: '15%で敵攻撃完全無効' }, skill: { name: 'ラッキーシールド', req: 'any', desc: '出目不問: シールド+9', fn: (v) => ({ shd: 9 }) } },
-
-      // --- ガチャ RE防具 (経験値・ゴールド稼ぎ特化: 2種) ---
-      { id: 're_a1', name: '大富豪の黄金ローブ', type: 'armor', source: 'gacha', rarity: 'RE', element: 'luck', hpBonus: 35, shdBonus: 5, desc: '金策と防御を両立する富豪のローブ', passive: { name: '黄金のオーラ', desc: '戦闘勝利時の獲得コイン+50%' }, skill: { name: 'ゴールデンシールド', req: 'any', desc: '出目不問: 盾+12', fn: (v) => ({ shd: 12 }) } },
-      { id: 're_a2', name: '修道士の経験マント', type: 'armor', source: 'gacha', rarity: 'RE', element: 'nature', hpBonus: 40, shdBonus: 6, desc: '成長を加速させる修道士のマント', passive: { name: '精神修行', desc: '戦闘勝利時の獲得EXP+50%' }, skill: { name: 'メディテーション', req: 'min4', desc: '出目4以上: 盾+14 ＆ HP5回復', fn: (v) => ({ shd: 14, heal: 5 }) } },
 
       // --- ガチャ SR防具 (6種) ---
       { id: 'ag_sr1', name: 'バーニングアーマー', type: 'armor', source: 'gacha', rarity: 'SR', element: 'fire', hpBonus: 55, shdBonus: 11, desc: '最大HP+55/初期盾+11', passive: { name: '業火の衣', desc: '火一致時攻撃ダメ+4' }, skill: { name: 'マグマシールド', req: 'min4', desc: '出目4以上: 盾+15 ＆ 敵6ダメ', fn: (v) => ({ shd: 15, dmg: 6 }) } },
@@ -1076,6 +1068,25 @@
       }
 
       updateTitleUI();
+    }
+
+    function openNameModal(isFirstTime = false) {
+      const modal = document.getElementById('modalPlayerName');
+      const input = document.getElementById('inputPlayerName');
+      const btnCancel = document.getElementById('btnCancelName');
+      const title = document.getElementById('nameModalTitle');
+
+      input.value = Player.name || '';
+      if (isFirstTime) {
+        btnCancel.classList.add('hidden');
+        title.textContent = '【 勇者の名前を決めよう 】';
+      } else {
+        btnCancel.classList.remove('hidden');
+        title.textContent = '【 名前の変更 】';
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
     }
 
     function savePlayerNameFromModal() {
@@ -1536,24 +1547,35 @@
       const stats = getPlayerStats();
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
+      const equippedDiceType = Player.equippedDice || 'd_normal';
 
-      if (armPass === '不撓不屈') {
+      if (armPass === '不撓不屈' || armPass === '海神の加護') {
         Battle.playerShield = Math.floor(Battle.playerShield / 2) + stats.startShield;
       } else {
         Battle.playerShield = stats.startShield;
       }
 
       if (wepPass === '聖なる加護') applyHeal(5, stats);
+      if (wepPass === '聖木の息吹') applyHeal(10, stats);
       if (wepPass === '豊穣の光' && stats.matchedElement === 'nature') applyHeal(4, stats);
       if (wepPass === '世界樹の加護' && stats.matchedElement === 'nature') applyHeal(8, stats);
       if (armPass === '自然の調和') applyHeal(12, stats);
       if (armPass === '絶対不滅') applyHeal(20, stats);
 
       if (armPass === '身軽') Battle.playerShield += 2;
+      if (wepPass === '疾風') Battle.playerShield += 3;
       if (wepPass === '流水の心得' && stats.matchedElement === 'water') Battle.playerShield += 3;
       if (wepPass === '激流の力') Battle.playerShield += 4;
+      if (wepPass === '海神の祝福') Battle.playerShield += 10;
       if (wepPass === '創世の脈動') Battle.playerShield += 10;
       if (armPass === '天の導き' && stats.matchedElement === 'luck') Battle.playerShield += 6;
+
+      // カスタムダイスのターン開始時ボーナス
+      if (equippedDiceType === 'd_lucky') Battle.playerShield += 3;
+      if (equippedDiceType === 'd_even_trick') Battle.playerShield += 4;
+      if (equippedDiceType === 'd_crystal') applyHeal(5, stats);
+      if (equippedDiceType === 'd_golden') Battle.playerShield += 8;
+      if (equippedDiceType === 'd_deep_sea') Battle.playerShield += 10;
 
       if (stats.matchedElement === 'water') {
         Battle.playerShield += 5;
@@ -1568,13 +1590,12 @@
       if (armPass === '時間跳躍') diceCount++;
 
       Battle.activeDice = [];
-      const equippedDiceType = Player.equippedDice || 'd_normal';
       let firstDice = Math.floor(Math.random() * 6) + 1;
 
       if (equippedDiceType === 'd_heavy') {
         firstDice = Math.floor(Math.random() * 3) + 4; // 4, 5, 6
-      } else if (equippedDiceType === 'd_light') {
-        firstDice = Math.floor(Math.random() * 3) + 3; // 3, 4, 5
+      } else if (equippedDiceType === 'd_light' || equippedDiceType === 'd_balance') {
+        firstDice = Math.random() < 0.5 ? 3 : 4; // 3 or 4
       } else if (equippedDiceType === 'd_lucky') {
         firstDice = 6; 
       } else if (equippedDiceType === 'd_heavy_low') {
@@ -1595,15 +1616,28 @@
         firstDice = evens[Math.floor(Math.random() * evens.length)];
       } else if (equippedDiceType === 'd_chaos') {
         firstDice = Math.random() < 0.5 ? 1 : 6;
-      } else if (equippedDiceType === 'd_balance') {
-        firstDice = Math.random() < 0.5 ? 3 : 4;
       }
+
+      // 1個目のダイスは「効果あり(isCustom: true)」の目印をつけるため配列とは別に管理フラグを同期
       Battle.activeDice.push(firstDice);
+      Battle.customDiceIndices = [0]; // 0番目（1個目）がカスタムダイス
 
       for (let i = 1; i < diceCount; i++) {
         let d = rollDie();
         if (wepPass === '星の導き' && d < 2) d = 2;
+        if (i === 1 && equippedDiceType === 'd_twins') {
+          d = firstDice; // 双子ダイスは2個目も同じ出目になり、両方色がつく
+          Battle.customDiceIndices.push(1);
+        }
         Battle.activeDice.push(d);
+      }
+
+      if (armPass === '影走り' && Battle.activeDice.some(v => v <= 2)) {
+        Battle.playerShield += 8;
+      }
+      if (armPass === '虚無の加護') {
+        const ones = Battle.activeDice.filter(v => v === 1).length;
+        if (ones > 0) applyHeal(ones * 8, stats);
       }
 
       Battle.turnDiceSum = Battle.activeDice.reduce((sum, v) => sum + v, 0);
@@ -1633,13 +1667,21 @@
         return;
       }
 
-      Battle.activeDice.splice(Battle.selectedDiceIndex, 1);
+      // ダイス消費時に、色付け用のインデックスもずらす
+      const usedIdx = Battle.selectedDiceIndex;
+      Battle.activeDice.splice(usedIdx, 1);
+      if (Array.isArray(Battle.customDiceIndices)) {
+        Battle.customDiceIndices = Battle.customDiceIndices
+          .filter(i => i !== usedIdx)
+          .map(i => (i > usedIdx ? i - 1 : i));
+      }
       Battle.selectedDiceIndex = null;
       skill.used = true;
 
       const stats = getPlayerStats();
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
+      const equippedDiceType = Player.equippedDice || 'd_normal';
       const res = skill.fn(diceVal, { stats });
 
       if (wepPass === '粉砕圧' && diceVal >= 5) {
@@ -1650,9 +1692,20 @@
         let finalDmg = res.dmg;
         if (wepPass === '鋭利な刃') finalDmg += 2;
         if (wepPass === '急所突き' && diceVal % 2 !== 0) finalDmg += 3;
+        if (wepPass === '熱閃' && diceVal % 2 !== 0) finalDmg += 4;
+        if (wepPass === '深海の怒り' && diceVal % 2 === 0) finalDmg += 5;
         if (wepPass === '必中の呪い') finalDmg += 6;
         if (wepPass === '激流の力') finalDmg += 5;
+        if (wepPass === '聖木の息吹') finalDmg += 8;
+        if (armPass === '炎神の加護') finalDmg += 8;
         if (armPass === '業火の衣' && stats.matchedElement === 'fire') finalDmg += 4;
+
+        // ダイスによるダメージボーナス
+        if (equippedDiceType === 'd_odd_trick') finalDmg += 3;
+        if (equippedDiceType === 'd_chaos') finalDmg += 6;
+        if (equippedDiceType === 'd_heavy_low' && diceVal <= 3) finalDmg = Math.round(finalDmg * 1.2);
+        if (equippedDiceType === 'd_void_core' && diceVal <= 3) finalDmg = Math.round(finalDmg * 1.5);
+        if (wepPass === '電光石火') finalDmg = Math.round(finalDmg * 1.05);
 
         if (wepPass === '逆鱗' && Battle.playerHp <= stats.maxHp / 2) {
           finalDmg *= 2;
@@ -1813,22 +1866,25 @@
 
       if (Battle.mode === 'normal') {
         const stats = getPlayerStats();
+        const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
+        const armPass = stats.armor.passive ? stats.armor.passive.name : '';
+
         let expGained = Math.round(12 + Battle.enemy.level * 4.5);
         let goldGained = Math.round(2 + Battle.enemy.level * 0.5);
 
-        // 🌟 REレア度の装備（商人の黄金短剣・賢者の学習スタッフ・大富豪の黄金ローブ・修道士の経験マント）による獲得量ボーナス
-        const wep = stats.weapon;
-        const arm = stats.armor;
-        if (wep.rarity === 'RE' || arm.rarity === 'RE') {
-          if (wep.id === 're_w1' || arm.id === 're_a1') {
-            goldGained = Math.round(goldGained * 1.5); // コイン1.5倍
-          }
-          if (wep.id === 're_w2' || arm.id === 're_a2') {
-            expGained = Math.round(expGained * 1.5); // 経験値1.5倍
-          }
-        }
+        // 🌟 経験値・コイン稼ぎ用装備の特性ボーナス
+        if (wepPass === '探求の知恵') expGained = Math.round(expGained * 1.5);
+        if (armPass === '精神修行') expGained = Math.round(expGained * 1.5);
+        if (wepPass === '黄金の収穫') { expGained = Math.round(expGained * 1.35); goldGained = Math.round(goldGained * 1.35); }
+        if (armPass === '黄金の祝福') { expGained = Math.round(expGained * 1.35); goldGained = Math.round(goldGained * 1.35); }
 
-        if (stats.weapon.passive && stats.weapon.passive.name === '幸運の小手試し' && stats.matchedElement === 'luck') {
+        if (wepPass === '金脈の導き') goldGained = Math.round(goldGained * 1.5);
+        if (armPass === '黄金のオーラ') goldGained = Math.round(goldGained * 1.5);
+        if (wepPass === '逆転の輪廻' && Battle.turnDiceSum <= 6) {
+          goldGained = Math.round(goldGained * 1.5);
+          applyHeal(6, stats);
+        }
+        if (wepPass === '幸運の小手試し' && stats.matchedElement === 'luck') {
           goldGained = Math.round(goldGained * 1.25);
         }
 
@@ -2336,7 +2392,8 @@
     /* ==========================================================================
        7. アイテム図鑑
        ========================================================================== */
- let currentDexTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
+
+    let currentDexTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
 
     function renderEncyclopedia() {
       const listEl = document.getElementById('dexItemList');
@@ -2720,7 +2777,7 @@
       document.getElementById('titleMaxFloor').textContent = `${maxNormal}F / ${MAX_NORMAL_FLOOR}F`;
       document.getElementById('titleTowerFloor').textContent = `${Player.towerBestFloor}F`;
       document.getElementById('btnAdventureLabel').textContent = `冒険に出る (${curFloor}Fから再開)`;
-const btnBoss = document.getElementById('btnBossChallenge');
+      const btnBoss = document.getElementById('btnBossChallenge');
       if (btnBoss) {
         if (Player.maxClearedFloor >= 50) {
           btnBoss.classList.remove('hidden');
@@ -2853,8 +2910,11 @@ const btnBoss = document.getElementById('btnBossChallenge');
         const isSelected = Battle.selectedDiceIndex === idx;
         const btn = document.createElement('button');
         
-        // 🎨 設定されたカラークラスを適用（未設定ならデフォルトの白背景）
-        const customColorClass = equippedDiceObj.colorClass || 'bg-slate-100 border-slate-400';
+        // 🎨 ノーマルダイス以外を装備中、効果対象となっているダイス（1個目など）だけに専用カラーを付ける
+        const isEffectDie = (Player.equippedDice !== 'd_normal') && Array.isArray(Battle.customDiceIndices) && Battle.customDiceIndices.includes(idx);
+        const customColorClass = isEffectDie
+          ? equippedDiceObj.colorClass
+          : 'bg-slate-100 border-slate-400';
 
         btn.className = `w-9 h-9 rpg-btn rounded flex items-center justify-center ${customColorClass} ${
           isSelected ? 'ring-4 ring-amber-400 scale-110' : ''
