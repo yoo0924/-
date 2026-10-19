@@ -162,23 +162,22 @@
       </div>
     </div>
 
-    <!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
-
+<!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
     <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
       <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
         <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
-          <span>📜</span> <span>ver 4.2.0 アップデート内容</span>
+          <span>📜</span> <span>ver 4.3.0 アップデート内容</span>
         </h2>
         <button id="btnCloseVersionLog" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
-        <div class="text-xs font-bold text-yellow-300">■ ver 4.2.0 の主な追加・調整要素</div>
+        <div class="text-xs font-bold text-yellow-300">■ ver 4.3.0 の主な追加・調整要素</div>
         <ul class="space-y-2 text-[11px] text-slate-200 leading-relaxed">
-          <li>・<b>新システム「カスタムダイス」実装:</b> 第3の装備枠としてダイスが登場！出目を固定・ブーストするカスタムダイスを装備してビルドを極めよう。</li>
-          <li>・<b>低出目対応の新規武器・防具追加:</b> SSR「零式・無明短刀」「宵闇の隠密マント」、UR「混沌神核・ウロボロス」「虚空神衣・ゼロ・アビス」を追加！低い目を出したときに真価を発揮します。</li>
-          <li>・<b>ランキング表示の改善:</b> 通常モードのランキング上限を100Fに固定し、ボス討伐状況に関わらず100Fまでの記録が正しく表示されるようになりました。</li>
-          <li>・<b>階層解除ボスの追加:</b> 通常モード50Fクリア後にゴーレム型のボスに挑戦可能[cite: 2]！見事討伐すると51〜100Fへの挑戦権が解放されます[cite: 2]。</li>
+          <li>・<b>全64種への大規模ビルド拡張:</b> 武器26種、防具26種、ダイス12種（計64種）の圧倒的なボリュームに刷新！</li>
+          <li>・<b>全属性対応UR＆RE稼ぎ装備登場:</b> 全属性でURの強力な属性セットアップが可能に。さらにEXPやコインが稼ぎやすい「RE（リッチ/レパード）レア度」の装備が追加されました。</li>
+          <li>・<b>トリッキーダイス実装:</b> 奇数や偶数、1か6、3か4といったトリッキーな出目を生み出す新しいカスタムダイスが参戦。</li>
+          <li>・<b>戦闘画面の視認性向上:</b> 戦闘中の手持ちダイス一覧で、ノーマルダイス以外の「効果があるカスタムダイス」に専用の色がつくようになりました。</li>
         </ul>
       </div>
 
@@ -186,7 +185,7 @@
         確認して閉じる
       </button>
     </div>
-
+    
     <!-- ==================== 0.3 中断確認モーダル（ポーズ画面） ==================== -->
     <div id="modalPauseConfirm" class="hidden absolute inset-0 z-[140] bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
       <div class="w-full max-w-xs rpg-panel border-amber-500 rounded p-4 space-y-3">
@@ -323,7 +322,7 @@
       <!-- ver表記ボタン（タップでver4.0.3の内容確認） -->
       <button id="btnVersionInfo" class="px-3 py-0.5 rounded-full bg-slate-900/80 border border-amber-500/60 text-[9px] text-amber-200 hover:text-white hover:bg-slate-800 transition cursor-pointer shadow flex items-center gap-1">
         <span>📜</span>
-        <span class="underline font-bold">ver 4.2.0 (アップデート内容)</span>
+        <span class="underline font-bold">ver 4.3.0 (アップデート内容)</span>
       </button>
     </div>
 
@@ -460,18 +459,18 @@
       <div id="equipItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[42vh]"></div>
     </div>
 
-    <!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
+<!-- ==================== 4.5 アイテム図鑑モーダル ==================== -->
     <div id="modalEncyclopedia" class="hidden absolute inset-0 z-[115] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
       <div class="flex justify-between items-center border-b border-emerald-800 pb-1.5">
-        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全47種)</h2>
+        <h2 class="text-xs font-bold text-emerald-400">📖 武器・装備大図鑑 (全61種)</h2>
         <button id="btnCloseEncyclopedia" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="my-1.5 flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 text-xs">
         <span class="text-slate-300">収集コンプリート率:</span>
-        <span id="dexCompRate" class="text-emerald-400 font-bold">2 / 47 (5%)</span>
+        <span id="dexCompRate" class="text-emerald-400 font-bold">0 / 61 (0%)</span>
       </div>
-
+      
       <div class="flex gap-1 mb-1.5">
         <button id="tabDexWeapon" class="rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded">武器図鑑</button>
         <button id="tabDexArmor" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">装備図鑑</button>
@@ -486,7 +485,7 @@
       <div id="gachaBgEffect" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"></div>
 
       <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-1.5 z-10">
-        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全36種)</h2>
+        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全48種)</h2>
         <div class="flex items-center gap-2">
           <span class="text-[11px] text-yellow-300 font-bold">🪙 <span id="gachaGoldDisplay">0</span></span>
           <button id="btnCloseGacha" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] rounded">閉じる</button>
@@ -887,293 +886,132 @@
       dead() { this.tone(180, 0.25, 'sawtooth', 0.2); setTimeout(() => this.tone(120, 0.35, 'sawtooth', 0.2), 150); }
     };
 
-    /* ==========================================================================
-       2. 武器・防具マスタデータ (全40種)
+/* ==========================================================================
+       2. 武器・防具・ダイスマスタデータ (合計64種)
        ========================================================================== */
     const WEAPONS_MASTER = [
-      {
-        id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', element: 'none', atkBonus: 0,
-        desc: '何も持っていない。'
-      },
-      {
-        id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', element: 'fire', atkBonus: 4,
-        desc: '基礎ダメージ+4',
-        passive: { name: '鋭利な刃', desc: '攻撃時、追加固定+2ダメージ' },
-        skill: { name: '強撃', req: 'min4', desc: '出目4以上: 出目+6 ダメージ', fn: (v, st) => ({ dmg: v + 6 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_r2', name: 'シルバーレイピア', type: 'weapon', source: 'gacha', rarity: 'R', element: 'water', atkBonus: 5,
-        desc: '基礎ダメージ+5',
-        passive: { name: '急所突き', desc: '奇数の出目でスキル発動時、ダメージ+3' },
-        skill: { name: 'ファントムスラスト', req: 'odd', desc: '奇数のみ: 出目×2 ダメージ', fn: (v, st) => ({ dmg: v * 2 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_r3', name: '重装バトルアクス', type: 'weapon', source: 'gacha', rarity: 'R', element: 'nature', atkBonus: 6,
-        desc: '基礎ダメージ+6',
-        passive: { name: '粉砕圧', desc: '出目5以上使用時、敵攻撃力を2低下' },
-        skill: { name: '兜割り', req: 'min5', desc: '出目5以上: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_r4', name: 'フレイムダガー', type: 'weapon', source: 'gacha', rarity: 'R', element: 'fire', atkBonus: 4,
-        desc: '基礎ダメージ+4',
-        passive: { name: '熱風', desc: '火属性一致時、毎ターン終了時に追加火傷3ダメージ' },
-        skill: { name: 'ヒートスラッシュ', req: 'odd', desc: '奇数のみ: 出目×2+4 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 4 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_r5', name: 'アクアロッド', type: 'weapon', source: 'gacha', rarity: 'R', element: 'water', atkBonus: 5,
-        desc: '基礎ダメージ+5',
-        passive: { name: '流水の心得', desc: '水属性一致時、毎ターン開始時シールド+3' },
-        skill: { name: 'アクアバースト', req: 'even', desc: '偶数のみ: 出目+4ダメ ＆ シールド+6', fn: (v, st) => ({ dmg: v + 4 + st.stats.baseAtk, shd: 6 }) }
-      },
-      {
-        id: 'wg_r6', name: 'ラッキーダガー', type: 'weapon', source: 'gacha', rarity: 'R', element: 'luck', atkBonus: 4,
-        desc: '基礎ダメージ+4',
-        passive: { name: '幸運の小手試し', desc: '運属性一致時、討伐時の獲得コイン+25%' },
-        skill: { name: 'ラッキースラッシュ', req: 'min5', desc: '出目5以上: 出目×2+6 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 6 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'fire', atkBonus: 11,
-        desc: '基礎ダメージ+11',
-        passive: { name: '火炎付与', desc: '毎ターン終了時、敵に火傷5ダメージ' },
-        skill: { name: '炎刃一閃', req: 'min4', desc: '出目4以上: 出目×2+10 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 10 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_sr2', name: 'フロストハルバード', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'water', atkBonus: 12,
-        desc: '基礎ダメージ+12',
-        passive: { name: '氷結の構え', desc: '水属性一致時、敵の攻撃力を常時10%低下' },
-        skill: { name: 'アイスランス', req: 'odd', desc: '奇数のみ: 出目×2+8 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 8 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_sr3', name: 'ネイチャーブレード', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'nature', atkBonus: 12,
-        desc: '基礎ダメージ+12',
-        passive: { name: '豊穣の光', desc: '自然属性一致時、ターン開始時にHP4回復' },
-        skill: { name: 'リーフスラッシュ', req: 'min4', desc: '出目4以上: 出目×2+8 ダメージ ＆ HP4回復', fn: (v, st) => ({ dmg: v * 2 + 8 + st.stats.baseAtk, heal: 4 }) }
-      },
-      {
-        id: 'wg_sr4', name: 'ワイルドハンマー', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'luck', atkBonus: 13,
-        desc: '基礎ダメージ+13',
-        passive: { name: '帯電', desc: '偶数の出目を使うたびシールド+4' },
-        skill: { name: 'ロールバースト', req: 'even', desc: '偶数のみ: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_ssr1', name: '聖剣エクスカリバー', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'fire', atkBonus: 20,
-        desc: '基礎ダメージ+20',
-        passive: { name: '聖なる加護', desc: 'ターン開始時、HP5自動回復' },
-        skill: { name: 'エクスカリバー', req: 'min5', desc: '出目5以上: 35 ダメージ+シールド15', fn: (v, st) => ({ dmg: 35 + st.stats.baseAtk, shd: 15 }) }
-      },
-      {
-        id: 'wg_ssr2', name: 'ガイア・ワールド', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'nature', atkBonus: 21,
-        desc: '基礎ダメージ+21',
-        passive: { name: '世界樹の加護', desc: '自然属性一致時、毎ターン開始時HP8回復' },
-        skill: { name: 'ワールドゲイル', req: 'any', desc: '出目不問: 26ダメージ＋HP8回復', fn: (v, st) => ({ dmg: 26 + st.stats.baseAtk, heal: 8 }) }
-      },
-      {
-        id: 'wg_ssr3', name: 'アストラルスピア', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'luck', atkBonus: 22,
-        desc: '基礎ダメージ+22',
-        passive: { name: '必中の呪い', desc: 'すべての攻撃ダメージが+6底上げ' },
-        skill: { name: '必中神穿', req: 'odd', desc: '奇数のみ: 固定28 ダメージ', fn: (v, st) => ({ dmg: 28 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_ssr4', name: '零式・無明短刀', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'luck', atkBonus: 18,
-        desc: '基礎ダメージ+18。低い目を強力な一閃に変換する短刀。',
-        passive: { name: '低空飛行の極意', desc: '1や2を含むターン、被ダメージを常時3軽減' },
-        skill: { name: '見切りの一閃', req: 'max2', desc: '出目2以下: 1なら固定36ダメ / 2なら固定26ダメ', fn: (v, st) => ({ dmg: (v === 1 ? 36 : 26) + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_ur1', name: '業火神剣・ムスペルヘイム', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'fire', atkBonus: 36,
-        desc: '基礎ダメージ+36。ガチャ最高峰の炎神剣。',
-        passive: { name: '神の業火', desc: '毎ターン終了時、敵に火傷12ダメージ' },
-        skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目不問: 出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wg_ur2', name: '混沌神核・ウロボロス', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'luck', atkBonus: 34,
-        desc: '基礎ダメージ+34。低い目ほど威力が跳ね上がる終焉の武器。',
-        passive: { name: '逆転の輪廻', desc: '出目合計6以下のターン、獲得コイン+50% ＆ HP6回復' },
-        skill: { name: 'ウロボロス・バースト', req: 'max3', desc: '出目3以下: (7 - 出目) × 8 の爆発的ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 8 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19,
-        desc: '基礎ダメージ+19。怨念の魔刀。', dropRate: 1/512,
-        passive: { name: '吸血刃', desc: '与えたダメージの20%をHP回復' },
-        skill: { name: '怨嗟の乱れ刃', req: 'max3', desc: '出目3以下: (7 - 出目)×7 ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 7 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wd_sr2', name: 'タイダルエッジ', type: 'weapon', source: 'drop', rarity: 'SR', element: 'water', atkBonus: 19,
-        desc: '基礎ダメージ+19。深海の秘剣。', dropRate: 1/512,
-        passive: { name: '激流の力', desc: 'すべての攻撃ダメージ+5 ＆ ターン開始時盾+4' },
-        skill: { name: 'ウォーターカッター', req: 'even', desc: '偶数のみ: 出目×3+14 ダメージ', fn: (v, st) => ({ dmg: v * 3 + 14 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'fire', atkBonus: 33,
-        desc: '基礎ダメージ+33。古竜の骨剣。', dropRate: 1/1024,
-        passive: { name: '逆鱗', desc: 'HPが半分以下の時、全ダメージ2倍' },
-        skill: { name: 'ドラゴンバースト', req: 'min4', desc: '出目4以上: 出目×6 ダメージ', fn: (v, st) => ({ dmg: v * 6 + st.stats.baseAtk }) }
-      },
-      {
-        id: 'wd_ssr2', name: '星屑の天杖', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'water', atkBonus: 32,
-        desc: '基礎ダメージ+32。星光を宿す神杖。', dropRate: 1/1024,
-        passive: { name: '星の導き', desc: 'サイコロの最小出目が常に「2以上」になる' },
-        skill: { name: 'スターダスト', req: 'even', desc: '偶数のみ: 36ダメージ＋シールド22', fn: (v, st) => ({ dmg: 36 + st.stats.baseAtk, shd: 22 }) }
-      },
-      {
-        id: 'wd_ur1', name: '大海神核・レヴィアタン', type: 'weapon', source: 'drop', rarity: 'UR', element: 'water', atkBonus: 52,
-        desc: '基礎ダメージ+52。究極のドロップ水神核。', dropRate: 1/2048,
-        passive: { name: '創世の脈動', desc: '毎ターン追加でサイコロが+1個振られる ＆ 盾+10' },
-        skill: { name: 'タイダル・ディザスター', req: 'even', desc: '偶数のみ: 75 特大ダメージ ＆ シールド20', fn: (v, st) => ({ dmg: 75 + st.stats.baseAtk, shd: 20 }) }
-      }
+      { id: 'w_bare', name: '素手', type: 'weapon', source: 'init', rarity: 'N', element: 'none', atkBonus: 0, desc: '何も持っていない。' },
+      
+      // --- ガチャ R武器 (6種) ---
+      { id: 'wg_r1', name: '鋼鉄のブロードソード', type: 'weapon', source: 'gacha', rarity: 'R', element: 'fire', atkBonus: 4, desc: '基礎ダメージ+4', passive: { name: '鋭利な刃', desc: '攻撃時追加固定+2ダメ' }, skill: { name: '強撃', req: 'min4', desc: '出目4以上: 出目+6 ダメージ', fn: (v, st) => ({ dmg: v + 6 + st.stats.baseAtk }) } },
+      { id: 'wg_r2', name: 'シルバーレイピア', type: 'weapon', source: 'gacha', rarity: 'R', element: 'water', atkBonus: 5, desc: '基礎ダメージ+5', passive: { name: '急所突き', desc: '奇数の出目でスキル発動時ダメ+3' }, skill: { name: 'ファントムスラスト', req: 'odd', desc: '奇数のみ: 出目×2ダメ', fn: (v, st) => ({ dmg: v * 2 + st.stats.baseAtk }) } },
+      { id: 'wg_r3', name: '重装バトルアクス', type: 'weapon', source: 'gacha', rarity: 'R', element: 'nature', atkBonus: 6, desc: '基礎ダメージ+6', passive: { name: '粉砕圧', desc: '出目5以上使用時敵攻-2' }, skill: { name: '兜割り', req: 'min5', desc: '出目5以上: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) } },
+      { id: 'wg_r4', name: 'フレイムダガー', type: 'weapon', source: 'gacha', rarity: 'R', element: 'fire', atkBonus: 4, desc: '基礎ダメージ+4', passive: { name: '熱風', desc: '火一致時追加火傷3ダメ' }, skill: { name: 'ヒートスラッシュ', req: 'odd', desc: '奇数のみ: 出目×2+4ダメ', fn: (v, st) => ({ dmg: v * 2 + 4 + st.stats.baseAtk }) } },
+      { id: 'wg_r5', name: 'アクアロッド', type: 'weapon', source: 'gacha', rarity: 'R', element: 'water', atkBonus: 5, desc: '基礎ダメージ+5', passive: { name: '流水の心得', desc: '水一致時毎ターン開始時盾+3' }, skill: { name: 'アクアバースト', req: 'even', desc: '偶数のみ: 出目+4ダメ ＆ 盾+6', fn: (v, st) => ({ dmg: v + 4 + st.stats.baseAtk, shd: 6 }) } },
+      { id: 'wg_r6', name: 'ラッキーダガー', type: 'weapon', source: 'gacha', rarity: 'R', element: 'luck', atkBonus: 4, desc: '基礎ダメージ+4', passive: { name: '幸運の小手試し', desc: '運一致時討伐時コイン+25%' }, skill: { name: 'ラッキースラッシュ', req: 'min5', desc: '出目5以上: 出目×2+6ダメ', fn: (v, st) => ({ dmg: v * 2 + 6 + st.stats.baseAtk }) } },
+
+      // --- ガチャ RE武器 (経験値・ゴールド稼ぎ特化: 2種) ---
+      { id: 're_w1', name: '商人の黄金短剣', type: 'weapon', source: 'gacha', rarity: 'RE', element: 'luck', atkBonus: 5, desc: '獲得コインが常時1.5倍に増加する', passive: { name: '金脈の導き', desc: '戦闘勝利時の獲得コイン+50%' }, skill: { name: 'コインストライク', req: 'any', desc: '出目不問: 出目×2ダメ', fn: (v, st) => ({ dmg: v * 2 + st.stats.baseAtk }) } },
+      { id: 're_w2', name: '賢者の学習スタッフ', type: 'weapon', source: 'gacha', rarity: 'RE', element: 'nature', atkBonus: 6, desc: '獲得経験値が常時1.5倍に増加する', passive: { name: '探求の知恵', desc: '戦闘勝利時の獲得EXP+50%' }, skill: { name: 'エクスプロードEXP', req: 'min4', desc: '出目4以上: 出目×2.5ダメ', fn: (v, st) => ({ dmg: Math.round(v * 2.5) + st.stats.baseAtk }) } },
+
+      // --- ガチャ SR武器 (6種) ---
+      { id: 'wg_sr1', name: '紅蓮のフランベルジュ', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'fire', atkBonus: 11, desc: '基礎ダメージ+11', passive: { name: '火炎付与', desc: '敵に火傷5ダメージ' }, skill: { name: '炎刃一閃', req: 'min4', desc: '出目4以上: 出目×2+10 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 10 + st.stats.baseAtk }) } },
+      { id: 'wg_sr2', name: 'フロストハルバード', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'water', atkBonus: 12, desc: '基礎ダメージ+12', passive: { name: '氷結の構え', desc: '敵攻撃力10%低下' }, skill: { name: 'アイスランス', req: 'odd', desc: '奇数のみ: 出目×2+8 ダメージ', fn: (v, st) => ({ dmg: v * 2 + 8 + st.stats.baseAtk }) } },
+      { id: 'wg_sr3', name: 'ネイチャーブレード', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'nature', atkBonus: 12, desc: '基礎ダメージ+12', passive: { name: '豊穣の光', desc: 'ターン開始時HP4回復' }, skill: { name: 'リーフスラッシュ', req: 'min4', desc: '出目4以上: 出目×2+8ダメ ＆ HP4回復', fn: (v, st) => ({ dmg: v * 2 + 8 + st.stats.baseAtk, heal: 4 }) } },
+      { id: 'wg_sr4', name: 'ワイルドハンマー', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'luck', atkBonus: 13, desc: '基礎ダメージ+13', passive: { name: '帯電', desc: '偶数使用時シールド+4' }, skill: { name: 'ロールバースト', req: 'even', desc: '偶数のみ: 出目×3 ダメージ', fn: (v, st) => ({ dmg: v * 3 + st.stats.baseAtk }) } },
+      { id: 'wg_sr5', name: 'フレイムレイピア', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'fire', atkBonus: 11, desc: '火属性の追加SR武器', passive: { name: '熱閃', desc: '火一致時クリティカル率アップ' }, skill: { name: 'フレイムピアス', req: 'odd', desc: '奇数のみ: 出目×2.5ダメ', fn: (v, st) => ({ dmg: Math.round(v * 2.5) + st.stats.baseAtk }) } },
+      { id: 'wg_sr6', name: 'ストームダガー', type: 'weapon', source: 'gacha', rarity: 'SR', element: 'nature', atkBonus: 12, desc: '自然属性の追加SR武器', passive: { name: '疾風', desc: 'ターン開始時盾+3' }, skill: { name: 'ストームスラッシュ', req: 'any', desc: '出目不問: 20ダメ ＆ 盾+5', fn: (v, st) => ({ dmg: 20 + st.stats.baseAtk, shd: 5 }) } },
+
+      // --- ガチャ SSR武器 (6種) ---
+      { id: 'wg_ssr1', name: '聖剣エクスカリバー', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'fire', atkBonus: 20, desc: '基礎ダメージ+20', passive: { name: '聖なる加護', desc: 'HP5自動回復' }, skill: { name: 'エクスカリバー', req: 'min5', desc: '出目5以上: 35ダメ+シールド15', fn: (v, st) => ({ dmg: 35 + st.stats.baseAtk, shd: 15 }) } },
+      { id: 'wg_ssr2', name: 'ガイア・ワールド', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'nature', atkBonus: 21, desc: '基礎ダメージ+21', passive: { name: '世界樹の加護', desc: 'HP8回復' }, skill: { name: 'ワールドゲイル', req: 'any', desc: '26ダメージ＋HP8回復', fn: (v, st) => ({ dmg: 26 + st.stats.baseAtk, heal: 8 }) } },
+      { id: 'wg_ssr3', name: 'アストラルスピア', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'luck', atkBonus: 22, desc: '基礎ダメージ+22', passive: { name: '必中の呪い', desc: '攻撃ダメージ+6底上げ' }, skill: { name: '必中神穿', req: 'odd', desc: '奇数のみ: 固定28 ダメージ', fn: (v, st) => ({ dmg: 28 + st.stats.baseAtk }) } },
+      { id: 'wg_ssr4', name: '零式・無明短刀', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'luck', atkBonus: 18, desc: '低出目を一閃に変換', passive: { name: '低空飛行の極意', desc: '1や2を含むターン被ダメ3軽減' }, skill: { name: '見切りの一閃', req: 'max2', desc: '出目2以下: 1なら36ダメ/2なら26ダメ', fn: (v, st) => ({ dmg: (v === 1 ? 36 : 26) + st.stats.baseAtk }) } },
+      { id: 'wg_ssr5', name: 'タイダルグレイブ', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'water', atkBonus: 20, desc: '水属性のSSR武器', passive: { name: '深海の怒り', desc: '偶数ダイス使用時追加ダメ+5' }, skill: { name: 'タイダルストーム', req: 'even', desc: '偶数のみ: 出目×4 ダメージ', fn: (v, st) => ({ dmg: v * 4 + st.stats.baseAtk }) } },
+      { id: 'wg_ssr6', name: 'サンダーブレード', type: 'weapon', source: 'gacha', rarity: 'SSR', element: 'fire', atkBonus: 21, desc: '追加のSSR火属性武器', passive: { name: '電光石火', desc: '常に与ダメージ+5%' }, skill: { name: 'サンダーストライク', req: 'min4', desc: '出目4以上: 32ダメ', fn: (v, st) => ({ dmg: 32 + st.stats.baseAtk }) } },
+
+      // --- ガチャ UR武器 (全属性配分: 3種) ---
+      { id: 'wg_ur1', name: '業火神剣・ムスペルヘイム', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'fire', atkBonus: 36, desc: '炎の最高峰神剣', passive: { name: '神の業火', desc: '敵に火傷12ダメージ' }, skill: { name: 'ムスペル・カタストロフ', req: 'any', desc: '出目×7 の破滅ダメージ', fn: (v, st) => ({ dmg: v * 7 + st.stats.baseAtk }) } },
+      { id: 'wg_ur2', name: '混沌神核・ウロボロス', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'luck', atkBonus: 34, desc: '低出目で跳ねる終焉武器', passive: { name: '逆転の輪廻', desc: '合計6以下でコイン+50%＆HP6回復' }, skill: { name: 'ウロボロス・バースト', req: 'max3', desc: '出目3以下: (7-出目)×8ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 8 + st.stats.baseAtk }) } },
+      { id: 'wg_ur3', name: '蒼海神剣・ネプチューン', type: 'weapon', source: 'gacha', rarity: 'UR', element: 'water', atkBonus: 35, desc: '水の最高峰神剣', passive: { name: '海神の祝福', desc: '毎ターン開始時シールド+10' }, skill: { name: 'ネプチューンジャッジ', req: 'even', desc: '偶数のみ: 65ダメージ', fn: (v, st) => ({ dmg: 65 + st.stats.baseAtk }) } },
+
+      // --- ドロップ SR武器 (2種) ---
+      { id: 'wd_sr1', name: '怨霊喰いの妖刀・村正', type: 'weapon', source: 'drop', rarity: 'SR', element: 'fire', atkBonus: 19, desc: '怨念の魔刀', dropRate: 1/512, passive: { name: '吸血刃', desc: '与ダメージ20%回復' }, skill: { name: '怨嗟の乱れ刃', req: 'max3', desc: '出目3以下: (7-出目)×7ダメージ', fn: (v, st) => ({ dmg: (7 - v) * 7 + st.stats.baseAtk }) } },
+      { id: 'wd_sr2', name: 'タイダルエッジ', type: 'weapon', source: 'drop', rarity: 'SR', element: 'water', atkBonus: 19, desc: '深海の秘剣', dropRate: 1/512, passive: { name: '激流の力', desc: '攻撃ダメ+5＆盾+4' }, skill: { name: 'ウォーターカッター', req: 'even', desc: '偶数のみ: 出目×3+14ダメ', fn: (v, st) => ({ dmg: v * 3 + 14 + st.stats.baseAtk }) } },
+
+      // --- ドロップ SSR武器 (2種) ---
+      { id: 'wd_ssr1', name: '古竜の逆鱗大剣', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'fire', atkBonus: 33, desc: '古竜の骨剣', dropRate: 1/1024, passive: { name: '逆鱗', desc: 'HP半分以下で全ダメ2倍' }, skill: { name: 'ドラゴンバースト', req: 'min4', desc: '出目4以上: 出目×6 ダメージ', fn: (v, st) => ({ dmg: v * 6 + st.stats.baseAtk }) } },
+      { id: 'wd_ssr2', name: '星屑の天杖', type: 'weapon', source: 'drop', rarity: 'SSR', element: 'water', atkBonus: 32, desc: '星光の神杖', dropRate: 1/1024, passive: { name: '星の導き', desc: '最小出目が常に2以上' }, skill: { name: 'スターダスト', req: 'even', desc: '偶数のみ: 36ダメ＋シールド22', fn: (v, st) => ({ dmg: 36 + st.stats.baseAtk, shd: 22 }) } },
+
+      // --- ドロップ UR武器 (1種) ---
+      { id: 'wd_ur1', name: '大海神核・レヴィアタン', type: 'weapon', source: 'drop', rarity: 'UR', element: 'water', atkBonus: 52, desc: '究極の水神核', dropRate: 1/2048, passive: { name: '創世の脈動', desc: 'ダイス+1個＆盾+10' }, skill: { name: 'タイダル・ディザスター', req: 'even', desc: '偶数のみ: 75ダメ＆シールド20', fn: (v, st) => ({ dmg: 75 + st.stats.baseAtk, shd: 20 }) } }
     ];
 
     const ARMORS_MASTER = [
-      {
-        id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', element: 'none', hpBonus: 0, shdBonus: 0,
-        desc: '普段着。'
-      },
-      {
-        id: 'ag_r1', name: '鋼のナイトプレート', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 30, shdBonus: 6,
-        desc: '最大HP+30 / 初期シールド+6',
-        passive: { name: '重装の構え', desc: 'シールド獲得量がすべて+3' },
-        skill: { name: 'アイアンウォール', req: 'min4', desc: '出目4以上: シールド+14', fn: (v) => ({ shd: 14 }) }
-      },
-      {
-        id: 'ag_r2', name: '青銅のチェインメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'water', hpBonus: 25, shdBonus: 5,
-        desc: '最大HP+25 / 初期シールド+5',
-        passive: { name: '頑強', desc: '受けるダメージを常時2軽減' },
-        skill: { name: '陣形防御', req: 'even', desc: '偶数のみ: 出目×2+4 シールド', fn: (v) => ({ shd: v * 2 + 4 }) }
-      },
-      {
-        id: 'ag_r3', name: '冒険者のレザーアーマー', type: 'armor', source: 'gacha', rarity: 'R', element: 'nature', hpBonus: 20, shdBonus: 3,
-        desc: '最大HP+20 / 初期シールド+3',
-        passive: { name: '身軽', desc: '毎ターン開始時シールド+2' },
-        skill: { name: 'ステップ回避', req: 'odd', desc: '奇数のみ: シールド+8', fn: (v) => ({ shd: 8 }) }
-      },
-      {
-        id: 'ag_r4', name: 'ブレイズメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 24, shdBonus: 4,
-        desc: '最大HP+24 / 初期シールド+4',
-        passive: { name: '炎の反撃', desc: '火属性一致時、被弾時に敵へ4ダメージ反射' },
-        skill: { name: 'フレイムウォール', req: 'even', desc: '偶数のみ: シールド+10 ＆ 敵に4ダメ', fn: (v) => ({ shd: 10, dmg: 4 }) }
-      },
-      {
-        id: 'ag_r5', name: 'タイダルローブ', type: 'armor', source: 'gacha', rarity: 'R', element: 'water', hpBonus: 28, shdBonus: 4,
-        desc: '最大HP+28 / 初期シールド+4',
-        passive: { name: '水の加護', desc: '水属性一致時、受けるダメージをさらに2軽減' },
-        skill: { name: 'アクアヒール', req: 'odd', desc: '奇数のみ: シールド+8 ＆ HP4回復', fn: (v) => ({ shd: 8, heal: 4 }) }
-      },
-      {
-        id: 'ag_r6', name: 'ラッキーメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'luck', hpBonus: 25, shdBonus: 4,
-        desc: '最大HP+25 / 初期シールド+4',
-        passive: { name: '幸運の加護', desc: '運属性一致時、15%の確率で敵の攻撃を完全無効化' },
-        skill: { name: 'ラッキーシールド', req: 'any', desc: '出目不問: シールド+9', fn: (v) => ({ shd: 9 }) }
-      },
-      {
-        id: 'ag_sr1', name: 'バーニングアーマー', type: 'armor', source: 'gacha', rarity: 'SR', element: 'fire', hpBonus: 55, shdBonus: 11,
-        desc: '最大HP+55 / 初期シールド+11',
-        passive: { name: '業火の衣', desc: '火属性一致時、すべての攻撃ダメージ+4' },
-        skill: { name: 'マグマシールド', req: 'min4', desc: '出目4以上: シールド+15 ＆ 敵に6ダメ', fn: (v) => ({ shd: 15, dmg: 6 }) }
-      },
-      {
-        id: 'ag_sr2', name: 'ミスリル銀の胸甲', type: 'armor', source: 'gacha', rarity: 'SR', element: 'water', hpBonus: 55, shdBonus: 10,
-        desc: '最大HP+55 / 初期シールド+10',
-        passive: { name: '魔力反発', desc: 'シールド残存時、ターン終了時敵に6ダメージ' },
-        skill: { name: 'ミスリルシールド', req: 'any', desc: '出目不問: 出目+10 シールド', fn: (v) => ({ shd: v + 10 }) }
-      },
-      {
-        id: 'ag_sr3', name: '熾天使の羽衣', type: 'armor', source: 'gacha', rarity: 'SR', element: 'nature', hpBonus: 65, shdBonus: 12,
-        desc: '最大HP+65 / 初期シールド+12',
-        passive: { name: '天恵', desc: 'ターン終了時HPが4回復' },
-        skill: { name: 'セラフィックバリア', req: 'odd', desc: '奇数のみ: シールド+12 ＆ HP6回復', fn: (v) => ({ shd: 12, heal: 6 }) }
-      },
-      {
-        id: 'ag_sr4', name: 'ヘブンリードレス', type: 'armor', source: 'gacha', rarity: 'SR', element: 'luck', hpBonus: 60, shdBonus: 13,
-        desc: '最大HP+60 / 初期シールド+13',
-        passive: { name: '天の導き', desc: '運属性一致時、毎ターン開始時シールド+6' },
-        skill: { name: 'ホーリーバリア', req: 'min4', desc: '出目4以上: シールド+16', fn: (v) => ({ shd: 16 }) }
-      },
-      {
-        id: 'ag_ssr1', name: '竜皇の紅蓮全身鎧', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'fire', hpBonus: 120, shdBonus: 24,
-        desc: '最大HP+120 / 初期シールド+24',
-        passive: { name: '竜鱗の圧', desc: '受けるダメージを常に5軽減' },
-        skill: { name: 'ドラゴニックガード', req: 'min5', desc: '出目5以上: シールド+20 ＆ 敵に18反撃', fn: (v) => ({ shd: 20, dmg: 18 }) }
-      },
-      {
-        id: 'ag_ssr2', name: 'イージスの輝盾鎧', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'water', hpBonus: 100, shdBonus: 20,
-        desc: '最大HP+100 / 初期シールド+20',
-        passive: { name: '不撓不屈', desc: 'シールドがターン終了時に半分引き継がれる' },
-        skill: { name: '天壁イージス', req: 'even', desc: '偶数のみ: シールド+25', fn: (v) => ({ shd: 25 }) }
-      },
-      {
-        id: 'ag_ssr3', name: 'アルテミス・ガーブ', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'luck', hpBonus: 110, shdBonus: 22,
-        desc: '最大HP+110 / 初期シールド+22',
-        passive: { name: '幸運の星', desc: '運属性一致時、25%で敵の攻撃を完全回避' },
-        skill: { name: 'ルナティックシールド', req: 'odd', desc: '奇数のみ: シールド+22 ＆ 敵に12ダメ', fn: (v) => ({ shd: 22, dmg: 12 }) }
-      },
-      {
-        id: 'ag_ssr4', name: '宵闇の隠密マント', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'water', hpBonus: 90, shdBonus: 16,
-        desc: '最大HP+90 / 初期シールド+16。低い目が出たときに堅牢な守りを発揮。',
-        passive: { name: '影走り', desc: '1や2を含むターン、自動でシールド+8追加' },
-        skill: { name: 'シャドウヴェール', req: 'max2', desc: '出目2以下: シールド+28 ＆ 敵に反撃10ダメ', fn: (v) => ({ shd: 28, dmg: 10 }) }
-      },
-      {
-        id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36,
-        desc: '最大HP+190 / 初期シールド+36。ガチャ最高峰の神衣。',
-        passive: { name: '時間跳躍', desc: '毎ターン開始時、ダイスが+1個増加' },
-        skill: { name: '神威の障壁', req: 'oneOrSix', desc: '出目1か6: シールド+35 ＆ 敵の攻撃ダメージ35%軽減', fn: (v) => ({ shd: 35, block35: true }) }
-      },
-      {
-        id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19,
-        desc: '最大HP+95 / 初期シールド+19。呪われた魔鎧。', dropRate: 1/512,
-        passive: { name: 'トゲの棘甲', desc: '攻撃を受けた際、受けたダメージの50%を反射' },
-        skill: { name: '怨嗟の盾', req: 'max3', desc: '出目3以下: (7 - 出目)×5 シールド', fn: (v) => ({ shd: (7 - v) * 5 }) }
-      },
-      {
-        id: 'ad_sr2', name: '深海の鱗甲', type: 'armor', source: 'drop', rarity: 'SR', element: 'water', hpBonus: 100, shdBonus: 20,
-        desc: '最大HP+100 / 初期シールド+20。海竜の鱗鎧。', dropRate: 1/512,
-        passive: { name: '深海の重圧', desc: '受けるダメージを常時6軽減' },
-        skill: { name: 'タイダルシールド', req: 'even', desc: '偶数のみ: シールド+24', fn: (v) => ({ shd: 24 }) }
-      },
-      {
-        id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', element: 'fire', hpBonus: 175, shdBonus: 34,
-        desc: '最大HP+175 / 初期シールド+34。魔王の秘宝。', dropRate: 1/1024,
-        passive: { name: '覇王の威圧', desc: '敵の攻撃力を常時30%ダウン' },
-        skill: { name: '覇王城壁', req: 'min4', desc: '出目4以上: シールド+34 ＆ 敵に20ダメージ', fn: (v) => ({ shd: 34, dmg: 20 }) }
-      },
-      {
-        id: 'ad_ssr2', name: '大自然の神衣', type: 'armor', source: 'drop', rarity: 'SSR', element: 'nature', hpBonus: 185, shdBonus: 35,
-        desc: '最大HP+185 / 初期シールド+35。精霊王の衣。', dropRate: 1/1024,
-        passive: { name: '自然の調和', desc: '毎ターン開始時HP12自動回復' },
-        skill: { name: 'ガイアウォール', req: 'any', desc: '出目不問: シールド+32 ＆ HP15回復', fn: (v) => ({ shd: 32, heal: 15 }) }
-      },
-      {
-        id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', element: 'nature', hpBonus: 280, shdBonus: 65,
-        desc: '最大HP+280 / 初期シールド+65。究極の防具神器。', dropRate: 1/2048,
-        passive: { name: '絶対不滅', desc: '毎ターンHP20回復 ＆ 敵ダメ20%軽減 ＆ 1回HP1で耐える' },
-        skill: { name: '聖光アルテマウォール', req: 'min4', desc: '出目4以上: シールド+55 ＆ HP30回復', fn: (v) => ({ shd: 55, heal: 30 }) }
-      },
-      {
-        id: 'ag_ur2', name: '虚空神衣・ゼロ・アビス', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 170, shdBonus: 32,
-        desc: '最大HP+170 / 初期シールド+32。1の出目でHPを大回復する神衣。',
-        passive: { name: '虚無の加護', desc: 'ターン開始時、手持ちの「1」の数に応じてHP自動回復' },
-        skill: { name: 'アビス・カウンター', req: 'oneOrSix', desc: '1か6: 6ならシールド+35 / 1ならHP25%回復＆シールド+45', fn: (v, st) => {
-          if (v === 1) return { heal: Math.round(st.stats.maxHp * 0.25), shd: 45 };
-          return { shd: 35 };
-        }}
-      }
+      { id: 'a_clothes', name: '布の服', type: 'armor', source: 'init', rarity: 'N', element: 'none', hpBonus: 0, shdBonus: 0, desc: '普段着。' },
+
+      // --- ガチャ R防具 (6種) ---
+      { id: 'ag_r1', name: '鋼のナイトプレート', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 30, shdBonus: 6, desc: '最大HP+30/初期盾+6', passive: { name: '重装の構え', desc: 'シールド量+3' }, skill: { name: 'アイアンウォール', req: 'min4', desc: '出目4以上: シールド+14', fn: (v) => ({ shd: 14 }) } },
+      { id: 'ag_r2', name: '青銅のチェインメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'water', hpBonus: 25, shdBonus: 5, desc: '最大HP+25/初期盾+5', passive: { name: '頑強', desc: '被ダメ常時2軽減' }, skill: { name: '陣形防御', req: 'even', desc: '偶数のみ: 出目×2+4 盾', fn: (v) => ({ shd: v * 2 + 4 }) } },
+      { id: 'ag_r3', name: '冒険者のレザーアーマー', type: 'armor', source: 'gacha', rarity: 'R', element: 'nature', hpBonus: 20, shdBonus: 3, desc: '最大HP+20/初期盾+3', passive: { name: '身軽', desc: '毎ターン開始時シールド+2' }, skill: { name: 'ステップ回避', req: 'odd', desc: '奇数のみ: シールド+8', fn: (v) => ({ shd: 8 }) } },
+      { id: 'ag_r4', name: 'ブレイズメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'fire', hpBonus: 24, shdBonus: 4, desc: '最大HP+24/初期盾+4', passive: { name: '炎の反撃', desc: '被弾時敵へ4ダメ反射' }, skill: { name: 'フレイムウォール', req: 'even', desc: '偶数のみ: 盾+10 ＆ 敵4ダメ', fn: (v) => ({ shd: 10, dmg: 4 }) } },
+      { id: 'ag_r5', name: 'タイダルローブ', type: 'armor', source: 'gacha', rarity: 'R', element: 'water', hpBonus: 28, shdBonus: 4, desc: '最大HP+28/初期盾+4', passive: { name: '水の加護', desc: '被ダメさらに2軽減' }, skill: { name: 'アクアヒール', req: 'odd', desc: '奇数のみ: 盾+8 ＆ HP4回復', fn: (v) => ({ shd: 8, heal: 4 }) } },
+      { id: 'ag_r6', name: 'ラッキーメイル', type: 'armor', source: 'gacha', rarity: 'R', element: 'luck', hpBonus: 25, shdBonus: 4, desc: '最大HP+25/初期盾+4', passive: { name: '幸運の加護', desc: '15%で敵攻撃完全無効' }, skill: { name: 'ラッキーシールド', req: 'any', desc: '出目不問: シールド+9', fn: (v) => ({ shd: 9 }) } },
+
+      // --- ガチャ RE防具 (経験値・ゴールド稼ぎ特化: 2種) ---
+      { id: 're_a1', name: '大富豪の黄金ローブ', type: 'armor', source: 'gacha', rarity: 'RE', element: 'luck', hpBonus: 35, shdBonus: 5, desc: '金策と防御を両立する富豪のローブ', passive: { name: '黄金のオーラ', desc: '戦闘勝利時の獲得コイン+50%' }, skill: { name: 'ゴールデンシールド', req: 'any', desc: '出目不問: 盾+12', fn: (v) => ({ shd: 12 }) } },
+      { id: 're_a2', name: '修道士の経験マント', type: 'armor', source: 'gacha', rarity: 'RE', element: 'nature', hpBonus: 40, shdBonus: 6, desc: '成長を加速させる修道士のマント', passive: { name: '精神修行', desc: '戦闘勝利時の獲得EXP+50%' }, skill: { name: 'メディテーション', req: 'min4', desc: '出目4以上: 盾+14 ＆ HP5回復', fn: (v) => ({ shd: 14, heal: 5 }) } },
+
+      // --- ガチャ SR防具 (6種) ---
+      { id: 'ag_sr1', name: 'バーニングアーマー', type: 'armor', source: 'gacha', rarity: 'SR', element: 'fire', hpBonus: 55, shdBonus: 11, desc: '最大HP+55/初期盾+11', passive: { name: '業火の衣', desc: '火一致時攻撃ダメ+4' }, skill: { name: 'マグマシールド', req: 'min4', desc: '出目4以上: 盾+15 ＆ 敵6ダメ', fn: (v) => ({ shd: 15, dmg: 6 }) } },
+      { id: 'ag_sr2', name: 'ミスリル銀の胸甲', type: 'armor', source: 'gacha', rarity: 'SR', element: 'water', hpBonus: 55, shdBonus: 10, desc: '最大HP+55/初期盾+10', passive: { name: '魔力反発', desc: 'ターン終了時敵に6ダメ' }, skill: { name: 'ミスリルシールド', req: 'any', desc: '出目不問: 出目+10 盾', fn: (v) => ({ shd: v + 10 }) } },
+      { id: 'ag_sr3', name: '熾天使の羽衣', type: 'armor', source: 'gacha', rarity: 'SR', element: 'nature', hpBonus: 65, shdBonus: 12, desc: '最大HP+65/初期盾+12', passive: { name: '天恵', desc: 'ターン終了時HP4回復' }, skill: { name: 'セラフィックバリア', req: 'odd', desc: '奇数のみ: 盾+12 ＆ HP6回復', fn: (v) => ({ shd: 12, heal: 6 }) } },
+      { id: 'ag_sr4', name: 'ヘブンリードレス', type: 'armor', source: 'gacha', rarity: 'SR', element: 'luck', hpBonus: 60, shdBonus: 13, desc: '最大HP+60/初期盾+13', passive: { name: '天の導き', desc: '毎ターン開始時シールド+6' }, skill: { name: 'ホーリーバリア', req: 'min4', desc: '出目4以上: シールド+16', fn: (v) => ({ shd: 16 }) } },
+      { id: 'ag_sr5', name: 'フレイムガード', type: 'armor', source: 'gacha', rarity: 'SR', element: 'fire', hpBonus: 52, shdBonus: 10, desc: '火属性の追加SR防具', passive: { name: '耐炎', desc: '火傷無効' }, skill: { name: 'フレイムバリア', req: 'even', desc: '偶数のみ: 盾+14', fn: (v) => ({ shd: 14 }) } },
+      { id: 'ag_sr6', name: 'ストームプレート', type: 'armor', source: 'gacha', rarity: 'SR', element: 'nature', hpBonus: 58, shdBonus: 12, desc: '自然属性の追加SR防具', passive: { name: '風の加護', desc: '回避率+5%' }, skill: { name: 'ウインドシールド', req: 'odd', desc: '奇数のみ: 盾+15', fn: (v) => ({ shd: 15 }) } },
+
+      // --- ガチャ SSR防具 (6種) ---
+      { id: 'ag_ssr1', name: '竜皇の紅蓮全身鎧', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'fire', hpBonus: 120, shdBonus: 24, desc: '最大HP+120/初期盾+24', passive: { name: '竜鱗の圧', desc: '受けるダメ常に5軽減' }, skill: { name: 'ドラゴニックガード', req: 'min5', desc: '出目5以上: 盾+20 ＆ 敵18反撃', fn: (v) => ({ shd: 20, dmg: 18 }) } },
+      { id: 'ag_ssr2', name: 'イージスの輝盾鎧', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'water', hpBonus: 100, shdBonus: 20, desc: '最大HP+100/初期盾+20', passive: { name: '不撓不屈', desc: 'シールドが半分引継ぎ' }, skill: { name: '天壁イージス', req: 'even', desc: '偶数のみ: シールド+25', fn: (v) => ({ shd: 25 }) } },
+      { id: 'ag_ssr3', name: 'アルテミス・ガーブ', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'luck', hpBonus: 110, shdBonus: 22, desc: '最大HP+110/初期盾+22', passive: { name: '幸運の星', desc: '25%で完全回避' }, skill: { name: 'ルナティックシールド', req: 'odd', desc: '奇数のみ: 盾+22 ＆ 敵12ダメ', fn: (v) => ({ shd: 22, dmg: 12 }) } },
+      { id: 'ag_ssr4', name: '宵闇の隠密マント', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'water', hpBonus: 90, shdBonus: 16, desc: '低出目で堅牢な守り', passive: { name: '影走り', desc: '1や2を含むターンシールド+8追加' }, skill: { name: 'シャドウヴェール', req: 'max2', desc: '出目2以下: 盾+28 ＆ 反撃10ダメ', fn: (v) => ({ shd: 28, dmg: 10 }) } },
+      { id: 'ag_ssr5', name: 'ガイアプラントメイル', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'nature', hpBonus: 115, shdBonus: 21, desc: '自然属性のSSR防具', passive: { name: '大地の鼓動', desc: '毎ターン開始時HP10回復' }, skill: { name: 'ガイアバリア', req: 'any', desc: '出目不問: 盾+24 ＆ HP10回復', fn: (v) => ({ shd: 24, heal: 10 }) } },
+      { id: 'ag_ssr6', name: 'サンダーメイル', type: 'armor', source: 'gacha', rarity: 'SSR', element: 'fire', hpBonus: 110, shdBonus: 22, desc: '追加のSSR火属性防具', passive: { name: '避雷', desc: '受ダメージ4%軽減' }, skill: { name: 'サンダーウォール', req: 'min4', desc: '出目4以上: 盾+26', fn: (v) => ({ shd: 26 }) } },
+
+      // --- ガチャ UR防具 (全属性配分: 3種) ---
+      { id: 'ag_ur1', name: '神王の聖衣・オーディン', type: 'armor', source: 'gacha', rarity: 'UR', element: 'nature', hpBonus: 190, shdBonus: 36, desc: 'ガチャ最高峰の神衣', passive: { name: '時間跳躍', desc: '毎ターンダイス+1個増加' }, skill: { name: '神威の障壁', req: 'oneOrSix', desc: '1か6: 盾+35 ＆ ダメ35%軽減', fn: (v) => ({ shd: 35, block35: true }) } },
+      { id: 'ag_ur2', name: '炎神の紅蓮装甲', type: 'armor', source: 'gacha', rarity: 'UR', element: 'fire', hpBonus: 200, shdBonus: 40, desc: '炎の最高峰防具', passive: { name: '炎神の加護', desc: '被ダメ8軽減' }, skill: { name: 'ブレイジングウォール', req: 'min4', desc: '出目4以上: 盾+50 ＆ 敵25ダメ', fn: (v) => ({ shd: 50, dmg: 25 }) } },
+      { id: 'ag_ur3', name: '海神の蒼穹衣', type: 'armor', source: 'gacha', rarity: 'UR', element: 'water', hpBonus: 195, shdBonus: 38, desc: '水の最高峰防具', passive: { name: '海神の加護', desc: 'シールド半分残る' }, skill: { name: 'タイダルバリア', req: 'even', desc: '偶数のみ: 盾+60', fn: (v) => ({ shd: 60 }) } },
+
+      // --- ドロップ SR防具 (2種) ---
+      { id: 'ad_sr1', name: '亡霊騎士の黒鉄鎧', type: 'armor', source: 'drop', rarity: 'SR', element: 'fire', hpBonus: 95, shdBonus: 19, desc: '呪われた魔鎧', dropRate: 1/512, passive: { name: 'トゲの棘甲', desc: '受ダメージ50%反射' }, skill: { name: '怨嗟の盾', req: 'max3', desc: '出目3以下: (7-出目)×5 盾', fn: (v) => ({ shd: (7 - v) * 5 }) } },
+      { id: 'ad_sr2', name: '深海の鱗甲', type: 'armor', source: 'drop', rarity: 'SR', element: 'water', hpBonus: 100, shdBonus: 20, desc: '海竜の鱗鎧', dropRate: 1/512, passive: { name: '深海の重圧', desc: '受ダメージ常時6軽減' }, skill: { name: 'タイダルシールド', req: 'even', desc: '偶数のみ: シールド+24', fn: (v) => ({ shd: 24 }) } },
+
+      // --- ドロップ SSR防具 (2種) ---
+      { id: 'ad_ssr1', name: '魔王城の覇王重甲冑', type: 'armor', source: 'drop', rarity: 'SSR', element: 'fire', hpBonus: 175, shdBonus: 34, desc: '魔王の秘宝', dropRate: 1/1024, passive: { name: '覇王の威圧', desc: '敵攻撃力30%ダウン' }, skill: { name: '覇王城壁', req: 'min4', desc: '出目4以上: 盾+34 ＆ 敵20ダメ', fn: (v) => ({ shd: 34, dmg: 20 }) } },
+      { id: 'ad_ssr2', name: '大自然の神衣', type: 'armor', source: 'drop', rarity: 'SSR', element: 'nature', hpBonus: 185, shdBonus: 35, desc: '精霊王の衣', dropRate: 1/1024, passive: { name: '自然の調和', desc: '毎ターンHP12自動回復' }, skill: { name: 'ガイアウォール', req: 'any', desc: '出目不問: 盾+32 ＆ HP15回復', fn: (v) => ({ shd: 32, heal: 15 }) } },
+
+      // --- ドロップ UR防具 (1種) ---
+      { id: 'ad_ur1', name: '不滅神聖・アルテマメイル', type: 'armor', source: 'drop', rarity: 'UR', element: 'nature', hpBonus: 280, shdBonus: 65, desc: '究極の防具神器', dropRate: 1/2048, passive: { name: '絶対不滅', desc: '毎ターンHP20回復＆1回HP1で耐える' }, skill: { name: '聖光アルテマウォール', req: 'min4', desc: '出目4以上: 盾+55 ＆ HP30回復', fn: (v) => ({ shd: 55, heal: 30 }) } }
     ];
 
+    /* ==========================================================================
+       ダイスデータ (合計12種: 表の配分 r:2, sr:3, ssr:3, ur:1 + ドロップ sr:1, ssr:1, ur:1 = 12種)
+       ※ノーマルダイス(N)を含めて全12種
+       ========================================================================== */
     const DICES_MASTER = {
-      d_normal:    { id: "d_normal",    itemCategory: "dice", name: "ノーマルダイス",         rarity: "N",   source: "init",  desc: "普通の六面体ダイス。", type: "normal" },
-      d_heavy:     { id: "d_heavy",     itemCategory: "dice", name: "重厚な鉄ダイス",         rarity: "R",   source: "gacha", desc: "3つのうち1個目が常に4以上になる安定型。", type: "min_fixed", val: 4 },
-      d_lucky:     { id: "d_lucky",     itemCategory: "dice", name: "幸運の四葉ダイス",       rarity: "SR",  source: "gacha", desc: "3つのうち1個目が常に6になりシールド+3。", type: "force_six" },
-      d_heavy_low: { id: "d_heavy_low", itemCategory: "dice", name: "鉛の重低音ダイス",       rarity: "SR",  source: "drop",  desc: "1か2しか出ない代わりに低出目スキル威力が1.2倍に。", type: "low_boost", dropRate: 1/512 },
-      d_void_core: { id: "d_void_core", itemCategory: "dice", name: "虚空の神核ダイス",       rarity: "UR",  source: "drop",  desc: "1が必ず出て低出目スキル効果を1.5倍にブースト。", type: "ur_low_boost", dropRate: 1/2048 },
-      d_crystal:   { id: "d_crystal",   itemCategory: "dice", name: "星屑のクリスタルダイス", rarity: "SSR", source: "gacha", desc: "最低でも3以上しか出ない事故防止ダイス。", type: "min_fixed", val: 3 },
-      d_deep_sea:  { id: "d_deep_sea",  itemCategory: "dice", name: "深海の鎮魂ダイス",       rarity: "SSR", source: "drop",  desc: "3以下しか出ず、低出目終了時に追加シールド獲得。", type: "max_fixed", val: 3, dropRate: 1/1024 },
-      d_golden:    { id: "d_golden",    itemCategory: "dice", name: "天恵の黄金ダイス",       rarity: "UR",  source: "gacha", desc: "5か6しか出ない最高峰の高出目アタッカーダイス。", type: "min_fixed", val: 5 }
-    };
+      d_normal:    { id: "d_normal",    itemCategory: "dice", name: "ノーマルダイス",         rarity: "N",   source: "init",  desc: "普通の六面体ダイス。", type: "normal", colorClass: "" },
+      
+      // --- ガチャ産 (7種) ---
+      d_heavy:     { id: "d_heavy",     itemCategory: "dice", name: "重厚な鉄ダイス",         rarity: "R",   source: "gacha", desc: "3つのうち1個目が常に4以上になる安定型。", type: "min_fixed", val: 4, colorClass: "text-sky-300 bg-sky-950/40 border-sky-600" },
+      d_light:     { id: "d_light",     itemCategory: "dice", name: "軽量の風速ダイス",       rarity: "R",   source: "gacha", desc: "出目が平均して高くなりやすい軽量ダイス。", type: "min_fixed", val: 2, colorClass: "text-sky-300 bg-sky-950/40 border-sky-600" },
+      d_lucky:     { id: "d_lucky",     itemCategory: "dice", name: "幸運の四葉ダイス",       rarity: "SR",  source: "gacha", desc: "1個目が常に6になりシールド+3。", type: "force_six", colorClass: "text-purple-300 bg-purple-950/40 border-purple-600" },
+      d_odd_trick: { id: "d_odd_trick", itemCategory: "dice", name: "奇術師のオッドダイス",   rarity: "SR",  source: "gacha", desc: "必ず奇数（1,3,5）のいずれかが出現するトリッキーダイス。", type: "odd_fixed", colorClass: "text-purple-300 bg-purple-950/40 border-purple-600" },
+      d_crystal:   { id: "d_crystal",   itemCategory: "dice", name: "星屑のクリスタルダイス", rarity: "SSR", source: "gacha", desc: "最低でも3以上しか出ない事故防止ダイス。", type: "min_fixed", val: 3, colorClass: "text-yellow-300 bg-amber-950/40 border-yellow-600" },
+      d_chaos:     { id: "d_chaos",     itemCategory: "dice", name: "混沌のカオスダイス",     rarity: "SSR", source: "gacha", desc: "1または6の極端な出目しか出ない一撃必殺ダイス。", type: "one_or_six", colorClass: "text-yellow-300 bg-amber-950/40 border-yellow-600" },
+      d_golden:    { id: "d_golden",    itemCategory: "dice", name: "天恵の黄金ダイス",       rarity: "UR",  source: "gacha", desc: "5か6しか出ない最高峰の高出目アタッカーダイス。", type: "min_fixed", val: 5, colorClass: "text-rose-400 bg-rose-950/40 border-rose-600 font-bold" },
 
+      // --- ドロップ産 (4種) ---
+      d_heavy_low: { id: "d_heavy_low", itemCategory: "dice", name: "鉛の重低音ダイス",       rarity: "SR",  source: "drop",  desc: "1か2しか出ない代わりに低出目スキル威力が1.2倍に。", type: "low_boost", dropRate: 1/512, colorClass: "text-purple-300 bg-purple-950/40 border-purple-600" },
+      d_deep_sea:  { id: "d_deep_sea",  itemCategory: "dice", name: "深海の鎮魂ダイス",       rarity: "SSR", source: "drop",  desc: "3以下しか出ず、低出目終了時に追加シールド獲得。", type: "max_fixed", val: 3, dropRate: 1/1024, colorClass: "text-yellow-300 bg-amber-950/40 border-yellow-600" },
+      d_balance:   { id: "d_balance",   itemCategory: "dice", name: "調和のバランスダイス",   rarity: "SSR", source: "drop",  desc: "出目が常に3か4に固定される安定極まりないダイス。", type: "balance_fixed", dropRate: 1/1024, colorClass: "text-yellow-300 bg-amber-950/40 border-yellow-600" },
+      d_void_core: { id: "d_void_core", itemCategory: "dice", name: "虚空の神核ダイス",       rarity: "UR",  source: "drop",  desc: "1が必ず出て低出目スキル効果を1.5倍にブースト。", type: "ur_low_boost", dropRate: 1/2048, colorClass: "text-rose-400 bg-rose-950/40 border-rose-600 font-bold" }
+    };
+    
     /* ==========================================================================
        3. プレイヤーステータス & 永続セーブシステム
        ========================================================================== */
-const SAVE_KEY = 'dice_hero_rpg_save_v9';
+    const SAVE_KEY = 'dice_hero_rpg_save_v9';
 
     let Player = {
       name: '',
@@ -1186,7 +1024,7 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
       equippedWeapon: 'w_bare',
       equippedArmor: 'a_clothes',
       equippedDice: 'd_normal', 
-      ownedDices: ['d_normal'], // 初期はノーマルダイスのみ所持
+      ownedDices: ['d_normal'],
       ownedWeapons: ['w_bare'],
       ownedArmors: ['a_clothes'],
       refineLevels: {},
@@ -1210,7 +1048,6 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
         }
       } catch(e) {}
 
-      // 存在しないIDやバグで混入した undefined を綺麗に除去して自動修復する
       if (!WEAPONS_MASTER.some(w => w.id === Player.equippedWeapon)) Player.equippedWeapon = 'w_bare';
       if (!ARMORS_MASTER.some(a => a.id === Player.equippedArmor)) Player.equippedArmor = 'a_clothes';
       if (!DICES_MASTER[Player.equippedDice]) Player.equippedDice = 'd_normal';
@@ -1223,7 +1060,6 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
       if (!Player.ownedArmors.includes('a_clothes')) Player.ownedArmors.unshift('a_clothes');
       if (!Player.ownedDices.includes('d_normal')) Player.ownedDices.unshift('d_normal');
 
-      // 50Fボスを倒していれば最大階層を100Fに拡張
       if (Player.bossDefeated) {
         MAX_NORMAL_FLOOR = 100;
       }
@@ -1240,25 +1076,6 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
       }
 
       updateTitleUI();
-    }
-
-    function openNameModal(isFirstTime = false) {
-      const modal = document.getElementById('modalPlayerName');
-      const input = document.getElementById('inputPlayerName');
-      const btnCancel = document.getElementById('btnCancelName');
-      const title = document.getElementById('nameModalTitle');
-
-      input.value = Player.name || '';
-      if (isFirstTime) {
-        btnCancel.classList.add('hidden');
-        title.textContent = '【 勇者の名前を決めよう 】';
-      } else {
-        btnCancel.classList.remove('hidden');
-        title.textContent = '【 名前の変更 】';
-      }
-
-      modal.classList.remove('hidden');
-      setTimeout(() => input.focus(), 50);
     }
 
     function savePlayerNameFromModal() {
@@ -1296,7 +1113,7 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
         Player.currentAdventureFloor = 100;
       
         Sound.rarityFanfare('UR');
-        alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具＆全ダイス(47種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
+        alert('【DEBUG MODE ACTIVATED】\n・全装備＆全ダイス(64種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
       } else {
         Sound.fanfare();
       }
@@ -1750,12 +1567,14 @@ const SAVE_KEY = 'dice_hero_rpg_save_v9';
       if (wepPass === '創世の脈動') diceCount++;
       if (armPass === '時間跳躍') diceCount++;
 
-Battle.activeDice = [];
+      Battle.activeDice = [];
       const equippedDiceType = Player.equippedDice || 'd_normal';
       let firstDice = Math.floor(Math.random() * 6) + 1;
 
       if (equippedDiceType === 'd_heavy') {
         firstDice = Math.floor(Math.random() * 3) + 4; // 4, 5, 6
+      } else if (equippedDiceType === 'd_light') {
+        firstDice = Math.floor(Math.random() * 3) + 3; // 3, 4, 5
       } else if (equippedDiceType === 'd_lucky') {
         firstDice = 6; 
       } else if (equippedDiceType === 'd_heavy_low') {
@@ -1768,6 +1587,16 @@ Battle.activeDice = [];
         firstDice = Math.floor(Math.random() * 3) + 1; // 1, 2, 3
       } else if (equippedDiceType === 'd_golden') {
         firstDice = Math.random() < 0.5 ? 5 : 6; // 5 or 6
+      } else if (equippedDiceType === 'd_odd_trick') {
+        const odds = [1, 3, 5];
+        firstDice = odds[Math.floor(Math.random() * odds.length)];
+      } else if (equippedDiceType === 'd_even_trick') {
+        const evens = [2, 4, 6];
+        firstDice = evens[Math.floor(Math.random() * evens.length)];
+      } else if (equippedDiceType === 'd_chaos') {
+        firstDice = Math.random() < 0.5 ? 1 : 6;
+      } else if (equippedDiceType === 'd_balance') {
+        firstDice = Math.random() < 0.5 ? 3 : 4;
       }
       Battle.activeDice.push(firstDice);
 
@@ -1984,8 +1813,21 @@ Battle.activeDice = [];
 
       if (Battle.mode === 'normal') {
         const stats = getPlayerStats();
-        const expGained = Math.round(12 + Battle.enemy.level * 4.5);
+        let expGained = Math.round(12 + Battle.enemy.level * 4.5);
         let goldGained = Math.round(2 + Battle.enemy.level * 0.5);
+
+        // 🌟 REレア度の装備（商人の黄金短剣・賢者の学習スタッフ・大富豪の黄金ローブ・修道士の経験マント）による獲得量ボーナス
+        const wep = stats.weapon;
+        const arm = stats.armor;
+        if (wep.rarity === 'RE' || arm.rarity === 'RE') {
+          if (wep.id === 're_w1' || arm.id === 're_a1') {
+            goldGained = Math.round(goldGained * 1.5); // コイン1.5倍
+          }
+          if (wep.id === 're_w2' || arm.id === 're_a2') {
+            expGained = Math.round(expGained * 1.5); // 経験値1.5倍
+          }
+        }
+
         if (stats.weapon.passive && stats.weapon.passive.name === '幸運の小手試し' && stats.matchedElement === 'luck') {
           goldGained = Math.round(goldGained * 1.25);
         }
@@ -2067,7 +1909,7 @@ Battle.activeDice = [];
       }, 480);
     }
 
-function rollLootDrop() {
+    function rollLootDrop() {
       const dropDicePool = Object.values(DICES_MASTER).filter(d => d.source === 'drop');
       const dropPool = [...WEAPONS_MASTER, ...ARMORS_MASTER, ...dropDicePool].filter(it => it.source === 'drop');
       const sortedPool = dropPool.sort((a, b) => a.dropRate - b.dropRate);
@@ -2503,9 +2345,8 @@ function rollLootDrop() {
       const allWeaponsAndArmors = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(it => it.source !== 'init');
       const allDices = Object.values(DICES_MASTER).filter(d => d.source !== 'init');
       
-      const allItemsCount = allWeaponsAndArmors.length + allDices.length; // 武器21 + 防具21 + ダイス7 = 計49種
+      const allItemsCount = allWeaponsAndArmors.length + allDices.length; // 計61種
 
-      // 初期装備（w_bare, a_clothes, d_normal）を除外した正確な所持数をカウント
       const ownedWepCount = Player.ownedWeapons.filter(id => id !== 'w_bare').length;
       const ownedArmCount = Player.ownedArmors.filter(id => id !== 'a_clothes').length;
       const ownedDiceCount = Player.ownedDices.filter(id => id !== 'd_normal').length;
@@ -3006,10 +2847,18 @@ const btnBoss = document.getElementById('btnBossChallenge');
 
       const dicePool = document.getElementById('dicePool');
       dicePool.innerHTML = '';
+      const equippedDiceObj = DICES_MASTER[Player.equippedDice] || DICES_MASTER['d_normal'];
+
       Battle.activeDice.forEach((d, idx) => {
         const isSelected = Battle.selectedDiceIndex === idx;
         const btn = document.createElement('button');
-        btn.className = `w-9 h-9 rpg-btn rounded bg-slate-100 flex items-center justify-center ${
+        
+        // 🎨 ノーマルダイス以外（効果ありダイス）には専用カラークラスを付与して視認性を向上
+        const customColorClass = (Player.equippedDice !== 'd_normal' && equippedDiceObj.colorClass) 
+          ? equippedDiceObj.colorClass 
+          : 'bg-slate-100 text-slate-950';
+
+        btn.className = `w-9 h-9 rpg-btn rounded flex items-center justify-center ${customColorClass} ${
           isSelected ? 'ring-2 ring-amber-400 scale-105' : ''
         }`;
         btn.onclick = () => {
