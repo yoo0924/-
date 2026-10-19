@@ -486,7 +486,7 @@
       <div id="gachaBgEffect" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300"></div>
 
       <div class="w-full flex justify-between items-center border-b border-yellow-900 pb-1.5 z-10">
-        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全28種)</h2>
+        <h2 class="text-xs font-bold text-yellow-400">🎰 神秘の装備召喚 (全36種)</h2>
         <div class="flex items-center gap-2">
           <span class="text-[11px] text-yellow-300 font-bold">🪙 <span id="gachaGoldDisplay">0</span></span>
           <button id="btnCloseGacha" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] rounded">閉じる</button>
@@ -1160,20 +1160,20 @@
     ];
 
     const DICES_MASTER = {
-      d_normal: { name: "ノーマルダイス", rarity: "N", source: "init", desc: "普通の六面体ダイス。", type: "normal" },
-      d_heavy: { name: "重厚な鉄ダイス", rarity: "R", source: "gacha", desc: "3つのうち1個目が常に4以上になる安定型。", type: "min_fixed", val: 4 },
-      d_lucky: { name: "幸運の四葉ダイス", rarity: "SR", source: "gacha", desc: "3つのうち1個目が常に6になりシールド+3。", type: "force_six" },
-      d_heavy_low: { name: "鉛の重低音ダイス", rarity: "SR", source: "drop", desc: "1か2しか出ない代わりに低出目スキル威力が1.2倍に。", type: "low_boost", dropRate: 1/512 },
-      d_void_core: { name: "虚空の神核ダイス", rarity: "UR", source: "drop", desc: "1が必ず出て低出目スキル効果を1.5倍にブースト。", type: "ur_low_boost", dropRate: 1/2048 },
-      d_crystal: { name: "星屑のクリスタルダイス", rarity: "SSR", source: "gacha", desc: "最低でも3以上しか出ない事故防止ダイス。", type: "min_fixed", val: 3 },
-      d_deep_sea: { name: "深海の鎮魂ダイス", rarity: "SSR", source: "drop", desc: "3以下しか出ず、低出目終了時に追加シールド獲得。", type: "max_fixed", val: 3, dropRate: 1/1024 },
-      d_golden: { name: "天恵の黄金ダイス", rarity: "UR", source: "gacha", desc: "5か6しか出ない最高峰の高出目アタッカーダイス。", type: "min_fixed", val: 5 }
+      d_normal:    { id: "d_normal",    itemCategory: "dice", name: "ノーマルダイス",         rarity: "N",   source: "init",  desc: "普通の六面体ダイス。", type: "normal" },
+      d_heavy:     { id: "d_heavy",     itemCategory: "dice", name: "重厚な鉄ダイス",         rarity: "R",   source: "gacha", desc: "3つのうち1個目が常に4以上になる安定型。", type: "min_fixed", val: 4 },
+      d_lucky:     { id: "d_lucky",     itemCategory: "dice", name: "幸運の四葉ダイス",       rarity: "SR",  source: "gacha", desc: "3つのうち1個目が常に6になりシールド+3。", type: "force_six" },
+      d_heavy_low: { id: "d_heavy_low", itemCategory: "dice", name: "鉛の重低音ダイス",       rarity: "SR",  source: "drop",  desc: "1か2しか出ない代わりに低出目スキル威力が1.2倍に。", type: "low_boost", dropRate: 1/512 },
+      d_void_core: { id: "d_void_core", itemCategory: "dice", name: "虚空の神核ダイス",       rarity: "UR",  source: "drop",  desc: "1が必ず出て低出目スキル効果を1.5倍にブースト。", type: "ur_low_boost", dropRate: 1/2048 },
+      d_crystal:   { id: "d_crystal",   itemCategory: "dice", name: "星屑のクリスタルダイス", rarity: "SSR", source: "gacha", desc: "最低でも3以上しか出ない事故防止ダイス。", type: "min_fixed", val: 3 },
+      d_deep_sea:  { id: "d_deep_sea",  itemCategory: "dice", name: "深海の鎮魂ダイス",       rarity: "SSR", source: "drop",  desc: "3以下しか出ず、低出目終了時に追加シールド獲得。", type: "max_fixed", val: 3, dropRate: 1/1024 },
+      d_golden:    { id: "d_golden",    itemCategory: "dice", name: "天恵の黄金ダイス",       rarity: "UR",  source: "gacha", desc: "5か6しか出ない最高峰の高出目アタッカーダイス。", type: "min_fixed", val: 5 }
     };
 
     /* ==========================================================================
        3. プレイヤーステータス & 永続セーブシステム
        ========================================================================== */
-    const SAVE_KEY = 'dice_hero_rpg_save_v9';
+const SAVE_KEY = 'dice_hero_rpg_save_v9';
 
     let Player = {
       name: '',
@@ -1206,15 +1206,22 @@
           Player = { ...Player, ...parsed };
           if (!Player.refineLevels) Player.refineLevels = {};
           if (!Player.stones) Player.stones = { R: 0, SR: 0, SSR: 0, UR: 0 };
+          if (!Array.isArray(Player.ownedDices)) Player.ownedDices = ['d_normal'];
         }
       } catch(e) {}
 
+      // 存在しないIDやバグで混入した undefined を綺麗に除去して自動修復する
       if (!WEAPONS_MASTER.some(w => w.id === Player.equippedWeapon)) Player.equippedWeapon = 'w_bare';
       if (!ARMORS_MASTER.some(a => a.id === Player.equippedArmor)) Player.equippedArmor = 'a_clothes';
-      Player.ownedWeapons = Player.ownedWeapons.filter(id => WEAPONS_MASTER.some(w => w.id === id));
-      Player.ownedArmors = Player.ownedArmors.filter(id => ARMORS_MASTER.some(a => a.id === id));
+      if (!DICES_MASTER[Player.equippedDice]) Player.equippedDice = 'd_normal';
+
+      Player.ownedWeapons = [...new Set(Player.ownedWeapons.filter(id => Boolean(id && WEAPONS_MASTER.some(w => w.id === id))))];
+      Player.ownedArmors = [...new Set(Player.ownedArmors.filter(id => Boolean(id && ARMORS_MASTER.some(a => a.id === id))))];
+      Player.ownedDices = [...new Set(Player.ownedDices.filter(id => Boolean(id && DICES_MASTER[id])))];
+
       if (!Player.ownedWeapons.includes('w_bare')) Player.ownedWeapons.unshift('w_bare');
       if (!Player.ownedArmors.includes('a_clothes')) Player.ownedArmors.unshift('a_clothes');
+      if (!Player.ownedDices.includes('d_normal')) Player.ownedDices.unshift('d_normal');
 
       // 50Fボスを倒していれば最大階層を100Fに拡張
       if (Player.bossDefeated) {
@@ -1223,6 +1230,8 @@
 
       if (Player.currentAdventureFloor > MAX_NORMAL_FLOOR) Player.currentAdventureFloor = MAX_NORMAL_FLOOR;
       if (Player.maxClearedFloor > MAX_NORMAL_FLOOR) Player.maxClearedFloor = MAX_NORMAL_FLOOR;
+
+      savePlayerData();
 
       if (!Player.name || Player.name.trim() === '') {
         openNameModal(true);
@@ -1273,6 +1282,9 @@
         ARMORS_MASTER.forEach(a => {
           if (!Player.ownedArmors.includes(a.id)) Player.ownedArmors.push(a.id);
         });
+        Object.values(DICES_MASTER).forEach(d => {
+          if (!Player.ownedDices.includes(d.id)) Player.ownedDices.push(d.id);
+        });
         Player.gold += 5000;
         Player.stones.R += 100;
         Player.stones.SR += 50;
@@ -1284,7 +1296,7 @@
         Player.currentAdventureFloor = 100;
       
         Sound.rarityFanfare('UR');
-        alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具(40種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
+        alert('【DEBUG MODE ACTIVATED】\n・全武器＆全防具＆全ダイス(47種)をコンプリート解放しました！\n・コイン(+5000🪙)と各レア度の錬成石を配布しました！');
       } else {
         Sound.fanfare();
       }
@@ -2055,8 +2067,7 @@ Battle.activeDice = [];
       }, 480);
     }
 
-    function rollLootDrop() {
-      // 🔽 【修正】ドロッププールにドロップ設定のあるダイスも含める
+function rollLootDrop() {
       const dropDicePool = Object.values(DICES_MASTER).filter(d => d.source === 'drop');
       const dropPool = [...WEAPONS_MASTER, ...ARMORS_MASTER, ...dropDicePool].filter(it => it.source === 'drop');
       const sortedPool = dropPool.sort((a, b) => a.dropRate - b.dropRate);
@@ -2078,7 +2089,7 @@ Battle.activeDice = [];
       const desc = document.getElementById('dropItemDesc');
       const refund = document.getElementById('dropRefundNotice');
 
-      const isDice = item.source === 'drop' && !item.type.includes('weapon') && !item.type.includes('armor');
+      const isDice = item.itemCategory === 'dice' || Boolean(DICES_MASTER[item.id]);
       const isWep = item.type === 'weapon';
       
       let isOwned = false;
@@ -2111,13 +2122,14 @@ Battle.activeDice = [];
         visual.classList.add('mega-shake', 'ur-glow');
       }
 
-      const elInfo = ELEMENT_INFO[item.element] || ELEMENT_INFO.none;
+      const iconPrefix = isDice ? '🎲' : (ELEMENT_INFO[item.element] || ELEMENT_INFO.none).icon;
       title.className = `text-base sm:text-lg font-black rarity-${item.rarity.toLowerCase()}`;
-      title.textContent = `[${item.rarity}] ${item.name}`;
+      title.textContent = `[${item.rarity}] ${iconPrefix}${item.name}`;
       desc.textContent = item.desc;
 
       if (isOwned) {
-        refund.textContent = `※すでに所持しているアイテムです`;
+        Player.stones[item.rarity] = (Player.stones[item.rarity] || 0) + 1;
+        refund.textContent = `※所持済みのため「${item.rarity}錬成石 ×1」に変換されました！`;
       } else {
         if (isDice) {
           Player.ownedDices.push(item.id);
@@ -2234,12 +2246,14 @@ Battle.activeDice = [];
 
       isRollingGacha = true;
       const rollBtn = document.getElementById('btnRollGacha');
+      const rollBtn10 = document.getElementById('btnRollGacha10');
       const diceContainer = document.getElementById('gachaDiceContainer');
       const bgEffect = document.getElementById('gachaBgEffect');
       const banner = document.getElementById('gachaTierBanner');
       const resultText = document.getElementById('gachaResultText');
 
       rollBtn.disabled = true;
+      if (rollBtn10) rollBtn10.disabled = true;
       banner.classList.add('hidden');
 
       const rand = Math.random() * 100;
@@ -2249,7 +2263,6 @@ Battle.activeDice = [];
       else if (rand < 20) targetRarity = 'SR';
       else targetRarity = 'R';
 
-      // ガチャから出る武器・防具・ダイスをすべて一つのプールにまとめる
       const allGachaItems = [
         ...WEAPONS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
         ...ARMORS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
@@ -2287,6 +2300,7 @@ Battle.activeDice = [];
       setTimeout(() => {
         isRollingGacha = false;
         rollBtn.disabled = false;
+        if (rollBtn10) rollBtn10.disabled = false;
         Sound.rarityFanfare(targetRarity);
 
         banner.classList.remove('hidden');
@@ -2304,8 +2318,7 @@ Battle.activeDice = [];
           banner.textContent = '★★★ ULTRA RARE MYTHIC!! ★★★';
         }
 
-        // 🔽 【修正】アイテムタイプに応じた所持判定と追加処理
-        const isDice = won.type === 'normal' || won.type === 'min_fixed' || won.type === 'force_six' || won.type === 'low_boost' || won.type === 'ur_low_boost' || won.type === 'max_fixed';
+        const isDice = won.itemCategory === 'dice' || Boolean(DICES_MASTER[won.id]);
         const isWep = won.type === 'weapon';
         
         let isOwned = false;
@@ -2315,19 +2328,19 @@ Battle.activeDice = [];
           isOwned = isWep ? Player.ownedWeapons.includes(won.id) : Player.ownedArmors.includes(won.id);
         }
 
-        const elBadge = isDice ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded">🎲ダイス</span>' : formatElementBadge(won.element);
+        const elBadge = isDice
+          ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded font-bold">🎲ダイス</span>'
+          : formatElementBadge(won.element);
 
         if (isOwned) {
-          if (!isDice) {
-            Player.stones[won.rarity] = (Player.stones[won.rarity] || 0) + 1;
-          }
+          Player.stones[won.rarity] = (Player.stones[won.rarity] || 0) + 1;
           resultText.innerHTML = `
             <div class="flex items-center gap-1 justify-center mb-1">
               ${elBadge}
               <span class="rarity-${won.rarity.toLowerCase()} text-sm font-bold">[${won.rarity}] ${won.name}</span>
             </div>
             <span class="text-[10px] text-slate-300">${won.desc}</span>
-            <span class="text-[10px] text-amber-300 font-bold mt-1">【所持済み】</span>
+            <span class="text-[10px] text-amber-300 font-bold mt-1">【重複】💎 ${won.rarity}錬成石 ×1 を獲得！</span>
           `;
         } else {
           if (isDice) {
@@ -2395,8 +2408,7 @@ Battle.activeDice = [];
         rollBtn.disabled = false;
         rollBtn10.disabled = false;
 
-        // 11回分の抽選を実行
-        let wonItems = [];
+        let wonResults = [];
         let highestRarity = 'R';
         const rarityRank = { 'R': 1, 'SR': 2, 'SSR': 3, 'UR': 4 };
 
@@ -2412,27 +2424,36 @@ Battle.activeDice = [];
             highestRarity = targetRarity;
           }
 
-          // 🔽 10連側でも武器・防具・ガチャ産ダイスをすべてプールに含める
           const allGachaItems = [
             ...WEAPONS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
             ...ARMORS_MASTER.filter(it => it.source === 'gacha' && it.rarity === targetRarity),
             ...Object.values(DICES_MASTER).filter(d => d.source === 'gacha' && d.rarity === targetRarity)
           ];
           const won = allGachaItems[Math.floor(Math.random() * allGachaItems.length)];
-          wonItems.push(won);
 
-          // 所持・重複判定
+          // ダイス・武器・防具それぞれの所持判定
+          const isDice = won.itemCategory === 'dice' || Boolean(DICES_MASTER[won.id]);
           const isWep = won.type === 'weapon';
-          const isOwned = isWep ? Player.ownedWeapons.includes(won.id) : Player.ownedArmors.includes(won.id);
+          let isOwned = false;
+
+          if (isDice) {
+            isOwned = Player.ownedDices.includes(won.id);
+          } else if (isWep) {
+            isOwned = Player.ownedWeapons.includes(won.id);
+          } else {
+            isOwned = Player.ownedArmors.includes(won.id);
+          }
 
           if (isOwned) {
             Player.stones[won.rarity] = (Player.stones[won.rarity] || 0) + 1;
-            won.wasOwned = true;
           } else {
-            if (isWep) Player.ownedWeapons.push(won.id);
+            if (isDice) Player.ownedDices.push(won.id);
+            else if (isWep) Player.ownedWeapons.push(won.id);
             else Player.ownedArmors.push(won.id);
-            won.wasOwned = false;
           }
+
+          // マスタデータを直接書き換えず、結果オブジェクトとして保存する
+          wonResults.push({ item: won, wasOwned: isOwned, isDice });
         }
 
         Sound.rarityFanfare(highestRarity);
@@ -2440,11 +2461,13 @@ Battle.activeDice = [];
         banner.className = 'text-xs font-black px-4 py-1 rounded-full mb-1 bg-amber-950 text-yellow-300 border-2 border-yellow-400 animate-bounce';
         banner.textContent = `★★★ 10連+1 召喚結果 (最高レア: [${highestRarity}]) ★★★`;
 
-        // 獲得結果をスクロール可能なリスト形式で表示
         let htmlList = '<div class="max-h-32 overflow-y-auto w-full space-y-1 text-left px-2 text-[10px] bg-slate-950/80 p-1.5 rounded border border-slate-800">';
-        wonItems.forEach(item => {
-          const elBadge = formatElementBadge(item.element);
-          if (item.wasOwned) {
+        wonResults.forEach(({ item, wasOwned, isDice }) => {
+          const elBadge = isDice
+            ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded font-bold">🎲ダイス</span>'
+            : formatElementBadge(item.element);
+
+          if (wasOwned) {
             htmlList += `<div class="flex items-center justify-between border-b border-slate-900 pb-0.5">
               <div class="flex items-center gap-1 truncate">${elBadge}<span class="rarity-${item.rarity.toLowerCase()} font-bold">[${item.rarity}] ${item.name}</span></div>
               <span class="text-amber-300 shrink-0">【重複】${item.rarity}石+1</span>
@@ -2471,20 +2494,25 @@ Battle.activeDice = [];
     /* ==========================================================================
        7. アイテム図鑑
        ========================================================================== */
-    let currentDexTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
+ let currentDexTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
 
     function renderEncyclopedia() {
       const listEl = document.getElementById('dexItemList');
       listEl.innerHTML = '';
 
-      const allWeaponsAndArmors = [...WEAPONS_MASTER, ...ARMORS_MASTER];
-      // 🔽 【修正】ダイス図鑑にはノーマルダイス（init）を除外したガチャ・ドロップ産（全6種）のみを表示
+      const allWeaponsAndArmors = [...WEAPONS_MASTER, ...ARMORS_MASTER].filter(it => it.source !== 'init');
       const allDices = Object.values(DICES_MASTER).filter(d => d.source !== 'init');
       
-      const allItemsCount = allWeaponsAndArmors.filter(it => it.source !== 'init').length + allDices.length;
-      const totalOwned = (Player.ownedWeapons.length - 1) + (Player.ownedArmors.length - 1) + Player.ownedDices.length; // 初期装備の素手・布の服・ノーマルダイスを除外して計算
-      const pct = Math.round((Math.max(0, totalOwned) / allItemsCount) * 100);
-      document.getElementById('dexCompRate').textContent = `${Math.max(0, totalOwned)} / ${allItemsCount} (${pct}%)`;
+      const allItemsCount = allWeaponsAndArmors.length + allDices.length; // 武器21 + 防具21 + ダイス7 = 計49種
+
+      // 初期装備（w_bare, a_clothes, d_normal）を除外した正確な所持数をカウント
+      const ownedWepCount = Player.ownedWeapons.filter(id => id !== 'w_bare').length;
+      const ownedArmCount = Player.ownedArmors.filter(id => id !== 'a_clothes').length;
+      const ownedDiceCount = Player.ownedDices.filter(id => id !== 'd_normal').length;
+      const totalOwned = ownedWepCount + ownedArmCount + ownedDiceCount;
+
+      const pct = Math.round((totalOwned / allItemsCount) * 100);
+      document.getElementById('dexCompRate').textContent = `${totalOwned} / ${allItemsCount} (${pct}%)`;
 
       const tabWeapon = document.getElementById('tabDexWeapon');
       const tabArmor = document.getElementById('tabDexArmor');
@@ -2503,16 +2531,17 @@ Battle.activeDice = [];
         filtered = ARMORS_MASTER.filter(it => it.source !== 'init');
       } else {
         if (tabDice) tabDice.className = 'rpg-btn flex-1 py-1 bg-indigo-950 text-indigo-300 border-indigo-500 text-[10px] font-bold rounded';
-        filtered = allDices; // ガチャ産とドロップ産のダイスを表示
+        filtered = allDices;
       }
 
-      if (currentDexTab === 'weapon' || currentDexTab === 'armor' || currentDexTab === 'dice') {
-        filtered.sort((a, b) => {
-          const scoreA = a.source === 'gacha' ? 0 : 1;
-          const scoreB = b.source === 'gacha' ? 0 : 1;
-          return scoreA - scoreB;
-        });
-      }
+      // ガチャ産(gacha)を上、ドロップ産(drop)を下にし、同じ枠内ではレア度順に並べる
+      const rarityOrder = { 'R': 1, 'SR': 2, 'SSR': 3, 'UR': 4 };
+      filtered.sort((a, b) => {
+        const scoreA = a.source === 'gacha' ? 0 : 1;
+        const scoreB = b.source === 'gacha' ? 0 : 1;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+        return (rarityOrder[a.rarity] || 0) - (rarityOrder[b.rarity] || 0);
+      });
 
       filtered.forEach(it => {
         let isOwned = false;
@@ -2530,13 +2559,19 @@ Battle.activeDice = [];
         }`;
 
         const typeIcon = currentDexTab === 'dice' ? '🎲ダイス' : (it.type === 'weapon' ? '⚔️武器' : '🛡️防具');
-        const elBadge = currentDexTab === 'dice' ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded">🎲</span>' : formatElementBadge(it.element);
+        const elBadge = currentDexTab === 'dice'
+          ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded">🎲</span>'
+          : formatElementBadge(it.element);
+        const sourceBadge = it.source === 'drop'
+          ? '<span class="text-[8px] bg-rose-950 text-rose-300 border border-rose-700 px-1 rounded">Drop限定</span>'
+          : '<span class="text-[8px] bg-amber-950 text-amber-300 border border-amber-700 px-1 rounded">ガチャ</span>';
 
         row.innerHTML = `
           <div>
             <div class="flex items-center gap-1 flex-wrap">
               <span class="text-[9px] px-1 bg-slate-800 rounded text-slate-300">${typeIcon}</span>
               ${elBadge}
+              ${sourceBadge}
               <span class="font-bold rarity-${it.rarity.toLowerCase()}">
                 [${it.rarity}] ${isOwned ? it.name : '？？？？？？'}
               </span>
