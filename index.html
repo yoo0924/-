@@ -164,7 +164,6 @@
 
     <!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
 
-<!-- ==================== 0.2 バージョン情報（更新ノート）モーダル ==================== -->
     <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
       <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
         <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
@@ -435,6 +434,13 @@
           </div>
           <div id="currentEqArmorTraits" class="text-[9px] text-cyan-300 mt-0.5"></div>
         </div>
+        <div class="text-[10px] p-1 bg-slate-950/70 rounded border border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">ダイス:</span>
+            <span id="currentEqDice" class="font-bold">ノーマルダイス</span>
+          </div>
+          <div id="currentEqDiceTraits" class="text-[9px] text-yellow-300 mt-0.5"></div>
+        </div>
         <div id="equipSynergyBox" class="text-[9px] px-1.5 py-1 rounded bg-slate-950 border border-slate-800 text-slate-400">
           属性一致ボーナス: なし
         </div>
@@ -444,6 +450,7 @@
         <div class="flex gap-1">
           <button id="tabWeapons" class="rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded">武器一覧</button>
           <button id="tabArmors" class="rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">防具一覧</button>
+          <button id="tabDices" class="rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ダイス一覧</button>
         </div>
         <button id="btnSortOrder" class="rpg-btn px-2 py-1 bg-slate-800 text-[9px] text-slate-300 rounded">
           ソート: レア順 ▼
@@ -468,6 +475,7 @@
       <div class="flex gap-1 mb-1.5">
         <button id="tabDexGacha" class="rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded">ガチャ限定 (28種)</button>
         <button id="tabDexDrop" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ドロップ限定 (10種)</button>
+        <button id="tabDexDice" class="rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded">ダイス図鑑 (7種)</button>
       </div>
 
       <div id="dexItemList" class="flex-1 overflow-y-auto space-y-1.5 p-1 rpg-panel rounded max-h-[52vh]"></div>
@@ -2436,36 +2444,51 @@ Battle.activeDice = [];
       const listEl = document.getElementById('dexItemList');
       listEl.innerHTML = '';
 
-      const allItems = [...WEAPONS_MASTER, ...ARMORS_MASTER];
-      const totalOwned = Player.ownedWeapons.length + Player.ownedArmors.length;
-      const pct = Math.round((totalOwned / allItems.length) * 100);
-      document.getElementById('dexCompRate').textContent = `${totalOwned} / ${allItems.length} (${pct}%)`;
+      const allWeaponsAndArmors = [...WEAPONS_MASTER, ...ARMORS_MASTER];
+      const allDices = Object.values(DICES_MASTER);
+      const allItemsCount = allWeaponsAndArmors.length + allDices.length;
+
+      const totalOwned = Player.ownedWeapons.length + Player.ownedArmors.length + Player.ownedDices.length;
+      const pct = Math.round((totalOwned / allItemsCount) * 100);
+      document.getElementById('dexCompRate').textContent = `${totalOwned} / ${allItemsCount} (${pct}%)`;
 
       const tabGacha = document.getElementById('tabDexGacha');
       const tabDrop = document.getElementById('tabDexDrop');
+      const tabDice = document.getElementById('tabDexDice');
 
+      tabGacha.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+      tabDrop.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+      if (tabDice) tabDice.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+
+      let filtered = [];
       if (currentDexTab === 'gacha') {
         tabGacha.className = 'rpg-btn flex-1 py-1 bg-amber-950 text-amber-300 border-amber-500 text-[10px] font-bold rounded';
-        tabDrop.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
-      } else {
+        filtered = allWeaponsAndArmors.filter(it => it.source === 'gacha');
+      } else if (currentDexTab === 'drop') {
         tabDrop.className = 'rpg-btn flex-1 py-1 bg-rose-950 text-rose-300 border-rose-500 text-[10px] font-bold rounded';
-        tabGacha.className = 'rpg-btn flex-1 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+        filtered = allWeaponsAndArmors.filter(it => it.source === 'drop');
+      } else {
+        if (tabDice) tabDice.className = 'rpg-btn flex-1 py-1 bg-indigo-950 text-indigo-300 border-indigo-500 text-[10px] font-bold rounded';
+        filtered = allDices;
       }
 
-      const filtered = allItems.filter(it => it.source === currentDexTab);
-
       filtered.forEach(it => {
-        const isOwned = it.type === 'weapon'
-          ? Player.ownedWeapons.includes(it.id)
-          : Player.ownedArmors.includes(it.id);
+        let isOwned = false;
+        if (currentDexTab === 'dice') {
+          isOwned = Player.ownedDices.includes(it.id);
+        } else {
+          isOwned = it.type === 'weapon'
+            ? Player.ownedWeapons.includes(it.id)
+            : Player.ownedArmors.includes(it.id);
+        }
 
         const row = document.createElement('div');
         row.className = `p-2 rounded border flex items-center justify-between text-xs ${
           isOwned ? 'bg-slate-950/90 border-slate-700' : 'bg-slate-950/40 border-slate-900 opacity-50'
         }`;
 
-        const typeIcon = it.type === 'weapon' ? '⚔️武器' : '🛡️防具';
-        const elBadge = formatElementBadge(it.element);
+        const typeIcon = currentDexTab === 'dice' ? '🎲ダイス' : (it.type === 'weapon' ? '⚔️武器' : '🛡️防具');
+        const elBadge = currentDexTab === 'dice' ? '<span class="text-[9px] px-1 bg-indigo-950 text-indigo-300 border border-indigo-600 rounded">🎲</span>' : formatElementBadge(it.element);
 
         row.innerHTML = `
           <div>
@@ -2479,7 +2502,6 @@ Battle.activeDice = [];
             <div class="text-[10px] text-slate-400 mt-0.5">
               ${isOwned ? it.desc : '未発見のアイテムです'}
             </div>
-            ${isOwned && it.passive ? `<div class="text-[9px] text-amber-300">特性: ${it.passive.name} (${it.passive.desc})</div>` : ''}
           </div>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
             isOwned ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-500'
@@ -2564,7 +2586,7 @@ Battle.activeDice = [];
     /* ==========================================================================
        9. 装備箱 & 錬成システム
        ========================================================================== */
-    let currentEquipTab = 'weapon';
+    let currentEquipTab = 'weapon'; // 'weapon' | 'armor' | 'dice'
     let currentSortMode = 'rarity';
     const RARITY_WEIGHT = { 'N': 1, 'R': 2, 'SR': 3, 'SSR': 4, 'UR': 5 };
     const ELEMENT_WEIGHT = { 'fire': 1, 'water': 2, 'nature': 3, 'luck': 4, 'none': 5 };
@@ -2616,6 +2638,17 @@ Battle.activeDice = [];
         ? `★特性: 【${stats.armor.passive.name}】 ${stats.armor.passive.desc}` 
         : '特性なし';
 
+      // ダイス装備情報の更新
+      const diceObj = DICES_MASTER[Player.equippedDice] || DICES_MASTER['d_normal'];
+      const diceEqEl = document.getElementById('currentEqDice');
+      const diceTrEl = document.getElementById('currentEqDiceTraits');
+      if (diceEqEl) {
+        diceEqEl.innerHTML = `<span class="rarity-${diceObj.rarity.toLowerCase()}">[${diceObj.rarity}] ${diceObj.name}</span>`;
+      }
+      if (diceTrEl) {
+        diceTrEl.textContent = diceObj.desc;
+      }
+
       const synBox = document.getElementById('equipSynergyBox');
       if (stats.matchedElement) {
         const elInfo = ELEMENT_INFO[stats.matchedElement];
@@ -2627,9 +2660,17 @@ Battle.activeDice = [];
       }
 
       const isWep = currentEquipTab === 'weapon';
-      let items = isWep 
-        ? WEAPONS_MASTER.filter(w => Player.ownedWeapons.includes(w.id))
-        : ARMORS_MASTER.filter(a => Player.ownedArmors.includes(a.id));
+      const isArm = currentEquipTab === 'armor';
+      const isDice = currentEquipTab === 'dice';
+
+      let items = [];
+      if (isWep) {
+        items = WEAPONS_MASTER.filter(w => Player.ownedWeapons.includes(w.id));
+      } else if (isArm) {
+        items = ARMORS_MASTER.filter(a => Player.ownedArmors.includes(a.id));
+      } else {
+        items = Object.values(DICES_MASTER).filter(d => Player.ownedDices.includes(d.id));
+      }
 
       if (currentSortMode === 'rarity') {
         items.sort((a, b) => RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]);
@@ -2641,7 +2682,7 @@ Battle.activeDice = [];
           return RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity];
         });
       } else {
-        const ownedArr = isWep ? Player.ownedWeapons : Player.ownedArmors;
+        const ownedArr = isWep ? Player.ownedWeapons : (isArm ? Player.ownedArmors : Player.ownedDices);
         items.sort((a, b) => ownedArr.indexOf(a.id) - ownedArr.indexOf(b.id));
       }
 
@@ -2651,9 +2692,10 @@ Battle.activeDice = [];
       else sortBtn.textContent = 'ソート: 入手順 ▼';
 
       items.forEach(it => {
-        const isEquipped = isWep ? (Player.equippedWeapon === it.id) : (Player.equippedArmor === it.id);
-        const refLv = getItemRefineLevel(it.id);
-        const refBonus = refLv * getRefineBonusPerLevel(it.rarity);
+        const isEquipped = isWep ? (Player.equippedWeapon === it.id) : (isArm ? (Player.equippedArmor === it.id) : (Player.equippedDice === it.id));
+        const refItem = isDice ? null : it;
+        const refLv = refItem ? getItemRefineLevel(refItem.id) : 0;
+        const refBonus = refItem ? refLv * getRefineBonusPerLevel(refItem.rarity) : 0;
         const refLvBadge = refLv > 0 ? ` <span class="text-yellow-300 font-black">+${refLv}</span>` : '';
 
         const card = document.createElement('div');
@@ -2661,18 +2703,18 @@ Battle.activeDice = [];
           isEquipped ? 'border-amber-400 bg-amber-950/40 ring-1 ring-amber-500' : 'border-slate-800'
         }`;
 
-        const badgeText = it.source === 'drop' ? '<span class="text-[8px] bg-rose-950 text-rose-300 border border-rose-700 px-1 rounded ml-1">Drop限定</span>' : '';
-        const elBadge = formatElementBadge(it.element);
+        const badgeText = (it.source === 'drop') ? '<span class="text-[8px] bg-rose-950 text-rose-300 border border-rose-700 px-1 rounded ml-1">Drop限定</span>' : '';
+        const elBadge = isDice ? '<span class="text-[9px] px-1 py-0.2 rounded border bg-indigo-950 text-indigo-300 border-indigo-600 font-bold">🎲ダイス</span>' : formatElementBadge(it.element);
 
         let statLine = it.desc;
-        if (refBonus > 0) {
+        if (refBonus > 0 && refItem) {
           statLine += isWep
             ? ` <span class="text-yellow-300 font-bold">(錬成+${refBonus} ➔ 計+${it.atkBonus + refBonus})</span>`
             : ` <span class="text-yellow-300 font-bold">(錬成盾+${refBonus} ➔ 計+${it.shdBonus + refBonus})</span>`;
         }
 
         let refineBtnHtml = '';
-        if (it.rarity !== 'N') {
+        if (!isDice && it.rarity !== 'N') {
           const cost = getRefineStoneCost(it.rarity, refLv);
           const have = Player.stones[it.rarity] || 0;
           const canRefine = have >= cost;
@@ -2710,7 +2752,8 @@ Battle.activeDice = [];
         card.querySelector('[data-action="equip"]').onclick = () => {
           Sound.click();
           if (isWep) Player.equippedWeapon = it.id;
-          else Player.equippedArmor = it.id;
+          else if (isArm) Player.equippedArmor = it.id;
+          else Player.equippedDice = it.id;
           savePlayerData();
           renderEquipBox();
           updateTitleUI();
@@ -2718,7 +2761,7 @@ Battle.activeDice = [];
 
         const refBtn = card.querySelector('[data-action="refine"]');
         if (refBtn) {
-          refBtn.onclick = () => handleRefineItem(it);
+          refBtn.onclick = () => handleRefineItem(refItem);
         }
 
         listContainer.appendChild(card);
@@ -2942,7 +2985,6 @@ const btnBoss = document.getElementById('btnBossChallenge');
         if (e.key === 'Enter') savePlayerNameFromModal();
       });
 
-      // ver 4.0.3 アップデート確認モーダルの開閉
       document.getElementById('btnVersionInfo').onclick = () => {
         Sound.click();
         document.getElementById('modalVersionLog').classList.remove('hidden');
@@ -2956,7 +2998,6 @@ const btnBoss = document.getElementById('btnBossChallenge');
         document.getElementById('modalVersionLog').classList.add('hidden');
       };
 
-      // 階層解除ボス挑戦ボタン・確認モーダルの開閉
       const btnBossChallenge = document.getElementById('btnBossChallenge');
       if (btnBossChallenge) {
         btnBossChallenge.onclick = () => {
@@ -3035,6 +3076,16 @@ const btnBoss = document.getElementById('btnBossChallenge');
         renderEncyclopedia();
       };
 
+      // ── 図鑑：ダイス図鑑タブのイベント追加 ──
+      const tabDexDice = document.getElementById('tabDexDice');
+      if (tabDexDice) {
+        tabDexDice.onclick = () => {
+          Sound.click();
+          currentDexTab = 'dice';
+          renderEncyclopedia();
+        };
+      }
+
       document.getElementById('btnRanking').onclick = () => {
         Sound.click();
         document.getElementById('modalRanking').classList.remove('hidden');
@@ -3074,6 +3125,8 @@ const btnBoss = document.getElementById('btnBossChallenge');
         currentEquipTab = 'weapon';
         document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
         document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+        const tDice = document.getElementById('tabDices');
+        if (tDice) tDice.className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
         renderEquipBox();
       };
 
@@ -3082,8 +3135,23 @@ const btnBoss = document.getElementById('btnBossChallenge');
         currentEquipTab = 'armor';
         document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
         document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+        const tDice = document.getElementById('tabDices');
+        if (tDice) tDice.className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
         renderEquipBox();
       };
+
+      // ── 装備箱：ダイス一覧タブのイベント追加 ──
+      const tabDices = document.getElementById('tabDices');
+      if (tabDices) {
+        tabDices.onclick = () => {
+          Sound.click();
+          currentEquipTab = 'dice';
+          tabDices.className = 'rpg-btn px-3 py-1 bg-amber-950 text-amber-300 border-amber-600 text-[10px] font-bold rounded';
+          document.getElementById('tabWeapons').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+          document.getElementById('tabArmors').className = 'rpg-btn px-3 py-1 bg-slate-900 text-slate-400 border-slate-700 text-[10px] font-bold rounded';
+          renderEquipBox();
+        };
+      }
 
       document.getElementById('btnSortOrder').onclick = () => {
         Sound.click();
@@ -3101,7 +3169,6 @@ const btnBoss = document.getElementById('btnBossChallenge');
         Sound.click();
         updateStoneDisplays();
         document.getElementById('gachaGoldDisplay').textContent = Player.gold;
-        // ガチャコンテナを初期の跳ねるサイコロアイコンにリセット
         document.getElementById('gachaDiceContainer').innerHTML = '<div class="text-6xl filter drop-shadow-[0_0_12px_rgba(234,179,8,0.5)] select-none animate-bounce">🎲</div>';
         document.getElementById('gachaTierBanner').classList.add('hidden');
         document.getElementById('gachaResultText').textContent = '1回 50 コインで武具を召喚！';
