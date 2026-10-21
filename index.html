@@ -166,18 +166,16 @@
     <div id="modalVersionLog" class="hidden absolute inset-0 z-[155] bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3.5">
       <div class="flex justify-between items-center border-b border-amber-700 pb-1.5">
         <h2 class="text-xs font-bold text-amber-300 flex items-center gap-1">
-          <span>📜</span> <span>ver 4.4.0 アップデート内容</span>
+          <span>📜</span> <span>ver 4.4.1 アップデート内容</span>
         </h2>
         <button id="btnCloseVersionLog" class="rpg-btn px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">閉じる</button>
       </div>
 
       <div class="flex-1 overflow-y-auto my-2 p-2 rpg-panel rounded max-h-[62vh] text-left space-y-2">
-        <div class="text-xs font-bold text-yellow-300">■ ver 4.4.0 の主な追加・調整要素</div>
+        <div class="text-xs font-bold text-yellow-300">■ ver 4.4.1 の主な追加・調整要素</div>
         <ul class="space-y-2 text-[11px] text-slate-200 leading-relaxed">
-          <li>・<b>設定画面（⚙️）の追加:</b> タイトル画面右上から「サウンド」「同じ階層を繰り返し遊ぶ」「重複レアドロップ演出カット」を切り替えられるようになりました！</li>
-          <li>・<b>同一階層の周回機能:</b> 設定で「同じ階層を繰り返し遊ぶ」をONにすると、階層が進まずお気に入りの階層を連続で周回できます。</li>
-          <li>・<b>武器の基礎攻撃力を上方修正:</b> レヴィアタンの強さはそのままに、他のSSR・UR武器の基礎攻撃力を全体的に大幅アップしました。</li>
-          <li>・<b>ガチャURダイスの大幅強化:</b> UR「天恵の黄金ダイス」が【1個目6確定＋開始時盾12＋全攻撃1.25倍】に強化され、SR「幸運の四葉ダイス」とのバランスを調整しました。</li>
+          <li>・<b>水属性セット効果をリニューアル:</b> 【絶対零度の陣】が刷新！振ったダイスが「全て偶数」または「全て奇数」に揃ったターン、すべての攻撃ダメージが【2倍】になります！</li>
+          <li>・<b>出目の一致による超火力:</b> 毎ターン開始時のシールド+5に加え、確率25%で火属性を超える特大リターンを狙えるようになりました。</li>
         </ul>
       </div>
 
@@ -370,12 +368,11 @@
         </button>
       </div>
 
-      <!-- ver表記ボタン（タップでver4.0.3の内容確認） -->
+<!-- ver表記ボタン（タップでver4.4.1の内容確認） -->
       <button id="btnVersionInfo" class="px-3 py-0.5 rounded-full bg-slate-900/80 border border-amber-500/60 text-[9px] text-amber-200 hover:text-white hover:bg-slate-800 transition cursor-pointer shadow flex items-center gap-1">
         <span>📜</span>
-        <span class="underline font-bold">ver 4.4.0 (アップデート内容)</span>
+        <span class="underline font-bold">ver 4.4.1 (アップデート内容)</span>
       </button>
-    </div>
 
     <!-- ==================== 2. ランキングモーダル ==================== -->
     <div id="modalRanking" class="hidden absolute inset-0 z-[110] bg-slate-950/95 backdrop-blur-sm flex flex-col justify-between p-3">
@@ -703,7 +700,7 @@
     let MAX_NORMAL_FLOOR = 50; // 50Fクリア後に100Fへ拡張
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzwGIp51J-Sce0VzWhMmk5hE25iIJFe7mEa3pOWDXXGcldLr4tNq1pAGPkFIQ1NTSN6BA/exec";
 
-    // 属性情報と属性一致ボーナス定義
+// 属性情報と属性一致ボーナス定義
     const ELEMENT_INFO = {
       none: { name: '無', icon: '⚪', badgeClass: 'bg-slate-800 text-slate-300 border-slate-600', synergyName: '', synergyDesc: '' },
       fire: {
@@ -714,7 +711,7 @@
       water: {
         name: '水', icon: '💧', badgeClass: 'bg-sky-950 text-sky-300 border-sky-600',
         synergyName: '絶対零度の陣',
-        synergyDesc: '毎ターン1個は確実に「4以上」のダイスが出現 ＆ ターン開始時盾+5'
+        synergyDesc: '振ったダイスが全て偶数または全て奇数のターン、全攻撃ダメージ2倍 ＆ ターン開始時盾+5'
       },
       nature: {
         name: '自然', icon: '🌿', badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-600',
@@ -1729,6 +1726,11 @@
       Battle.activeDice.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
       Battle.turnHasDoubles = Object.values(counts).some(c => c >= 2);
 
+      // 🔽 【追加】水属性一致ボーナス判定：振ったダイスが「全て偶数」または「全て奇数」か判定
+      const allEvens = Battle.activeDice.every(v => v % 2 === 0);
+      const allOdds = Battle.activeDice.every(v => v % 2 !== 0);
+      Battle.turnIsAllEvenOrOdd = (allEvens || allOdds);
+
       Battle.selectedDiceIndex = null;
       Sound.roll();
       renderBattleUI();
@@ -1799,6 +1801,14 @@
           finalDmg = Math.round(finalDmg * 1.35);
           showBattleToast('🔥 劫火の共鳴！ダメージ1.35倍！');
         }
+
+        // 🔽 【追加】水属性一致ボーナス：全て偶数または全て奇数ならダメージ2倍！
+        if (stats.matchedElement === 'water' && Battle.turnIsAllEvenOrOdd) {
+          finalDmg = Math.round(finalDmg * 2);
+          showBattleToast('💧 絶対零度の陣！出目一致でダメージ2倍！');
+        }
+
+        if (stats.matchedElement === 'luck' && Battle.turnHasDoubles && Math.random() < 0.30) {
 
         if (stats.matchedElement === 'luck' && Battle.turnHasDoubles && Math.random() < 0.30) {
           if (Battle.enemy.isBoss) {
@@ -2940,6 +2950,8 @@
       const diceStatusBadge = document.getElementById('turnDiceStatusBadge');
       if (stats.matchedElement === 'fire' && Battle.turnDiceSum >= 12) {
         diceStatusBadge.textContent = `🔥合計${Battle.turnDiceSum}(火力1.35倍!)`;
+      } else if (stats.matchedElement === 'water' && Battle.turnIsAllEvenOrOdd) {
+        diceStatusBadge.textContent = `💧出目一致(火力2倍!)`;
       } else if (stats.matchedElement === 'luck' && Battle.turnHasDoubles) {
         diceStatusBadge.textContent = `🌟ゾロ目(即死30%抽選!)`;
       } else {
