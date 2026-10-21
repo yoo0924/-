@@ -1808,9 +1808,7 @@
           finalDmg = Math.round(finalDmg * 2);
           showBattleToast('💧 絶対零度の陣！出目一致でダメージ2倍！');
         }
-
-        if (stats.matchedElement === 'luck' && Battle.turnHasDoubles && Math.random() < 0.30) {
-
+        
         if (stats.matchedElement === 'luck' && Battle.turnHasDoubles && Math.random() < 0.30) {
           if (Battle.enemy.isBoss) {
             finalDmg = Math.round(finalDmg * 2.5);
