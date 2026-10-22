@@ -1638,8 +1638,13 @@
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
       const equippedDiceType = Player.equippedDice || 'd_normal';
 
+      // 🛡️ 不撓不屈・海神の加護：残っていたシールドの半分を引き継ぐ
       if (armPass === '不撓不屈' || armPass === '海神の加護') {
-        Battle.playerShield = Math.floor(Battle.playerShield / 2) + stats.startShield;
+        const carryOver = Math.floor((Battle.playerShield || 0) / 2);
+        Battle.playerShield = carryOver + stats.startShield;
+        if (carryOver > 0) {
+          showBattleToast(`🛡️ 不撓不屈！シールド+${carryOver}引継ぎ！`);
+        }
       } else {
         Battle.playerShield = stats.startShield;
       }
