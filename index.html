@@ -1631,6 +1631,8 @@
 
     function startTurn() {
       Battle.skills.forEach(s => s.used = false);
+      const btnEnd = document.getElementById('btnEndTurn');
+      if (btnEnd) btnEnd.disabled = false;
       const stats = getPlayerStats();
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
       const armPass = stats.armor.passive ? stats.armor.passive.name : '';
@@ -1860,6 +1862,7 @@
     }
 
     function endTurn() {
+      if (!Battle.enemy || Battle.enemy.hp <= 0) return;
       Sound.click();
       const stats = getPlayerStats();
       const wepPass = stats.weapon.passive ? stats.weapon.passive.name : '';
@@ -1954,6 +1957,8 @@
     }
 
     function handleEnemyDefeat() {
+      const btnEnd = document.getElementById('btnEndTurn');
+      if (btnEnd) btnEnd.disabled = true;
       Sound.win();
       Battle.turnKills++;
 
